@@ -10,15 +10,12 @@ import { Globe, BarChart3, Users, Clock, Eye, TrendingUp, MapPin } from 'lucide-
 import { Analytics } from '@/types/leads';
 import { leadsApi } from '@/lib/api';
 import { toast } from '@/components/ui/use-toast';
+import { useTranslation } from 'react-i18next';
 
 const WebsiteIntelligence = () => {
-  const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const { t } = useTranslation();  const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('7d');
-
-  useEffect(() => {
-    loadAnalytics();
-  }, [timeRange]);
 
   const loadAnalytics = async () => {
     try {
@@ -27,14 +24,18 @@ const WebsiteIntelligence = () => {
       setAnalytics(data);
     } catch (error) {
       toast({
-        title: 'Fel',
-        description: 'Kunde inte hämta analysdata',
+        title: t('common.error'),
+        description: t('websiteIntelligence.couldNotLoadAnalytics'),
         variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [timeRange]);
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
@@ -51,22 +52,20 @@ const WebsiteIntelligence = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Website Intelligence</h1>
+        <div className="flex justify-between items-center">          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{t('websiteIntelligence.title')}</h1>
             <p className="text-muted-foreground">
-              Analysera besöksmönster och förstå vad som engagerar dina besökare
+              {t('websiteIntelligence.description')}
             </p>
           </div>
           <Select value={timeRange} onValueChange={setTimeRange}>
             <SelectTrigger className="w-40">
               <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1d">Senaste dagen</SelectItem>
-              <SelectItem value="7d">Senaste veckan</SelectItem>
-              <SelectItem value="30d">Senaste månaden</SelectItem>
-              <SelectItem value="90d">Senaste kvartalet</SelectItem>
+            </SelectTrigger>            <SelectContent>
+              <SelectItem value="1d">{t('websiteIntelligence.lastDay')}</SelectItem>
+              <SelectItem value="7d">{t('websiteIntelligence.lastWeek')}</SelectItem>
+              <SelectItem value="30d">{t('websiteIntelligence.lastMonth')}</SelectItem>
+              <SelectItem value="90d">{t('websiteIntelligence.lastQuarter')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -76,10 +75,9 @@ const WebsiteIntelligence = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center space-x-2">
-                <Users className="h-8 w-8 text-blue-600" />
-                <div>
+                <Users className="h-8 w-8 text-blue-600" />                <div>
                   <p className="text-2xl font-bold">{analytics.totalVisitors}</p>
-                  <p className="text-xs text-muted-foreground">Totala besökare</p>
+                  <p className="text-xs text-muted-foreground">{t('websiteIntelligence.totalVisitors')}</p>
                 </div>
               </div>
             </CardContent>
@@ -91,7 +89,7 @@ const WebsiteIntelligence = () => {
                 <TrendingUp className="h-8 w-8 text-green-600" />
                 <div>
                   <p className="text-2xl font-bold">{analytics.newCompanies}</p>
-                  <p className="text-xs text-muted-foreground">Nya företag</p>
+                  <p className="text-xs text-muted-foreground">{t('websiteIntelligence.newCompanies')}</p>
                 </div>
               </div>
             </CardContent>
@@ -103,7 +101,7 @@ const WebsiteIntelligence = () => {
                 <Eye className="h-8 w-8 text-purple-600" />
                 <div>
                   <p className="text-2xl font-bold">{analytics.returningCompanies}</p>
-                  <p className="text-xs text-muted-foreground">Återkommande</p>
+                  <p className="text-xs text-muted-foreground">{t('websiteIntelligence.returningCompanies')}</p>
                 </div>
               </div>
             </CardContent>
@@ -115,7 +113,7 @@ const WebsiteIntelligence = () => {
                 <Globe className="h-8 w-8 text-red-600" />
                 <div>
                   <p className="text-2xl font-bold">{analytics.hotLeads}</p>
-                  <p className="text-xs text-muted-foreground">Heta leads</p>
+                  <p className="text-xs text-muted-foreground">{t('websiteIntelligence.hotLeads')}</p>
                 </div>
               </div>
             </CardContent>
@@ -124,11 +122,10 @@ const WebsiteIntelligence = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Top Pages */}
-          <Card>
-            <CardHeader>
+          <Card>            <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5" />
-                Mest besökta sidor
+                {t('websiteIntelligence.topPages')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -141,7 +138,7 @@ const WebsiteIntelligence = () => {
                     </div>
                     <div className="text-right">
                       <div className="font-bold">{page.visits}</div>
-                      <div className="text-xs text-muted-foreground">{page.uniqueCompanies} företag</div>
+                      <div className="text-xs text-muted-foreground">{page.uniqueCompanies} {t('websiteIntelligence.companies')}</div>
                     </div>
                   </div>
                 ))}
@@ -150,9 +147,8 @@ const WebsiteIntelligence = () => {
           </Card>
 
           {/* Traffic Sources */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Trafikkällor</CardTitle>
+          <Card>            <CardHeader>
+              <CardTitle>{t('websiteIntelligence.trafficSources')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -178,20 +174,18 @@ const WebsiteIntelligence = () => {
         </div>
 
         {/* Industry Breakdown */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Branschfördelning</CardTitle>
+        <Card>          <CardHeader>
+            <CardTitle>{t('websiteIntelligence.industryBreakdown')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={400}>
               <BarChart data={analytics.industryBreakdown}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="industry" />
-                <YAxis />
-                <Tooltip 
+                <YAxis />                <Tooltip 
                   formatter={(value: number, name: string) => [
-                    `${value} företag (${analytics.industryBreakdown.find(i => i.count === value)?.percentage}%)`,
-                    'Antal'
+                    `${value} ${t('websiteIntelligence.companies')} (${analytics.industryBreakdown.find(i => i.count === value)?.percentage}%)`,
+                    t('websiteIntelligence.count')
                   ]}
                 />
                 <Bar dataKey="count" fill="#8884d8" />
@@ -201,18 +195,17 @@ const WebsiteIntelligence = () => {
         </Card>
 
         {/* Traffic Sources Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Detaljerad trafikkällanalys</CardTitle>
+        <Card>          <CardHeader>
+            <CardTitle>{t('websiteIntelligence.detailedTrafficAnalysis')}</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Källa</TableHead>
-                  <TableHead>Besök</TableHead>
-                  <TableHead>Andel</TableHead>
-                  <TableHead>Trend</TableHead>
+                  <TableHead>{t('websiteIntelligence.source')}</TableHead>
+                  <TableHead>{t('websiteIntelligence.visits')}</TableHead>
+                  <TableHead>{t('websiteIntelligence.share')}</TableHead>
+                  <TableHead>{t('websiteIntelligence.trend')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -97,6 +98,7 @@ const mockIntegrations: CRMIntegration[] = [
 ];
 
 export const AdvancedExportSystem = () => {
+  const { t } = useTranslation();
   const [integrations, setIntegrations] = useState<CRMIntegration[]>(mockIntegrations);
   const [exportConfig, setExportConfig] = useState<ExportConfig>({
     format: 'csv',
@@ -127,11 +129,9 @@ export const AdvancedExportSystem = () => {
         filteredCompanies = filteredCompanies.filter(c => 
           exportConfig.filters.status!.includes(c.status)
         );
-      }
-
-      // Create export data
+      }      // Create export data
       const exportData = filteredCompanies.map(company => {
-        const row: any = {};
+        const row: Record<string, string | number> = {};
         exportConfig.fields.forEach(field => {
           switch (field) {
             case 'name':
@@ -171,10 +171,8 @@ export const AdvancedExportSystem = () => {
 
       // Generate file based on format
       let blob: Blob;
-      let filename: string;
-
-      switch (exportConfig.format) {
-        case 'csv':
+      let filename: string;      switch (exportConfig.format) {
+        case 'csv': {
           const headers = Object.keys(exportData[0] || {});
           const csvContent = [
             headers.join(','),
@@ -185,11 +183,13 @@ export const AdvancedExportSystem = () => {
           blob = new Blob([csvContent], { type: 'text/csv' });
           filename = `leads_export_${new Date().toISOString().split('T')[0]}.csv`;
           break;
+        }
         
-        case 'json':
+        case 'json': {
           blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
           filename = `leads_export_${new Date().toISOString().split('T')[0]}.json`;
           break;
+        }
         
         default:
           throw new Error('Unsupported format');
@@ -260,32 +260,29 @@ export const AdvancedExportSystem = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Avancerad Export & CRM Integration</h2>
+      <div>        <h2 className="text-xl font-semibold mb-2">{t('exportSystem.title')}</h2>
         <p className="text-sm text-muted-foreground">
-          Exportera leads till olika format eller synkronisera direkt med ditt CRM-system
+          {t('exportSystem.description')}
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="quick-export">Snabbexport</TabsTrigger>
-          <TabsTrigger value="crm-integration">CRM Integration</TabsTrigger>
-          <TabsTrigger value="automation">Automatisering</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="quick-export">{t('tabs.quickExport')}</TabsTrigger>
+          <TabsTrigger value="crm-integration">{t('tabs.crmIntegration')}</TabsTrigger>
+          <TabsTrigger value="automation">{t('tabs.automation')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="quick-export" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Export Konfiguration</CardTitle>
+            <Card>              <CardHeader>
+                <CardTitle>{t('labels.exportConfiguration')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label>Export Format</Label>
+                  <Label>{t('labels.format')}</Label>
                   <Select 
                     value={exportConfig.format} 
-                    onValueChange={(value: any) => 
+                    onValueChange={(value: 'csv' | 'json' | 'excel') => 
                       setExportConfig(prev => ({ ...prev, format: value }))
                     }
                   >
@@ -293,15 +290,15 @@ export const AdvancedExportSystem = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="csv">CSV</SelectItem>
-                      <SelectItem value="excel">Excel</SelectItem>
-                      <SelectItem value="json">JSON</SelectItem>
+                      <SelectItem value="csv">{t('formats.csv')}</SelectItem>
+                      <SelectItem value="excel">{t('formats.excel')}</SelectItem>
+                      <SelectItem value="json">{t('formats.json')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
-                  <Label>Minimum Lead Score</Label>
+                  <Label>{t('labels.minimumLeadScore')}</Label>
                   <Input
                     type="number"
                     value={exportConfig.filters.minScore || ''}
@@ -311,12 +308,12 @@ export const AdvancedExportSystem = () => {
                         filters: { ...prev.filters, minScore: parseInt(e.target.value) || undefined }
                       }))
                     }
-                    placeholder="60"
+                    placeholder={t('placeholders.daysCount')}
                   />
                 </div>
 
                 <div>
-                  <Label className="mb-3 block">Inkluderade fält</Label>
+                  <Label className="mb-3 block">{t('labels.includedFields')}</Label>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
                     {availableFields.map(field => (
                       <div key={field.id} className="flex items-center space-x-2">
@@ -351,16 +348,16 @@ export const AdvancedExportSystem = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Export Förhandsvisning</CardTitle>
+                <CardTitle>{t('exportPreview')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="bg-muted/50 p-4 rounded-lg">
-                    <h4 className="font-medium mb-2">Export Sammanfattning</h4>
+                    <h4 className="font-medium mb-2">{t('exportSummary')}</h4>
                     <div className="text-sm space-y-1">
-                      <div>Format: <Badge variant="outline">{exportConfig.format.toUpperCase()}</Badge></div>
-                      <div>Fält: {exportConfig.fields.length} kolumner</div>
-                      <div>Filter: Score ≥ {exportConfig.filters.minScore || 0}</div>
+                      <div>{t('labels.format')}: <Badge variant="outline">{exportConfig.format.toUpperCase()}</Badge></div>
+                      <div>{t('common.fields')}: {exportConfig.fields.length} {t('columns')}</div>
+                      <div>{t('common.filter')}: {t('score')} ≥ {exportConfig.filters.minScore || 0}</div>
                     </div>
                   </div>
 
@@ -368,7 +365,7 @@ export const AdvancedExportSystem = () => {
                     <div className="bg-green-50 p-4 rounded-lg">
                       <div className="flex items-center gap-2 text-green-800">
                         <CheckCircle className="h-4 w-4" />
-                        <span className="font-medium">Senaste export</span>
+                        <span className="font-medium">{t('lastExport')}</span>
                       </div>
                       <div className="text-sm text-green-700 mt-1">
                         {lastExport.toLocaleString('sv-SE')}
@@ -385,12 +382,12 @@ export const AdvancedExportSystem = () => {
                     {isExporting ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Exporterar...
+                        {t('buttons.exporting')}
                       </>
                     ) : (
                       <>
                         <Download className="h-4 w-4 mr-2" />
-                        Starta Export
+                        {t('buttons.startExport')}
                       </>
                     )}
                   </Button>
@@ -413,7 +410,7 @@ export const AdvancedExportSystem = () => {
                         <div className="flex items-center gap-2">
                           {getStatusIcon(integration.status)}
                           <span className="text-sm text-muted-foreground">
-                            {integration.isConnected ? 'Ansluten' : 'Ej ansluten'}
+                            {integration.isConnected ? t('status.connected') : t('status.notConnected')}
                           </span>
                         </div>
                       </div>
@@ -423,12 +420,12 @@ export const AdvancedExportSystem = () => {
                   {integration.isConnected && (
                     <div className="space-y-2 mb-4">
                       <div className="text-sm">
-                        <span className="text-muted-foreground">Senaste synk:</span>{' '}
+                        <span className="text-muted-foreground">{t('lastSync')}:</span>{' '}
                         {integration.lastSync?.toLocaleString('sv-SE')}
                       </div>
                       <div className="text-sm">
-                        <span className="text-muted-foreground">Totalt exporterat:</span>{' '}
-                        {integration.totalExported} leads
+                        <span className="text-muted-foreground">{t('totalExported')}:</span>{' '}
+                        {integration.totalExported} {t('leads')}
                       </div>
                     </div>
                   )}
@@ -438,7 +435,7 @@ export const AdvancedExportSystem = () => {
                       <>
                         <Button size="sm" className="flex-1">
                           <Upload className="h-4 w-4 mr-2" />
-                          Synkronisera
+                          {t('buttons.synchronize')}
                         </Button>
                         <Button variant="outline" size="sm">
                           <Settings className="h-4 w-4" />
@@ -454,12 +451,12 @@ export const AdvancedExportSystem = () => {
                         {integration.status === 'syncing' ? (
                           <>
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Ansluter...
+                            {t('buttons.connecting')}
                           </>
                         ) : (
                           <>
                             <Zap className="h-4 w-4 mr-2" />
-                            Anslut
+                            {t('buttons.connect')}
                           </>
                         )}
                       </Button>
@@ -472,46 +469,46 @@ export const AdvancedExportSystem = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>API Nycklar & Inställningar</CardTitle>
+              <CardTitle>{t('labels.apiKeysSettings')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="hubspot-key">HubSpot API Nyckel</Label>
+                  <Label htmlFor="hubspot-key">{t('labels.hubspotApiKey')}</Label>
                   <Input 
                     id="hubspot-key" 
                     type="password" 
-                    placeholder="pat-na1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                    placeholder={t('placeholders.hubspotToken')}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="salesforce-token">Salesforce Token</Label>
+                  <Label htmlFor="salesforce-token">{t('labels.salesforceToken')}</Label>
                   <Input 
                     id="salesforce-token" 
                     type="password" 
-                    placeholder="00D000000000000!ARxxxxxxxxxxxxxxxxxxxxxxx"
+                    placeholder={t('placeholders.salesforceToken')}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="pipedrive-key">Pipedrive API Nyckel</Label>
+                  <Label htmlFor="pipedrive-key">{t('labels.pipedriveApiKey')}</Label>
                   <Input 
                     id="pipedrive-key" 
                     type="password" 
-                    placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    placeholder={t('placeholders.mailchimpKey')}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="mailchimp-key">MailChimp API Nyckel</Label>
+                  <Label htmlFor="mailchimp-key">{t('labels.mailchimpApiKey')}</Label>
                   <Input 
                     id="mailchimp-key" 
                     type="password" 
-                    placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-us1"
+                    placeholder={t('placeholders.zoomKey')}
                   />
                 </div>
               </div>
               <Button className="mt-4">
                 <Database className="h-4 w-4 mr-2" />
-                Spara API inställningar
+                {t('buttons.saveApiSettings')}
               </Button>
             </CardContent>
           </Card>
@@ -520,13 +517,13 @@ export const AdvancedExportSystem = () => {
         <TabsContent value="automation" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Automatiska Exporter</CardTitle>
+              <CardTitle>{t('labels.enableAutomaticExports')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Aktivera automatiska exporter</Label>
-                  <p className="text-sm text-muted-foreground">Exportera leads automatiskt enligt schema</p>
+                  <Label>{t('labels.enableAutomaticExports')}</Label>
+                  <p className="text-sm text-muted-foreground">{t('labels.automaticExportsDesc')}</p>
                 </div>
                 <Checkbox 
                   checked={exportConfig.automation.enabled}
@@ -542,10 +539,10 @@ export const AdvancedExportSystem = () => {
               {exportConfig.automation.enabled && (
                 <div className="space-y-4 border-t pt-4">
                   <div>
-                    <Label>Frekvens</Label>
+                    <Label>{t('labels.frequency')}</Label>
                     <Select 
                       value={exportConfig.automation.frequency}
-                      onValueChange={(value: any) =>
+                      onValueChange={(value: 'daily' | 'weekly' | 'monthly') =>
                         setExportConfig(prev => ({
                           ...prev,
                           automation: { ...prev.automation, frequency: value }
@@ -556,15 +553,15 @@ export const AdvancedExportSystem = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="daily">Dagligen</SelectItem>
-                        <SelectItem value="weekly">Veckovis</SelectItem>
-                        <SelectItem value="monthly">Månadsvis</SelectItem>
+                        <SelectItem value="daily">{t('frequency.daily')}</SelectItem>
+                        <SelectItem value="weekly">{t('frequency.weekly')}</SelectItem>
+                        <SelectItem value="monthly">{t('frequency.monthly')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div>
-                    <Label>Tid</Label>
+                    <Label>{t('labels.time')}</Label>
                     <Input
                       type="time"
                       value={exportConfig.automation.time}
@@ -578,12 +575,12 @@ export const AdvancedExportSystem = () => {
                   </div>
 
                   <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-blue-800 mb-2">Nästa automatiska export</h4>
+                    <h4 className="font-medium text-blue-800 mb-2">{t('nextAutomaticExport')}</h4>
                     <p className="text-sm text-blue-700">
-                      {exportConfig.automation.frequency === 'daily' && 'Imorgon '}
-                      {exportConfig.automation.frequency === 'weekly' && 'Nästa måndag '}
-                      {exportConfig.automation.frequency === 'monthly' && 'Första dagen nästa månad '}
-                      kl {exportConfig.automation.time}
+                      {exportConfig.automation.frequency === 'daily' && t('tomorrow') + ' '}
+                      {exportConfig.automation.frequency === 'weekly' && t('nextMonday') + ' '}
+                      {exportConfig.automation.frequency === 'monthly' && t('firstDayNextMonth') + ' '}
+                      {t('at')} {exportConfig.automation.time}
                     </p>
                   </div>
                 </div>
@@ -591,7 +588,7 @@ export const AdvancedExportSystem = () => {
 
               <Button className="w-full">
                 <Settings className="h-4 w-4 mr-2" />
-                Spara automatiseringsinställningar
+                {t('buttons.saveAutomationSettings')}
               </Button>
             </CardContent>
           </Card>

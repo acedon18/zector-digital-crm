@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -51,15 +52,20 @@ const mockCustomers: Customer[] = [
 ];
 
 const AdminPanel = () => {
+  const { t } = useTranslation();
   const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isScriptDialogOpen, setIsScriptDialogOpen] = useState(false);
-  const [newCustomer, setNewCustomer] = useState({
+  const [isScriptDialogOpen, setIsScriptDialogOpen] = useState(false);  const [newCustomer, setNewCustomer] = useState<{
+    name: string;
+    email: string;
+    domain: string;
+    plan: 'basic' | 'professional' | 'enterprise';
+  }>({
     name: '',
     email: '',
     domain: '',
-    plan: 'basic' as const
+    plan: 'basic'
   });
 
   const getPlanColor = (plan: string) => {
@@ -81,10 +87,9 @@ const AdminPanel = () => {
   };
 
   const handleCreateCustomer = () => {
-    if (!newCustomer.name || !newCustomer.email || !newCustomer.domain) {
-      toast({
-        title: 'Fel',
-        description: 'Alla fält måste fyllas i',
+    if (!newCustomer.name || !newCustomer.email || !newCustomer.domain) {      toast({
+        title: t('common.error'),
+        description: t('adminPanel.allFieldsRequired'),
         variant: 'destructive'
       });
       return;
@@ -99,11 +104,9 @@ const AdminPanel = () => {
 
     setCustomers(prev => [...prev, customer]);
     setNewCustomer({ name: '', email: '', domain: '', plan: 'basic' });
-    setIsCreateDialogOpen(false);
-
-    toast({
-      title: 'Kund skapad',
-      description: `${customer.name} har lagts till i systemet`
+    setIsCreateDialogOpen(false);    toast({
+      title: t('adminPanel.customerCreated'),
+      description: t('adminPanel.customerCreatedDesc', { name: customer.name })
     });
   };
 
@@ -112,12 +115,10 @@ const AdminPanel = () => {
       customer.id === customerId 
         ? { ...customer, isActive: !customer.isActive }
         : customer
-    ));
-
-    const customer = customers.find(c => c.id === customerId);
+    ));    const customer = customers.find(c => c.id === customerId);
     toast({
-      title: customer?.isActive ? 'Kund inaktiverad' : 'Kund aktiverad',
-      description: `${customer?.name} har ${customer?.isActive ? 'inaktiverats' : 'aktiverats'}`
+      title: customer?.isActive ? t('adminPanel.customerDeactivated') : t('adminPanel.customerActivated'),
+      description: t('adminPanel.customerStatusChanged', { name: customer?.name, status: customer?.isActive ? t('status.inactive') : t('status.active') })
     });
   };
 
@@ -129,84 +130,76 @@ const AdminPanel = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Admin Panel</h1>
+        <div className="flex justify-between items-center">          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{t('adminPanel.title')}</h1>
             <p className="text-muted-foreground">
-              Hantera kunder, tracking scripts och systemöversikt
+              {t('adminPanel.description')}
             </p>
           </div>
           <div className="flex gap-2">
             <Dialog open={isScriptDialogOpen} onOpenChange={setIsScriptDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline">
+              <DialogTrigger asChild>                <Button variant="outline">
                   <Code className="h-4 w-4 mr-2" />
-                  Script Generator
+                  {t('adminPanel.generateTrackingScript')}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Tracking Script Generator</DialogTitle>
+              <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">                <DialogHeader>
+                  <DialogTitle>{t('adminPanel.generateTrackingScript')}</DialogTitle>
                 </DialogHeader>
                 <TrackingScriptGenerator />
               </DialogContent>
             </Dialog>
             
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
+              <DialogTrigger asChild>                <Button>
                   <Plus className="h-4 w-4 mr-2" />
-                  Lägg till kund
+                  {t('adminPanel.addCustomer')}
                 </Button>
               </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Skapa ny kund</DialogTitle>
+              <DialogContent>                <DialogHeader>
+                  <DialogTitle>{t('adminPanel.createNewCustomer')}</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="name">Företagsnamn</Label>
+                <div className="space-y-4">                  <div>
+                    <Label htmlFor="name">{t('labels.companyName')}</Label>
                     <Input
                       id="name"
                       value={newCustomer.name}
                       onChange={(e) => setNewCustomer(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="t.ex. TechCorp AB"
+                      placeholder={t('placeholders.exampleCompany')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">E-post</Label>
+                    <Label htmlFor="email">{t('labels.email')}</Label>
                     <Input
                       id="email"
                       type="email"
                       value={newCustomer.email}
                       onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="admin@techcorp.se"
+                      placeholder={t('placeholders.adminEmail')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="domain">Domän</Label>
+                    <Label htmlFor="domain">{t('labels.domain')}</Label>
                     <Input
                       id="domain"
                       value={newCustomer.domain}
                       onChange={(e) => setNewCustomer(prev => ({ ...prev, domain: e.target.value }))}
-                      placeholder="techcorp.se"
+                      placeholder={t('placeholders.domainExample')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="plan">Plan</Label>
-                    <Select value={newCustomer.plan} onValueChange={(value: any) => setNewCustomer(prev => ({ ...prev, plan: value }))}>
+                    <Label htmlFor="plan">{t('labels.plan')}</Label>
+                    <Select value={newCustomer.plan} onValueChange={(value: 'basic' | 'professional' | 'enterprise') => setNewCustomer(prev => ({ ...prev, plan: value }))}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="basic">Basic (299 kr/mån)</SelectItem>
-                        <SelectItem value="professional">Professional (599 kr/mån)</SelectItem>
-                        <SelectItem value="enterprise">Enterprise (1299 kr/mån)</SelectItem>
+                      <SelectContent>                        <SelectItem value="basic">{t('adminPanel.basicPlan')}</SelectItem>
+                        <SelectItem value="professional">{t('adminPanel.professionalPlan')}</SelectItem>
+                        <SelectItem value="enterprise">{t('adminPanel.enterprisePlan')}</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                  <Button onClick={handleCreateCustomer} className="w-full">
-                    Skapa kund
+                  </div>                  <Button onClick={handleCreateCustomer} className="w-full">
+                    {t('buttons.createCustomer')}
                   </Button>
                 </div>
               </DialogContent>
@@ -219,10 +212,9 @@ const AdminPanel = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center space-x-2">
-                <Users className="h-8 w-8 text-blue-600" />
-                <div>
+                <Users className="h-8 w-8 text-blue-600" />                <div>
                   <p className="text-2xl font-bold">{customers.length}</p>
-                  <p className="text-xs text-muted-foreground">Totala kunder</p>
+                  <p className="text-xs text-muted-foreground">{t('labels.totalCustomers')}</p>
                 </div>
               </div>
             </CardContent>
@@ -231,10 +223,9 @@ const AdminPanel = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center space-x-2">
-                <Eye className="h-8 w-8 text-green-600" />
-                <div>
+                <Eye className="h-8 w-8 text-green-600" />                <div>
                   <p className="text-2xl font-bold">{customers.filter(c => c.isActive).length}</p>
-                  <p className="text-xs text-muted-foreground">Aktiva kunder</p>
+                  <p className="text-xs text-muted-foreground">{t('labels.activeCustomers')}</p>
                 </div>
               </div>
             </CardContent>
@@ -243,10 +234,9 @@ const AdminPanel = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center space-x-2">
-                <BarChart3 className="h-8 w-8 text-purple-600" />
-                <div>
+                <BarChart3 className="h-8 w-8 text-purple-600" />                <div>
                   <p className="text-2xl font-bold">{totalRevenue.toLocaleString('sv-SE')} kr</p>
-                  <p className="text-xs text-muted-foreground">Månadsomsättning</p>
+                  <p className="text-xs text-muted-foreground">{t('labels.monthlyRevenue')}</p>
                 </div>
               </div>
             </CardContent>
@@ -255,10 +245,9 @@ const AdminPanel = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center space-x-2">
-                <Shield className="h-8 w-8 text-orange-600" />
-                <div>
+                <Shield className="h-8 w-8 text-orange-600" />                <div>
                   <p className="text-2xl font-bold">{customers.filter(c => c.isActive).length}</p>
-                  <p className="text-xs text-muted-foreground">Aktiva scripts</p>
+                  <p className="text-xs text-muted-foreground">{t('adminPanel.activeScripts')}</p>
                 </div>
               </div>
             </CardContent>
@@ -267,23 +256,21 @@ const AdminPanel = () => {
 
         {/* Customer Management */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader>            <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Kundhantering
+              {t('adminPanel.customerManagement')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
+            <Table>              <TableHeader>
                 <TableRow>
-                  <TableHead>Kund</TableHead>
-                  <TableHead>Domän</TableHead>
-                  <TableHead>Plan</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Senaste inloggning</TableHead>
-                  <TableHead>Skapad</TableHead>
-                  <TableHead>Åtgärder</TableHead>
+                  <TableHead>{t('adminPanel.customer')}</TableHead>
+                  <TableHead>{t('labels.domain')}</TableHead>
+                  <TableHead>{t('labels.plan')}</TableHead>
+                  <TableHead>{t('common.status')}</TableHead>
+                  <TableHead>{t('adminPanel.lastLogin')}</TableHead>
+                  <TableHead>{t('adminPanel.created')}</TableHead>
+                  <TableHead>{t('adminPanel.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -310,28 +297,25 @@ const AdminPanel = () => {
                         {getPlanText(customer.plan)}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <Badge variant={customer.isActive ? 'default' : 'secondary'}>
-                        {customer.isActive ? 'Aktiv' : 'Inaktiv'}
+                    <TableCell>                      <Badge variant={customer.isActive ? 'default' : 'secondary'}>
+                        {customer.isActive ? t('status.active') : t('status.inactive')}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1 text-sm">
+                    <TableCell>                      <div className="flex items-center gap-1 text-sm">
                         <Clock className="h-3 w-3" />
-                        {customer.lastLogin ? format(customer.lastLogin, 'PPp', { locale: sv }) : 'Aldrig'}
+                        {customer.lastLogin ? format(customer.lastLogin, 'PPp', { locale: sv }) : t('adminPanel.never')}
                       </div>
                     </TableCell>
                     <TableCell>
                       {format(customer.createdAt, 'PP', { locale: sv })}
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-2">
-                        <Button
+                      <div className="flex gap-2">                        <Button
                           variant="outline"
                           size="sm"
                           onClick={() => toggleCustomerStatus(customer.id)}
                         >
-                          {customer.isActive ? 'Inaktivera' : 'Aktivera'}
+                          {customer.isActive ? t('buttons.deactivate') : t('buttons.activate')}
                         </Button>
                         <Button
                           variant="outline"

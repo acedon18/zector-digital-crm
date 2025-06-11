@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Users, Clock, Eye, TrendingUp } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Users, Eye, TrendingUp, Clock } from 'lucide-react';
 import { Company } from '@/types/leads';
 import { leadsApi, subscribeToLiveUpdates } from '@/lib/api';
 import { format } from 'date-fns';
 import { sv } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
 
 export const LiveVisitors = () => {
+  const { t } = useTranslation();
   const [recentVisitors, setRecentVisitors] = useState<Company[]>([]);
   const [onlineCount, setOnlineCount] = useState(0);
 
@@ -57,24 +59,24 @@ export const LiveVisitors = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5 text-green-600" />
-            Live Aktivitet
+            {t('liveVisitors.liveActivity')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">{onlineCount}</div>
-              <div className="text-sm text-muted-foreground">Aktiva nu</div>
+              <div className="text-sm text-muted-foreground">{t('liveVisitors.activeNow')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold">{recentVisitors.length}</div>
-              <div className="text-sm text-muted-foreground">Senaste timmen</div>
+              <div className="text-sm text-muted-foreground">{t('liveVisitors.lastHour')}</div>
             </div>
           </div>
           
           <div className="mt-4 flex items-center gap-2 text-sm text-green-600">
             <TrendingUp className="h-4 w-4" />
-            <span>Aktiviteten ökar med 15% jämfört med igår</span>
+            <span>{t('liveVisitors.activityIncrease')}</span>
           </div>
         </CardContent>
       </Card>
@@ -84,7 +86,7 @@ export const LiveVisitors = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Eye className="h-5 w-5" />
-            Senaste besökare
+            {t('liveVisitors.recentVisitors')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -111,7 +113,7 @@ export const LiveVisitors = () => {
                     {format(company.lastVisit, 'HH:mm')}
                   </div>
                   <Badge variant="outline" className="text-xs mt-1">
-                    {company.totalVisits} besök
+                    {company.totalVisits} {t('liveVisitors.visits')}
                   </Badge>
                 </div>
               </div>
@@ -121,7 +123,7 @@ export const LiveVisitors = () => {
           {recentVisitors.length === 0 && (
             <div className="text-center text-muted-foreground py-8">
               <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>Inga besökare just nu</p>
+              <p>{t('liveVisitors.noVisitors')}</p>
             </div>
           )}
         </CardContent>

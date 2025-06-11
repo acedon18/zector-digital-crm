@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,33 +9,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, Zap, Globe, Target, Settings, ArrowRight, ArrowLeft } from 'lucide-react';
-
-const steps = [
-  {
-    id: 1,
-    title: 'Välkommen till Zector Digital',
-    subtitle: 'Låt oss sätta upp din lead intelligence plattform',
-    icon: <Zap className="h-6 w-6" />
-  },
-  {
-    id: 2,
-    title: 'Företagsinformation',
-    subtitle: 'Berätta lite om ditt företag',
-    icon: <Globe className="h-6 w-6" />
-  },
-  {
-    id: 3,
-    title: 'Tracking-inställningar',
-    subtitle: 'Konfigurera hur du vill spåra besökare',
-    icon: <Target className="h-6 w-6" />
-  },
-  {
-    id: 4,
-    title: 'GDPR & Integritet',
-    subtitle: 'Säkerställ att du följer gällande regler',
-    icon: <Settings className="h-6 w-6" />
-  }
-];
 
 interface OnboardingData {
   companyName: string;
@@ -49,7 +23,35 @@ interface OnboardingData {
 }
 
 export function OnboardingWizard({ onComplete }: { onComplete: (data: OnboardingData) => void }) {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
+  
+  const steps = [
+    {
+      id: 1,
+      title: t('onboarding.welcomeTitle'),
+      subtitle: t('onboarding.welcomeSubtitle'),
+      icon: <Zap className="h-6 w-6" />
+    },
+    {
+      id: 2,
+      title: t('onboarding.companyInfoTitle'),
+      subtitle: t('onboarding.companyInfoSubtitle'),
+      icon: <Globe className="h-6 w-6" />
+    },
+    {
+      id: 3,
+      title: t('onboarding.trackingSettingsTitle'),
+      subtitle: t('onboarding.trackingSettingsSubtitle'),
+      icon: <Target className="h-6 w-6" />
+    },
+    {
+      id: 4,
+      title: t('onboarding.gdprTitle'),
+      subtitle: t('onboarding.gdprSubtitle'),
+      icon: <Settings className="h-6 w-6" />
+    }
+  ];
   const [data, setData] = useState<OnboardingData>({
     companyName: '',
     website: '',
@@ -89,82 +91,78 @@ export function OnboardingWizard({ onComplete }: { onComplete: (data: Onboarding
           <div className="text-center space-y-6">
             <div className="mx-auto w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
               <Zap className="h-10 w-10 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Välkommen till Zector Digital!</h2>
+            </div>            <div>
+              <h2 className="text-2xl font-bold mb-2">{t('onboarding.welcomeTitle')}!</h2>
               <p className="text-muted-foreground max-w-md mx-auto">
-                Vi hjälper dig att identifiera och konvertera webbplatsbesökare till värdefulla leads. 
-                Låt oss sätta upp din plattform på några minuter.
+                {t('onboarding.welcomeDescription')}
               </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+            </div>            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
               <div className="p-4 border rounded-lg">
                 <Target className="h-8 w-8 text-primary mb-2 mx-auto" />
-                <h3 className="font-semibold mb-1">Identifiera företag</h3>
-                <p className="text-sm text-muted-foreground">Se vilka företag som besöker din webbplats</p>
+                <h3 className="font-semibold mb-1">{t('onboarding.identifyCompanies')}</h3>
+                <p className="text-sm text-muted-foreground">{t('onboarding.identifyCompaniesDesc')}</p>
               </div>
               <div className="p-4 border rounded-lg">
                 <Globe className="h-8 w-8 text-primary mb-2 mx-auto" />
-                <h3 className="font-semibold mb-1">Analysera trafik</h3>
-                <p className="text-sm text-muted-foreground">Förstå besöksmönster och engagemang</p>
+                <h3 className="font-semibold mb-1">{t('onboarding.analyzeTraffic')}</h3>
+                <p className="text-sm text-muted-foreground">{t('onboarding.analyzeTrafficDesc')}</p>
               </div>
               <div className="p-4 border rounded-lg">
                 <CheckCircle className="h-8 w-8 text-primary mb-2 mx-auto" />
-                <h3 className="font-semibold mb-1">Konvertera leads</h3>
-                <p className="text-sm text-muted-foreground">Förvandla anonyma besökare till kunder</p>
+                <h3 className="font-semibold mb-1">{t('onboarding.convertLeads')}</h3>
+                <p className="text-sm text-muted-foreground">{t('onboarding.convertLeadsDesc')}</p>
               </div>
             </div>
           </div>
         );
 
       case 2:
-        return (
-          <div className="space-y-6">
+        return (          <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-xl font-bold mb-2">Berätta om ditt företag</h2>
-              <p className="text-muted-foreground">Vi använder denna information för att anpassa upplevelsen</p>
+              <h2 className="text-xl font-bold mb-2">{t('onboarding.tellAboutCompany')}</h2>
+              <p className="text-muted-foreground">{t('onboarding.tellAboutCompanyDesc')}</p>
             </div>
             <div className="space-y-4 max-w-md mx-auto">
               <div>
-                <Label htmlFor="companyName">Företagsnamn *</Label>
+                <Label htmlFor="companyName">{t('onboarding.companyName')} *</Label>
                 <Input
                   id="companyName"
                   value={data.companyName}
                   onChange={(e) => updateData({ companyName: e.target.value })}
-                  placeholder="t.ex. Mitt Företag AB"
+                  placeholder={t('placeholders.companyNameOnboarding')}
                 />
               </div>
               <div>
-                <Label htmlFor="website">Webbplats *</Label>
+                <Label htmlFor="website">{t('onboarding.website')} *</Label>
                 <Input
                   id="website"
                   value={data.website}
                   onChange={(e) => updateData({ website: e.target.value })}
-                  placeholder="https://mittforetag.se"
+                  placeholder={t('placeholders.enterWebsite')}
                 />
               </div>
               <div>
-                <Label htmlFor="industry">Bransch</Label>
+                <Label htmlFor="industry">{t('onboarding.industry')}</Label>
                 <Select value={data.industry} onValueChange={(value) => updateData({ industry: value })}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Välj bransch" />
+                    <SelectValue placeholder={t('onboarding.selectIndustry')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="technology">Teknologi</SelectItem>
-                    <SelectItem value="finance">Finans</SelectItem>
-                    <SelectItem value="healthcare">Hälsa</SelectItem>
-                    <SelectItem value="retail">Handel</SelectItem>
-                    <SelectItem value="manufacturing">Tillverkning</SelectItem>
-                    <SelectItem value="consulting">Konsulting</SelectItem>
-                    <SelectItem value="other">Annat</SelectItem>
+                    <SelectItem value="technology">{t('onboarding.industries.technology')}</SelectItem>
+                    <SelectItem value="finance">{t('onboarding.industries.finance')}</SelectItem>
+                    <SelectItem value="healthcare">{t('onboarding.industries.healthcare')}</SelectItem>
+                    <SelectItem value="retail">{t('onboarding.industries.retail')}</SelectItem>
+                    <SelectItem value="manufacturing">{t('onboarding.industries.manufacturing')}</SelectItem>
+                    <SelectItem value="consulting">{t('onboarding.industries.consulting')}</SelectItem>
+                    <SelectItem value="other">{t('onboarding.industries.other')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="employeeCount">Antal anställda</Label>
+                <Label htmlFor="employeeCount">{t('onboarding.employeeCount')}</Label>
                 <Select value={data.employeeCount} onValueChange={(value) => updateData({ employeeCount: value })}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Välj storlek" />
+                    <SelectValue placeholder={t('onboarding.selectSize')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1-10">1-10</SelectItem>
@@ -180,23 +178,22 @@ export function OnboardingWizard({ onComplete }: { onComplete: (data: Onboarding
         );
 
       case 3:
-        return (
-          <div className="space-y-6">
+        return (          <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-xl font-bold mb-2">Tracking-inställningar</h2>
-              <p className="text-muted-foreground">Konfigurera hur du vill spåra och analysera besökare</p>
+              <h2 className="text-xl font-bold mb-2">{t('onboarding.trackingSettingsTitle')}</h2>
+              <p className="text-muted-foreground">{t('onboarding.trackingSettingsDesc')}</p>
             </div>
             <div className="space-y-4 max-w-md mx-auto">
               <div>
-                <Label>Dina huvudsakliga mål (välj flera)</Label>
+                <Label>{t('onboarding.mainGoals')}</Label>
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {[
-                    'Generera leads',
-                    'Öka försäljning',
-                    'Förstå målgrupp',
-                    'Optimera webbplats',
-                    'Konkurrensintelligens',
-                    'Marknadsanalys'
+                    t('onboarding.goals.generateLeads'),
+                    t('onboarding.goals.increaseSales'),
+                    t('onboarding.goals.understandAudience'),
+                    t('onboarding.goals.optimizeWebsite'),
+                    t('onboarding.goals.competitiveIntelligence'),
+                    t('onboarding.goals.marketAnalysis')
                   ].map((goal) => (
                     <Button
                       key={goal}
@@ -214,17 +211,16 @@ export function OnboardingWizard({ onComplete }: { onComplete: (data: Onboarding
                     </Button>
                   ))}
                 </div>
-              </div>
-              <div>
-                <Label htmlFor="trackingDomains">Domäner att spåra</Label>
+              </div>              <div>
+                <Label htmlFor="trackingDomains">{t('onboarding.domainsToTrack')}</Label>
                 <Textarea
                   id="trackingDomains"
-                  placeholder="En domän per rad, t.ex.:&#10;mittforetag.se&#10;www.mittforetag.se&#10;shop.mittforetag.se"
+                  placeholder={t('onboarding.domainsPlaceholder')}
                   value={data.trackingDomains.join('\n')}
                   onChange={(e) => updateData({ trackingDomains: e.target.value.split('\n').filter(d => d.trim()) })}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Lista alla domäner och subdomäner du vill spåra
+                  {t('onboarding.domainsHelp')}
                 </p>
               </div>
             </div>
@@ -232,64 +228,62 @@ export function OnboardingWizard({ onComplete }: { onComplete: (data: Onboarding
         );
 
       case 4:
-        return (
-          <div className="space-y-6">
+        return (          <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-xl font-bold mb-2">GDPR & Integritet</h2>
-              <p className="text-muted-foreground">Säkerställ att din tracking följer svenska och EU-regler</p>
+              <h2 className="text-xl font-bold mb-2">{t('onboarding.gdprTitle')}</h2>
+              <p className="text-muted-foreground">{t('onboarding.gdprDesc')}</p>
             </div>
             <div className="space-y-4 max-w-md mx-auto">
               <div className="p-4 border border-amber-200 bg-amber-50 rounded-lg">
                 <div className="flex items-start space-x-2">
                   <CheckCircle className="h-5 w-5 text-amber-600 mt-0.5" />
                   <div>
-                    <h3 className="font-semibold text-amber-800">GDPR-kompatibilitet</h3>
+                    <h3 className="font-semibold text-amber-800">{t('onboarding.gdprCompliance')}</h3>
                     <p className="text-sm text-amber-700">
-                      Vår plattform är byggd för att vara GDPR-kompatibel från grunden. 
-                      Vi hjälper dig att följa alla regler för dataskydd.
+                      {t('onboarding.gdprComplianceDesc')}
                     </p>
                   </div>
                 </div>
               </div>
               
               <div>
-                <Label htmlFor="privacyPolicy">Länk till integritetspolicy *</Label>
+                <Label htmlFor="privacyPolicy">{t('onboarding.privacyPolicyLink')} *</Label>
                 <Input
                   id="privacyPolicy"
                   value={data.privacyPolicy}
                   onChange={(e) => updateData({ privacyPolicy: e.target.value })}
-                  placeholder="https://mittforetag.se/integritet"
+                  placeholder={t('onboarding.privacyPolicyPlaceholder')}
                 />
               </div>
               
               <div>
-                <Label htmlFor="cookiePolicy">Länk till cookie-policy</Label>
+                <Label htmlFor="cookiePolicy">{t('onboarding.cookiePolicyLink')}</Label>
                 <Input
                   id="cookiePolicy"
                   value={data.cookiePolicy}
                   onChange={(e) => updateData({ cookiePolicy: e.target.value })}
-                  placeholder="https://mittforetag.se/cookies"
+                  placeholder={t('onboarding.cookiePolicyPlaceholder')}
                 />
               </div>
 
               <div className="space-y-2">
-                <h3 className="font-semibold">Vad vi gör automatiskt:</h3>
+                <h3 className="font-semibold">{t('onboarding.automaticFeatures')}:</h3>
                 <div className="text-sm space-y-1">
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span>Cookie-medgivandebanner</span>
+                    <span>{t('onboarding.features.cookieBanner')}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span>Anonymisering av IP-adresser</span>
+                    <span>{t('onboarding.features.ipAnonymization')}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span>Datalagring enligt svenska regler</span>
+                    <span>{t('onboarding.features.dataStorage')}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span>Automatisk datarensning</span>
+                    <span>{t('onboarding.features.automaticCleanup')}</span>
                   </div>
                 </div>
               </div>
@@ -340,28 +334,26 @@ export function OnboardingWizard({ onComplete }: { onComplete: (data: Onboarding
           <Progress value={progress} className="w-full" />
           <CardTitle className="mt-4">
             {steps[currentStep - 1]?.title}
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Steg {currentStep} av {steps.length}
+          </CardTitle>          <p className="text-sm text-muted-foreground">
+            {t('onboarding.stepProgress', { current: currentStep, total: steps.length })}
           </p>
         </CardHeader>
         <CardContent>
           {renderStepContent()}
           
-          <div className="flex justify-between mt-8">
-            <Button
+          <div className="flex justify-between mt-8">            <Button
               variant="outline"
               onClick={prevStep}
               disabled={currentStep === 1}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Tillbaka
+              {t('buttons.back')}
             </Button>
             <Button
               onClick={nextStep}
               disabled={!canProceed()}
             >
-              {currentStep === steps.length ? 'Slutför' : 'Nästa'}
+              {currentStep === steps.length ? t('buttons.finish') : t('buttons.next')}
               {currentStep < steps.length && <ArrowRight className="h-4 w-4 ml-2" />}
             </Button>
           </div>

@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 interface SidebarProps {
   isOpen: boolean;
   toggleSidebar: () => void;
@@ -39,6 +40,7 @@ function NavItem({ icon: Icon, label, href, isCollapsed }: NavItemProps) {
 export function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { t } = useTranslation();
 
   const handleToggleCollapse = () => {
     if (!isMobile) {
@@ -81,25 +83,25 @@ export function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
 
         <div className="flex flex-col gap-1 p-2">
           <nav className="grid gap-1">
-            <NavItem icon={LayoutDashboard} label="Dashboard" href="/" isCollapsed={isCollapsed} />
-            <NavItem icon={Eye} label="Lead Tracking" href="/lead-tracking" isCollapsed={isCollapsed} />
-            <NavItem icon={Globe} label="Website Intelligence" href="/website-intelligence" isCollapsed={isCollapsed} />
-            <NavItem icon={Brain} label="AI Qualification" href="/ai-qualification" isCollapsed={isCollapsed} />
-            <NavItem icon={Mail} label="Email Alerts" href="/email-alerts" isCollapsed={isCollapsed} />
-            <NavItem icon={Download} label="Data Export" href="/data-export" isCollapsed={isCollapsed} />
+            <NavItem icon={LayoutDashboard} label={t('dashboard.title')} href="/" isCollapsed={isCollapsed} />
+            <NavItem icon={Eye} label={t('navigation.leadTracking')} href="/lead-tracking" isCollapsed={isCollapsed} />
+            <NavItem icon={Globe} label={t('navigation.websiteIntelligence')} href="/website-intelligence" isCollapsed={isCollapsed} />
+            <NavItem icon={Brain} label={t('navigation.aiQualification')} href="/ai-qualification" isCollapsed={isCollapsed} />
+            <NavItem icon={Mail} label={t('navigation.emailAlerts')} href="/email-alerts" isCollapsed={isCollapsed} />
+            <NavItem icon={Download} label={t('navigation.dataExport')} href="/data-export" isCollapsed={isCollapsed} />
             <NavItem icon={Users} label="Contacts" href="/contacts" isCollapsed={isCollapsed} />
-            <NavItem icon={BarChart3} label="Analytics" href="/analytics" isCollapsed={isCollapsed} />
-            <NavItem icon={MessageSquare} label="Messages" href="/messages" isCollapsed={isCollapsed} />
-            <NavItem icon={Calendar} label="Calendar" href="/calendar" isCollapsed={isCollapsed} />
+            <NavItem icon={BarChart3} label={t('navigation.analytics')} href="/analytics" isCollapsed={isCollapsed} />
+            <NavItem icon={MessageSquare} label={t('navigation.messages')} href="/messages" isCollapsed={isCollapsed} />
+            <NavItem icon={Calendar} label={t('navigation.calendar')} href="/calendar" isCollapsed={isCollapsed} />
           </nav>
 
           <Separator className="my-4" />
 
           <nav className="grid gap-1 mt-auto">
-            <NavItem icon={CreditCard} label="Billing" href="/billing" isCollapsed={isCollapsed} />
-            <NavItem icon={Shield} label="Admin Panel" href="/admin" isCollapsed={isCollapsed} />
-            <NavItem icon={Settings} label="Settings" href="/settings" isCollapsed={isCollapsed} />
-            <NavItem icon={LifeBuoy} label="Support" href="/support" isCollapsed={isCollapsed} />
+            <NavItem icon={CreditCard} label={t('navigation.billing')} href="/billing" isCollapsed={isCollapsed} />
+            <NavItem icon={Shield} label={t('navigation.adminPanel')} href="/admin" isCollapsed={isCollapsed} />
+            <NavItem icon={Settings} label={t('navigation.settings')} href="/settings" isCollapsed={isCollapsed} />
+            <NavItem icon={LifeBuoy} label={t('navigation.support')} href="/support" isCollapsed={isCollapsed} />
             <Button
               variant="ghost"
               className={cn('flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all', 'justify-start text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-accent')}

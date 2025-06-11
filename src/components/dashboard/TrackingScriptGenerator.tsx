@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +13,7 @@ import { Copy, Code, Globe, Shield, CheckCircle, AlertTriangle } from 'lucide-re
 import { toast } from '@/components/ui/use-toast';
 
 export const TrackingScriptGenerator = () => {
+  const { t } = useTranslation();
   const [domain, setDomain] = useState('');
   const [customerId, setCustomerId] = useState('');
   const [gdprCompliant, setGdprCompliant] = useState(true);
@@ -21,10 +23,9 @@ export const TrackingScriptGenerator = () => {
   const [trackFormSubmissions, setTrackFormSubmissions] = useState(false);
 
   const generateScript = () => {
-    if (!domain || !customerId) {
-      toast({
-        title: 'Fel',
-        description: 'Domän och kund-ID krävs för att generera script',
+    if (!domain || !customerId) {      toast({
+        title: t('common.error'),
+        description: t('trackingScript.domainAndCustomerIdRequired'),
         variant: 'destructive'
       });
       return '';
@@ -155,171 +156,156 @@ if (!localStorage.getItem('zld_consent_${customerId}')) {
   const copyToClipboard = () => {
     const script = generateScript();
     if (script) {
-      navigator.clipboard.writeText(script);
-      toast({
-        title: 'Kopierat!',
-        description: 'Tracking script har kopierats till urklipp'
+      navigator.clipboard.writeText(script);      toast({
+        title: t('common.copied'),
+        description: t('trackingScript.scriptCopied')
       });
     }
   };
-
   const installationInstructions = `
-## Installation av Lead Tracking Script
+## ${t('trackingScript.installationGuide')}
 
-### Steg 1: Placera scriptet
-Klistra in scriptet precis före den avslutande </head>-taggen på alla sidor där du vill spåra besökare.
+### ${t('trackingScript.stepPlaceScript')}
+${t('trackingScript.placementInstructions')}
 
-### Steg 2: Verifiera installation
-1. Öppna din webbplats i en ny flik
-2. Öppna Developer Tools (F12)
-3. Kontrollera att meddelandet "Zector Digital Lead Tracking initialized for ${domain}" visas i konsolen
+### ${t('trackingScript.stepVerifyInstallation')}
+1. ${t('trackingScript.openWebsite')}
+2. ${t('trackingScript.openDevTools')}
+3. ${t('trackingScript.checkConsoleMessage', { domain })}
 
-### Steg 3: Testa tracking
-1. Navigera mellan olika sidor på din webbplats
-2. Kontrollera i din Zector Digital-dashboard att besök registreras
+### ${t('trackingScript.stepTestTracking')}
+1. ${t('trackingScript.navigatePages')}
+2. ${t('trackingScript.checkDashboard')}
 
-### GDPR Compliance
+### ${t('trackingScript.gdprCompliance')}
 ${gdprCompliant ? 
-  '✅ GDPR-kompatibelt läge är aktiverat. Scriptet inkluderar funktioner för att hantera användarsamtycke.' : 
-  '⚠️ GDPR-kompatibelt läge är inaktiverat. Se till att du följer gällande dataskyddslagar.'
+  t('trackingScript.gdprModeEnabled') : 
+  t('trackingScript.gdprModeDisabled')
 }
 
-### Säkerhetsnoteringar
-- Scriptet anonymiserar IP-adresser${anonymizeIp ? ' (aktiverat)' : ' (inaktiverat)'}
-- Inga personliga data samlas in
-- Endast företagsrelaterad information spåras
+### ${t('trackingScript.securityNotes')}
+- ${t('trackingScript.ipAnonymization')}${anonymizeIp ? ` ${t('trackingScript.enabled')}` : ` ${t('trackingScript.disabled')}`}
+- ${t('trackingScript.noPersonalData')}
+- ${t('trackingScript.onlyCompanyData')}
 
 ### Support
-Vid frågor eller problem, kontakta support@zectordigital.com
+${t('trackingScript.supportContact')}
 `;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Tracking Script Generator</h2>
+    <div className="space-y-6">      <div>
+        <h2 className="text-xl font-semibold mb-2">{t('trackingScript.title')}</h2>
         <p className="text-sm text-muted-foreground">
-          Generera anpassat spårningsscript för din kundens webbplats
+          {t('trackingScript.description')}
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Configuration */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader>            <CardTitle className="flex items-center gap-2">
               <Code className="h-5 w-5" />
-              Scriptkonfiguration
+              {t('trackingScript.scriptConfiguration')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="customerId">Kund-ID</Label>
+            <div className="grid grid-cols-2 gap-4">              <div>
+                <Label htmlFor="customerId">{t('trackingScript.customerId')}</Label>
                 <Input
                   id="customerId"
                   value={customerId}
                   onChange={(e) => setCustomerId(e.target.value)}
-                  placeholder="t.ex. customer_123"
+                  placeholder={t('placeholders.customerIdExample')}
                 />
               </div>
               <div>
-                <Label htmlFor="domain">Domän</Label>
+                <Label htmlFor="domain">{t('common.domain')}</Label>
                 <Input
                   id="domain"
                   value={domain}
                   onChange={(e) => setDomain(e.target.value)}
-                  placeholder="t.ex. example.com"
+                  placeholder={t('placeholders.domainForScript')}
                 />
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
+            <div className="space-y-3">              <div className="flex items-center justify-between">
                 <div>
-                  <Label>GDPR-kompatibelt</Label>
-                  <p className="text-xs text-muted-foreground">Följer EU:s dataskyddslagar</p>
+                  <Label>{t('trackingScript.gdprCompliant')}</Label>
+                  <p className="text-xs text-muted-foreground">{t('trackingScript.gdprDesc')}</p>
                 </div>
                 <Switch checked={gdprCompliant} onCheckedChange={setGdprCompliant} />
               </div>
 
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Anonymisera IP</Label>
-                  <p className="text-xs text-muted-foreground">Anonymisera IP-adresser</p>
+                  <Label>{t('trackingScript.anonymizeIp')}</Label>
+                  <p className="text-xs text-muted-foreground">{t('trackingScript.anonymizeIpDesc')}</p>
                 </div>
                 <Switch checked={anonymizeIp} onCheckedChange={setAnonymizeIp} />
-              </div>
-
-              <div className="flex items-center justify-between">
+              </div><div className="flex items-center justify-between">
                 <div>
-                  <Label>Spåra scroll-djup</Label>
-                  <p className="text-xs text-muted-foreground">Mät hur långt användare scrollar</p>
+                  <Label>{t('trackingScript.trackScrollDepth')}</Label>
+                  <p className="text-xs text-muted-foreground">{t('trackingScript.trackScrollDesc')}</p>
                 </div>
                 <Switch checked={trackScrollDepth} onCheckedChange={setTrackScrollDepth} />
               </div>
 
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Spåra nedladdningar</Label>
-                  <p className="text-xs text-muted-foreground">Spåra PDF, DOC och andra filer</p>
+                  <Label>{t('trackingScript.trackDownloads')}</Label>
+                  <p className="text-xs text-muted-foreground">{t('trackingScript.trackDownloadsDesc')}</p>
                 </div>
                 <Switch checked={trackDownloads} onCheckedChange={setTrackDownloads} />
               </div>
 
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Spåra formulär</Label>
-                  <p className="text-xs text-muted-foreground">Spåra formulärinskickningar</p>
+                  <Label>{t('trackingScript.trackFormSubmissions')}</Label>
+                  <p className="text-xs text-muted-foreground">{t('trackingScript.trackFormsDesc')}</p>
                 </div>
                 <Switch checked={trackFormSubmissions} onCheckedChange={setTrackFormSubmissions} />
               </div>
-            </div>
-
-            <Button 
+            </div>            <Button 
               onClick={copyToClipboard} 
               className="w-full"
               disabled={!domain || !customerId}
             >
               <Copy className="h-4 w-4 mr-2" />
-              Kopiera script
+              {t('trackingScript.copyScript')}
             </Button>
           </CardContent>
         </Card>
 
-        {/* Preview and Instructions */}
-        <Card>
+        {/* Preview and Instructions */}        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Globe className="h-5 w-5" />
-              Script förhandsvisning
+              {t('trackingScript.scriptPreview')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="script" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="script">Script</TabsTrigger>
-                <TabsTrigger value="instructions">Instruktioner</TabsTrigger>
+            <Tabs defaultValue="script" className="w-full">              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="script">{t('common.script')}</TabsTrigger>
+                <TabsTrigger value="instructions">{t('trackingScript.instructions')}</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="script" className="space-y-4">
-                <Textarea
+              <TabsContent value="script" className="space-y-4">                <Textarea
                   value={generateScript()}
                   readOnly
                   className="min-h-64 font-mono text-xs"
-                  placeholder="Konfigurera domän och kund-ID för att generera script..."
+                  placeholder={t('placeholders.configureScript')}
                 />
                 
                 <div className="flex items-center gap-2">
-                  {gdprCompliant && (
-                    <Badge variant="outline" className="flex items-center gap-1">
+                  {gdprCompliant && (                    <Badge variant="outline" className="flex items-center gap-1">
                       <Shield className="h-3 w-3" />
-                      GDPR-kompatibel
+                      {t('trackingScript.gdprBadge')}
                     </Badge>
                   )}
-                  {anonymizeIp && (
-                    <Badge variant="outline" className="flex items-center gap-1">
+                  {anonymizeIp && (                    <Badge variant="outline" className="flex items-center gap-1">
                       <CheckCircle className="h-3 w-3" />
-                      IP-anonymisering
+                      {t('trackingScript.ipAnonymizationBadge')}
                     </Badge>
                   )}
                 </div>
@@ -341,20 +327,18 @@ Vid frågor eller problem, kontakta support@zectordigital.com
 
       {/* Compliance Alerts */}
       <div className="space-y-3">
-        {!gdprCompliant && (
-          <Alert className="border-yellow-200 bg-yellow-50">
+        {!gdprCompliant && (          <Alert className="border-yellow-200 bg-yellow-50">
             <AlertTriangle className="h-4 w-4 text-yellow-600" />
             <AlertDescription>
-              GDPR-kompatibelt läge är inaktiverat. Se till att du följer gällande dataskyddslagar och inhämtar nödvändiga samtycken.
+              {t('trackingScript.gdprNoticeRequired')}
             </AlertDescription>
           </Alert>
         )}
         
-        {gdprCompliant && (
-          <Alert className="border-green-200 bg-green-50">
+        {gdprCompliant && (          <Alert className="border-green-200 bg-green-50">
             <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertDescription>
-              Scriptet är konfigurerat för GDPR-kompatibilitet. Kom ihåg att implementera en samtyckesbanner på webbplatsen.
+              {t('trackingScript.gdprCompliantNotice')}
             </AlertDescription>
           </Alert>
         )}

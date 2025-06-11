@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { leadsApi } from '@/lib/api';
+import { useTranslation } from 'react-i18next';
 
 interface StatsCardProps {
   title: string;
@@ -39,6 +40,7 @@ export function StatsCard({ title, value, change, changeLabel, icon, formatter }
 }
 
 export function DashboardStats() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState({
     totalLeads: 0,
     newLeads: 0,
@@ -97,34 +99,34 @@ export function DashboardStats() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatsCard 
-        title="Totala Leads" 
+        title={t('dashboardStats.totalLeads')} 
         value={stats.totalLeads} 
         change={12} 
-        changeLabel="sedan förra månaden" 
+        changeLabel={t('dashboardStats.sinceLastMonth')} 
         icon={<Users className="h-5 w-5" />} 
         formatter={formatNumber}
       />
       <StatsCard 
-        title="Nya Leads" 
+        title={t('dashboardStats.newLeads')} 
         value={stats.newLeads} 
         change={8} 
-        changeLabel="senaste dygnet" 
+        changeLabel={t('dashboardStats.lastDay')} 
         icon={<UserPlus className="h-5 w-5" />} 
         formatter={formatNumber}
       />
       <StatsCard 
-        title="Heta Leads" 
+        title={t('dashboardStats.hotLeads')} 
         value={stats.hotLeads} 
         change={15} 
-        changeLabel="sedan förra veckan" 
+        changeLabel={t('dashboardStats.sinceLastWeek')} 
         icon={<Target className="h-5 w-5" />} 
         formatter={formatNumber}
       />
       <StatsCard 
-        title="Totala Besök" 
+        title={t('dashboardStats.totalVisits')} 
         value={stats.totalVisits} 
         change={-3} 
-        changeLabel="sedan förra månaden" 
+        changeLabel={t('dashboardStats.sinceLastMonth')} 
         icon={<Eye className="h-5 w-5" />} 
         formatter={formatNumber}
       />

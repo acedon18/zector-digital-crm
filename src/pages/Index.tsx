@@ -10,14 +10,17 @@ import { AILeadQualification } from '@/components/dashboard/AILeadQualification'
 import { EmailAlertSystem } from '@/components/dashboard/EmailAlertSystem';
 import { AdvancedExportSystem } from '@/components/dashboard/AdvancedExportSystem';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useTranslation } from 'react-i18next';
 
 const Index = () => {
+  const { t } = useTranslation();
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight mb-2">Lead Intelligence Dashboard</h1>
-          <p className="text-muted-foreground">Välkommen tillbaka! Här är en översikt över din website traffic och leads idag.</p>
+          <h1 className="text-2xl font-bold tracking-tight mb-2">{t('dashboard.leadIntelligenceTitle')}</h1>
+          <p className="text-muted-foreground">{t('dashboard.welcomeMessage')}</p>
         </div>
 
         <DashboardStats />
@@ -28,10 +31,10 @@ const Index = () => {
         {/* Enhanced Features Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="ai-qualification">AI Qualification</TabsTrigger>
-            <TabsTrigger value="email-alerts">Email Alerts</TabsTrigger>
-            <TabsTrigger value="data-export">Data Export</TabsTrigger>
+            <TabsTrigger value="overview">{t('tabs.overview')}</TabsTrigger>
+            <TabsTrigger value="ai-qualification">{t('tabs.aiQualification')}</TabsTrigger>
+            <TabsTrigger value="email-alerts">{t('tabs.emailAlerts')}</TabsTrigger>
+            <TabsTrigger value="data-export">{t('tabs.dataExport')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">

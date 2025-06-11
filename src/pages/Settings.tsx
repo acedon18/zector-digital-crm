@@ -11,8 +11,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { TrackingScriptGenerator } from '@/components/dashboard/TrackingScriptGenerator';
 import { Settings as SettingsIcon, Shield, Code, Bell, User, Globe } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { useTranslation } from 'react-i18next';
 
 const Settings = () => {
+  const { t } = useTranslation();
   const [profileSettings, setProfileSettings] = useState({
     companyName: 'TechCorp AB',
     email: 'admin@techcorp.se',
@@ -45,29 +47,29 @@ const Settings = () => {
 
   const handleSaveProfile = () => {
     toast({
-      title: 'Profil uppdaterad',
-      description: 'Dina profilinställningar har sparats'
+      title: t('toast.profileUpdated'),
+      description: t('toast.profileDescription')
     });
   };
 
   const handleSaveTracking = () => {
     toast({
-      title: 'Tracking-inställningar uppdaterade',
-      description: 'Dina spårningsinställningar har sparats'
+      title: t('toast.trackingUpdated'),
+      description: t('toast.trackingDescription')
     });
   };
 
   const handleSaveNotifications = () => {
     toast({
-      title: 'Notifieringar uppdaterade',
-      description: 'Dina notifieringsinställningar har sparats'
+      title: t('toast.notificationsUpdated'),
+      description: t('toast.notificationsDescription')
     });
   };
 
   const handleSaveIntegrations = () => {
     toast({
-      title: 'Integrationer uppdaterade',
-      description: 'Dina integrationsinställningar har sparats'
+      title: t('toast.integrationsUpdated'),
+      description: t('toast.integrationsDescription')
     });
   };
 
@@ -75,9 +77,9 @@ const Settings = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight mb-2">Inställningar</h1>
+          <h1 className="text-2xl font-bold tracking-tight mb-2">{t('settings.title')}</h1>
           <p className="text-muted-foreground">
-            Hantera dina konto-, tracking- och integrationsinställningar
+            {t('settings.description')}
           </p>
         </div>
 
@@ -85,23 +87,23 @@ const Settings = () => {
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
-              Profil
+              {t('tabs.profile')}
             </TabsTrigger>
             <TabsTrigger value="tracking" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
-              Tracking
+              {t('tabs.tracking')}
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center gap-2">
               <Bell className="h-4 w-4" />
-              Notifieringar
+              {t('tabs.notifications')}
             </TabsTrigger>
             <TabsTrigger value="integrations" className="flex items-center gap-2">
               <Globe className="h-4 w-4" />
-              Integrationer
+              {t('tabs.integrations')}
             </TabsTrigger>
             <TabsTrigger value="script" className="flex items-center gap-2">
               <Code className="h-4 w-4" />
-              Script
+              {t('tabs.script')}
             </TabsTrigger>
           </TabsList>
 
@@ -111,7 +113,7 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <User className="h-5 w-5" />
-                  Profilinställningar
+                  {t('settings.profileSettings')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -142,7 +144,7 @@ const Settings = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="timezone">Tidszon</Label>
+                    <Label htmlFor="timezone">{t('settings.timezone')}</Label>
                     <Select value={profileSettings.timezone} onValueChange={(value) => setProfileSettings(prev => ({ ...prev, timezone: value }))}>
                       <SelectTrigger>
                         <SelectValue />
@@ -155,7 +157,7 @@ const Settings = () => {
                     </Select>
                   </div>
                 </div>
-                <Button onClick={handleSaveProfile}>Spara profil</Button>
+                <Button onClick={handleSaveProfile}>{t('buttons.saveProfile')}</Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -166,7 +168,7 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield className="h-5 w-5" />
-                  Tracking & GDPR-inställningar
+                  {t('settings.trackingSettings')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -225,7 +227,7 @@ const Settings = () => {
                     </div>
                   </div>
                 </div>
-                <Button onClick={handleSaveTracking}>Spara tracking-inställningar</Button>
+                <Button onClick={handleSaveTracking}>{t('buttons.saveTrackingSettings')}</Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -236,15 +238,15 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Bell className="h-5 w-5" />
-                  Notifieringsinställningar
+                  {t('settings.notificationSettings')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>E-postaviseringar</Label>
-                      <p className="text-sm text-muted-foreground">Få e-post vid viktiga händelser</p>
+                      <Label>{t('settings.emailAlerts')}</Label>
+                      <p className="text-sm text-muted-foreground">{t('settings.emailAlertsDescription')}</p>
                     </div>
                     <Switch
                       checked={notificationSettings.emailAlerts}
@@ -285,7 +287,7 @@ const Settings = () => {
                     />
                   </div>
                 </div>
-                <Button onClick={handleSaveNotifications}>Spara notifieringar</Button>
+                <Button onClick={handleSaveNotifications}>{t('buttons.saveNotifications')}</Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -308,7 +310,7 @@ const Settings = () => {
                       type="password"
                       value={integrationSettings.hubspotApiKey}
                       onChange={(e) => setIntegrationSettings(prev => ({ ...prev, hubspotApiKey: e.target.value }))}
-                      placeholder="Ange din HubSpot API-nyckel"
+                      placeholder={t('placeholders.enterHubspotKey')}
                     />
                   </div>
 
@@ -319,7 +321,7 @@ const Settings = () => {
                       type="password"
                       value={integrationSettings.pipedriveApiKey}
                       onChange={(e) => setIntegrationSettings(prev => ({ ...prev, pipedriveApiKey: e.target.value }))}
-                      placeholder="Ange din Pipedrive API-nyckel"
+                      placeholder={t('placeholders.enterPipedriveKey')}
                     />
                   </div>
 
@@ -329,7 +331,7 @@ const Settings = () => {
                       id="webhookUrl"
                       value={integrationSettings.webhookUrl}
                       onChange={(e) => setIntegrationSettings(prev => ({ ...prev, webhookUrl: e.target.value }))}
-                      placeholder="https://exempel.se/webhook"
+                      placeholder={t('placeholders.enterWebhookUrl')}
                     />
                     <p className="text-sm text-muted-foreground mt-1">
                       URL för att skicka lead-data till dina egna system
@@ -350,7 +352,7 @@ const Settings = () => {
                     </Select>
                   </div>
                 </div>
-                <Button onClick={handleSaveIntegrations}>Spara integrationer</Button>
+                <Button onClick={handleSaveIntegrations}>{t('buttons.saveIntegrations')}</Button>
               </CardContent>
             </Card>
           </TabsContent>

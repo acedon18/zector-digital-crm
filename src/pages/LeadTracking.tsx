@@ -13,13 +13,15 @@ import { leadsApi } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const LeadTracking = () => {  const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [industryFilter, setIndustryFilter] = useState<string>('all');
-  const { toast } = useToast();const loadCompanies = useCallback(async () => {
+  const { toast } = useToast();
+  const { t } = useTranslation();const loadCompanies = useCallback(async () => {
     try {
       setLoading(true);
       const filters: { status?: string; industry?: string } = {};
@@ -28,16 +30,15 @@ const LeadTracking = () => {  const [companies, setCompanies] = useState<Company
       
       const data = await leadsApi.getCompanies(filters);
       setCompanies(data);
-    } catch (error) {
-      toast({
-        title: 'Fel',
-        description: 'Kunde inte hämta företagsdata',
+    } catch (error) {      toast({
+        title: t('common.error'),
+        description: t('toast.exportFailedDescription'),
         variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, industryFilter, toast]);
+  }, [statusFilter, industryFilter, toast, t]);
 
   useEffect(() => {
     loadCompanies();
@@ -52,10 +53,9 @@ const LeadTracking = () => {  const [companies, setCompanies] = useState<Company
       a.download = `companies_${format(new Date(), 'yyyy-MM-dd')}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      
-      toast({
-        title: 'Export slutförd',
-        description: 'Företagsdata har exporterats till CSV'
+        toast({
+        title: t('toast.exportCompleted'),
+        description: t('toast.exportDescription')
       });
     } catch (error) {
       toast({
@@ -74,12 +74,11 @@ const LeadTracking = () => {  const [companies, setCompanies] = useState<Company
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
-
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'hot': return 'Het';
-      case 'warm': return 'Varm';
-      case 'cold': return 'Kall';
+      case 'hot': return t('leadTracking.status.hot');
+      case 'warm': return t('leadTracking.status.warm');
+      case 'cold': return t('leadTracking.status.cold');
       default: return status;
     }
   };
@@ -93,16 +92,15 @@ const LeadTracking = () => {  const [companies, setCompanies] = useState<Company
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Lead Tracking</h1>
+        <div className="flex justify-between items-center">          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{t('leadTracking.title')}</h1>
             <p className="text-muted-foreground">
-              Spåra företag som besöker din webbplats och identifiera potentiella kunder
+              {t('leadTracking.description')}
             </p>
           </div>
           <Button onClick={handleExport} className="flex items-center gap-2">
             <Download className="h-4 w-4" />
-            Exportera CSV
+            {t('leadTracking.exportCSV')}
           </Button>
         </div>
 
@@ -112,9 +110,8 @@ const LeadTracking = () => {  const [companies, setCompanies] = useState<Company
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Sök företag, domän eller bransch..."
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />                  <Input
+                    placeholder={t('placeholders.companyDomainIndustry')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-9"
@@ -122,18 +119,18 @@ const LeadTracking = () => {  const [companies, setCompanies] = useState<Company
                 </div>
               </div>              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder={t('common.status')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Alla statusar</SelectItem>
-                  <SelectItem value="hot">Het</SelectItem>
-                  <SelectItem value="warm">Varm</SelectItem>
-                  <SelectItem value="cold">Kall</SelectItem>
+                  <SelectItem value="hot">{t('leadTracking.status.hot')}</SelectItem>
+                  <SelectItem value="warm">{t('leadTracking.status.warm')}</SelectItem>
+                  <SelectItem value="cold">{t('leadTracking.status.cold')}</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={industryFilter} onValueChange={setIndustryFilter}>
                 <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Bransch" />
+                  <SelectValue placeholder={t('common.industry')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Alla branscher</SelectItem>

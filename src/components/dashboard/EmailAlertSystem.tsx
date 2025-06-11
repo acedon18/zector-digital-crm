@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,44 +35,44 @@ interface AlertRule {
 const defaultTemplates: EmailTemplate[] = [
   {
     id: 'hot-lead-alert',
-    name: 'Het Lead Identifierat',
-    subject: '🔥 Nytt het lead: {{company_name}} - {{score}} poäng',
-    body: `Hej!
+    name: 'Hot Lead Identified',
+    subject: '🔥 New hot lead: {{company_name}} - {{score}} points',
+    body: `Hello!
 
-Ett nytt het lead har identifierats:
+A new hot lead has been identified:
 
-Företag: {{company_name}}
-Domän: {{company_domain}}
-Bransch: {{company_industry}}
-Poäng: {{score}}/100
-Senaste besök: {{last_visit}}
-Totala besök: {{total_visits}}
+Company: {{company_name}}
+Domain: {{company_domain}}
+Industry: {{company_industry}}
+Score: {{score}}/100
+Last visit: {{last_visit}}
+Total visits: {{total_visits}}
 
-Åtgärder som lett till hög poäng:
+Actions that led to high score:
 {{actions_taken}}
 
-Rekommenderad nästa åtgärd: {{recommended_action}}
+Recommended next action: {{recommended_action}}
 
-Gå till dashboard: {{dashboard_link}}
+Go to dashboard: {{dashboard_link}}
 
-Bästa hälsningar,
+Best regards,
 Zector Digital Lead Intelligence`,
     trigger: 'hot_lead',
     isActive: true
   },
   {
     id: 'pricing-interest',
-    name: 'Prissida Besökt',
-    subject: '💰 {{company_name}} kollar på era priser',
-    body: `{{company_name}} från {{company_industry}}-branschen har precis besökt er prissida.
+    name: 'Pricing Page Visited',
+    subject: '💰 {{company_name}} is checking your prices',
+    body: `{{company_name}} from {{company_industry}} industry has just visited your pricing page.
 
-Detta indikerar starkt köpintresse. De spenderade {{time_on_page}} minuter på sidan.
+This indicates strong purchase interest. They spent {{time_on_page}} minutes on the page.
 
-Historik:
-- Totala besök: {{total_visits}}
-- Senaste aktivitet: {{recent_pages}}
+History:
+- Total visits: {{total_visits}}
+- Recent activity: {{recent_pages}}
 
-Kontakta dem medan intresset är varmt!
+Contact them while interest is warm!
 
 Dashboard: {{dashboard_link}}`,
     trigger: 'pricing_page',
@@ -79,17 +80,17 @@ Dashboard: {{dashboard_link}}`,
   },
   {
     id: 'high-engagement',
-    name: 'Högt Engagemang',
-    subject: '⭐ {{company_name}} visar högt engagemang',
-    body: `{{company_name}} har visat exceptionellt högt engagemang:
+    name: 'High Engagement',
+    subject: '⭐ {{company_name}} shows high engagement',
+    body: `{{company_name}} has shown exceptionally high engagement:
 
-- Session längd: {{session_duration}} minuter
-- Sidor besökta: {{pages_viewed}}
-- Nedladdningar: {{downloads}}
+- Session length: {{session_duration}} minutes
+- Pages visited: {{pages_viewed}}
+- Downloads: {{downloads}}
 
-Detta är en stark signal om köpintresse. Överväg att kontakta dem direkt.
+This is a strong signal of purchase interest. Consider contacting them directly.
 
-Se full aktivitet: {{dashboard_link}}`,
+See full activity: {{dashboard_link}}`,
     trigger: 'high_engagement',
     isActive: true
   }
@@ -98,7 +99,7 @@ Se full aktivitet: {{dashboard_link}}`,
 const defaultRules: AlertRule[] = [
   {
     id: 'immediate-hot-leads',
-    name: 'Omedelbara Heta Leads',
+    name: 'Immediate Hot Leads',
     trigger: 'score_increase',
     condition: 'score >= 85',
     recipients: ['sales@example.com'],
@@ -108,7 +109,7 @@ const defaultRules: AlertRule[] = [
   },
   {
     id: 'pricing-page-visits',
-    name: 'Prissida Besök',
+    name: 'Pricing Page Visits',
     trigger: 'page_visit',
     condition: 'page_url contains "pricing" OR page_url contains "priser"',
     recipients: ['sales@example.com'],
@@ -118,7 +119,7 @@ const defaultRules: AlertRule[] = [
   },
   {
     id: 'high-engagement-sessions',
-    name: 'Långa Sessioner',
+    name: 'Long Sessions',
     trigger: 'session_end',
     condition: 'session_duration >= 300 AND pages_viewed >= 5',
     recipients: ['sales@example.com'],
@@ -129,26 +130,24 @@ const defaultRules: AlertRule[] = [
 ];
 
 export const EmailAlertSystem = () => {
+  const { t } = useTranslation();
   const [templates, setTemplates] = useState<EmailTemplate[]>(defaultTemplates);
   const [rules, setRules] = useState<AlertRule[]>(defaultRules);
   const [activeTab, setActiveTab] = useState('rules');
   const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
   const [testEmail, setTestEmail] = useState('');
-
   const sendTestEmail = async (templateId: string) => {
     if (!testEmail) {
       toast({
-        title: 'Fel',
-        description: 'Ange en e-postadress för test',
+        title: t('common.error'),
+        description: t('emailAlerts.enterEmailForTest'),
         variant: 'destructive'
       });
       return;
-    }
-
-    // Simulate sending test email
+    }    // Simulate sending test email
     toast({
-      title: 'Test-email skickat!',
-      description: `Test-email skickat till ${testEmail}`
+      title: t('emailAlerts.testEmailSent'),
+      description: t('emailAlerts.testEmailSentTo', { email: testEmail })
     });
   };
 
@@ -173,31 +172,29 @@ export const EmailAlertSystem = () => {
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
-
   const getPriorityText = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'Akut';
-      case 'high': return 'Hög';
-      case 'medium': return 'Medium';
-      case 'low': return 'Låg';
+      case 'urgent': return t('priority.urgent');
+      case 'high': return t('priority.high');
+      case 'medium': return t('priority.medium');
+      case 'low': return t('priority.low');
       default: return priority;
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Email Alert System</h2>
+    <div className="space-y-6">      <div>
+        <h2 className="text-xl font-semibold mb-2">{t('emailAlerts.title')}</h2>
         <p className="text-sm text-muted-foreground">
-          Konfigurera automatiska e-postaviseringar för viktiga lead-aktiviteter
+          {t('emailAlerts.description')}
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="rules">Regler</TabsTrigger>
-          <TabsTrigger value="templates">Mallar</TabsTrigger>
-          <TabsTrigger value="settings">Inställningar</TabsTrigger>
+          <TabsTrigger value="rules">{t('emailAlerts.rules')}</TabsTrigger>
+          <TabsTrigger value="templates">{t('emailAlerts.templates')}</TabsTrigger>
+          <TabsTrigger value="settings">{t('emailAlerts.settings')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="rules" className="space-y-4">
@@ -205,7 +202,7 @@ export const EmailAlertSystem = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="h-5 w-5" />
-                Aktiva Varningsregler
+                {t('emailAlerts.activeRules')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -217,18 +214,16 @@ export const EmailAlertSystem = () => {
                         <h3 className="font-medium">{rule.name}</h3>
                         <Badge className={getPriorityColor(rule.priority)}>
                           {getPriorityText(rule.priority)}
-                        </Badge>
-                        {rule.isActive ? (
-                          <Badge variant="secondary" className="bg-green-100 text-green-800">Aktiv</Badge>
+                        </Badge>                        {rule.isActive ? (
+                          <Badge variant="secondary" className="bg-green-100 text-green-800">{t('status.active')}</Badge>
                         ) : (
-                          <Badge variant="secondary">Inaktiv</Badge>
+                          <Badge variant="secondary">{t('status.inactive')}</Badge>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-2">
-                        <strong>Trigger:</strong> {rule.trigger} | <strong>Villkor:</strong> {rule.condition}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        <strong>Mottagare:</strong> {rule.recipients.join(', ')}
+                        <strong>{t('emailAlerts.trigger')}:</strong> {rule.trigger} | <strong>{t('emailAlerts.condition')}:</strong> {rule.condition}
+                      </p>                      <p className="text-sm text-muted-foreground">
+                        <strong>{t('emailAlerts.recipients')}:</strong> {rule.recipients.join(', ')}
                       </p>
                     </div>
                     <Switch 
@@ -241,18 +236,17 @@ export const EmailAlertSystem = () => {
 
               <Button className="w-full">
                 <Bell className="h-4 w-4 mr-2" />
-                Lägg till ny regel
+                {t('emailAlerts.addNewRule')}
               </Button>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="templates" className="space-y-4">
-          <Card>
-            <CardHeader>
+          <Card>            <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="h-5 w-5" />
-                E-postmallar
+                {t('emailAlerts.emailTemplates')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -284,9 +278,8 @@ export const EmailAlertSystem = () => {
                   </div>
                   
                   <div className="border-t pt-3 mt-3">
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="test@example.com"
+                    <div className="flex gap-2">                      <Input
+                        placeholder={t('placeholders.testEmail')}
                         value={testEmail}
                         onChange={(e) => setTestEmail(e.target.value)}
                         className="flex-1"
@@ -324,20 +317,19 @@ export const EmailAlertSystem = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="smtp-host">SMTP Server</Label>
-                  <Input id="smtp-host" placeholder="smtp.gmail.com" />
+                  <Label htmlFor="smtp-host">SMTP Server</Label>                  <Input id="smtp-host" placeholder={t('placeholders.smtpHost')} />
                 </div>
                 <div>
                   <Label htmlFor="smtp-port">Port</Label>
-                  <Input id="smtp-port" placeholder="587" />
+                  <Input id="smtp-port" placeholder={t('placeholders.smtpPort')} />
                 </div>
                 <div>
                   <Label htmlFor="smtp-user">Användarnamn</Label>
-                  <Input id="smtp-user" placeholder="din-email@example.com" />
+                  <Input id="smtp-user" placeholder={t('placeholders.yourEmail')} />
                 </div>
                 <div>
                   <Label htmlFor="smtp-pass">Lösenord</Label>
-                  <Input id="smtp-pass" type="password" placeholder="ditt-lösenord" />
+                  <Input id="smtp-pass" type="password" placeholder={t('placeholders.yourPassword')} />
                 </div>
                 <Button className="w-full">
                   <Send className="h-4 w-4 mr-2" />
@@ -365,16 +357,14 @@ export const EmailAlertSystem = () => {
                     <p className="text-sm text-muted-foreground">Skicka max 1 e-post per timme</p>
                   </div>
                   <Switch defaultChecked />
-                </div>
-
-                <div>
+                </div>                <div>
                   <Label htmlFor="from-email">Från e-postadress</Label>
-                  <Input id="from-email" placeholder="noreply@zectordigital.com" />
+                  <Input id="from-email" placeholder={t('placeholders.fromEmail')} />
                 </div>
 
                 <div>
                   <Label htmlFor="from-name">Avsändarnamn</Label>
-                  <Input id="from-name" placeholder="Zector Digital" />
+                  <Input id="from-name" placeholder={t('placeholders.fromName')} />
                 </div>
 
                 <Button className="w-full">

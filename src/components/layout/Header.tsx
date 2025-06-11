@@ -5,13 +5,17 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 interface HeaderProps {
   toggleSidebar: () => void;
   openSettings: () => void;
 }
 
 export function Header({ toggleSidebar, openSettings }: HeaderProps) {
+  const { t } = useTranslation();
+  
   return (
     <header className="sticky top-0 z-30 bg-background border-b border-border h-16 flex items-center px-4 md:px-6 shadow-sm">
       <div className="flex items-center gap-2 md:gap-4 w-full">
@@ -29,8 +33,10 @@ export function Header({ toggleSidebar, openSettings }: HeaderProps) {
         <div className="flex items-center md:ml-auto md:gap-4 gap-2">
           <div className="relative hidden md:flex md:flex-1 max-w-md">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input type="search" placeholder="Sök leads, företag..." className="pl-8 bg-muted/30 border-muted focus-visible:ring-primary" />
+            <Input type="search" placeholder={t('placeholders.searchLeadsCompany')} className="pl-8 bg-muted/30 border-muted focus-visible:ring-primary" />
           </div>
+
+          <LanguageSwitcher />
 
           <ThemeToggle />
 
@@ -38,7 +44,7 @@ export function Header({ toggleSidebar, openSettings }: HeaderProps) {
 
           <Button variant="ghost" size="icon" onClick={openSettings}>
             <Settings className="h-5 w-5" />
-            <span className="sr-only">Inställningar</span>
+            <span className="sr-only">{t('navigation.settings')}</span>
           </Button>
 
           <DropdownMenu>
@@ -51,13 +57,13 @@ export function Header({ toggleSidebar, openSettings }: HeaderProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('buttons.myAccount')}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Billing</DropdownMenuItem>
+              <DropdownMenuItem>{t('buttons.profile')}</DropdownMenuItem>
+              <DropdownMenuItem>{t('navigation.settings')}</DropdownMenuItem>
+              <DropdownMenuItem>{t('navigation.billing')}</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Log out</DropdownMenuItem>
+              <DropdownMenuItem>{t('buttons.logOut')}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

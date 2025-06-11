@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -126,6 +127,7 @@ const invoices = [
 ];
 
 const Billing = () => {
+  const { t } = useTranslation();
   const [selectedService, setSelectedService] = useState<string | null>(null);
 
   const getStatusColor = (status: string) => {
@@ -178,26 +180,25 @@ const Billing = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="space-y-6">        <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Billing & Services</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{t('billing.title')}</h1>
             <p className="text-muted-foreground">
-              Manage your subscriptions, view invoices, and explore additional services
+              {t('billing.description')}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">Monthly Total</p>
+            <p className="text-sm text-muted-foreground">{t('billing.monthlyTotal')}</p>
             <p className="text-2xl font-bold">{totalMonthlySpend.toLocaleString('sv-SE')} SEK</p>
           </div>
         </div>
 
         <Tabs defaultValue="services" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="services">Current Services</TabsTrigger>
-            <TabsTrigger value="invoices">Invoices</TabsTrigger>
-            <TabsTrigger value="add-services">Add Services</TabsTrigger>
-            <TabsTrigger value="agreement">Agreement</TabsTrigger>
+            <TabsTrigger value="services">{t('billing.services')}</TabsTrigger>
+            <TabsTrigger value="invoices">{t('billing.invoices')}</TabsTrigger>
+            <TabsTrigger value="add-services">{t('billing.addServices')}</TabsTrigger>
+            <TabsTrigger value="agreement">{t('billing.agreement')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="services" className="space-y-6">
@@ -218,35 +219,30 @@ const Billing = () => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-semibold">{service.price.toLocaleString('sv-SE')} SEK/mån</p>
-                          <Badge className={getStatusColor(service.status)}>
-                            {service.status === 'active' ? 'Aktiv' : service.status}
+                          <p className="text-lg font-semibold">{service.price.toLocaleString('sv-SE')} SEK/mån</p>                          <Badge className={getStatusColor(service.status)}>
+                            {service.status === 'active' ? t('status.active') : service.status}
                           </Badge>
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-muted-foreground">Startdatum</p>
+                      <div className="grid grid-cols-2 gap-4">                        <div>
+                          <p className="text-sm text-muted-foreground">{t('billing.startDate')}</p>
                           <p className="font-medium">{format(service.startDate, 'dd MMM yyyy')}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Slutdatum</p>
+                          <p className="text-sm text-muted-foreground">{t('billing.endDate')}</p>
                           <p className="font-medium">{format(service.endDate, 'dd MMM yyyy')}</p>
                         </div>
                       </div>
                       
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Avtalstid</span>
-                          <span>{daysRemaining} dagar kvar</span>
+                      <div className="space-y-2">                        <div className="flex justify-between text-sm">
+                          <span>{t('billing.contractTime')}</span>
+                          <span>{daysRemaining} {t('billing.daysLeft')}</span>
                         </div>
                         <Progress value={progress} className="h-2" />
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-2">Inkluderade funktioner</p>
+                      </div>                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">{t('billing.includedFeatures')}</p>
                         <div className="flex flex-wrap gap-2">
                           {service.features.map((feature, index) => (
                             <Badge key={index} variant="outline" className="text-xs">
@@ -264,26 +260,23 @@ const Billing = () => {
 
           <TabsContent value="invoices" className="space-y-6">
             <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Fakturor & Betalningar</CardTitle>
-                  <Button variant="outline" className="flex items-center gap-2">
+              <CardHeader>                <div className="flex items-center justify-between">
+                  <CardTitle>{t('billing.invoicesPayments')}</CardTitle><Button variant="outline" className="flex items-center gap-2">
                     <Download className="h-4 w-4" />
-                    Exportera alla
+                    {t('billing.exportAll')}
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
                 <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Fakturanummer</TableHead>
-                      <TableHead>Datum</TableHead>
-                      <TableHead>Tjänster</TableHead>
-                      <TableHead>Förfallodag</TableHead>
-                      <TableHead>Belopp</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Åtgärder</TableHead>
+                  <TableHeader>                    <TableRow>
+                      <TableHead>{t('billing.invoiceNumber')}</TableHead>
+                      <TableHead>{t('billing.date')}</TableHead>
+                      <TableHead>{t('billing.services')}</TableHead>
+                      <TableHead>{t('billing.dueDate')}</TableHead>
+                      <TableHead>{t('billing.amount')}</TableHead>
+                      <TableHead>{t('common.status')}</TableHead>
+                      <TableHead>{t('billing.actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -304,15 +297,13 @@ const Billing = () => {
                         <TableCell className="font-medium">
                           {invoice.amount.toLocaleString('sv-SE')} SEK
                         </TableCell>
-                        <TableCell>
-                          <Badge className={getInvoiceStatusColor(invoice.status)}>
-                            {invoice.status === 'paid' ? 'Betald' : invoice.status}
+                        <TableCell>                          <Badge className={getInvoiceStatusColor(invoice.status)}>
+                            {invoice.status === 'paid' ? t('billing.paid') : invoice.status}
                           </Badge>
                         </TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                        <TableCell>                          <Button variant="ghost" size="sm" className="flex items-center gap-1">
                             <Download className="h-3 w-3" />
-                            Ladda ner
+                            {t('buttons.download')}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -340,25 +331,20 @@ const Billing = () => {
                     <div className="text-center py-4">
                       <p className="text-3xl font-bold">
                         {service.price.toLocaleString('sv-SE')} SEK
+                      </p>                      <p className="text-sm text-muted-foreground">
+                        {service.isOneTime ? t('billing.oneTime') : t('billing.perMonth')}
                       </p>
-                      <p className="text-sm text-muted-foreground">
-                        {service.isOneTime ? 'Engångsavgift' : 'per månad'}
-                      </p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium">Inkluderat:</p>
+                    </div>                    <div className="space-y-2">
+                      <p className="text-sm font-medium">{t('billing.included')}:</p>
                       {service.features.map((feature, index) => (
                         <div key={index} className="flex items-center gap-2 text-sm">
                           <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
                           {feature}
                         </div>
                       ))}
-                    </div>
-
-                    <Button className="w-full" onClick={() => setSelectedService(service.id)}>
+                    </div>                    <Button className="w-full" onClick={() => setSelectedService(service.id)}>
                       <Plus className="h-4 w-4 mr-2" />
-                      Lägg till tjänst
+                      {t('buttons.addService')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -368,16 +354,14 @@ const Billing = () => {
 
           <TabsContent value="agreement" className="space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+              <CardHeader>                <CardTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
-                  Serviceavtal med Zector Digital
+                  {t('billing.serviceAgreement')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-semibold mb-2">Avtalsinformation</h3>
+                <div className="grid grid-cols-2 gap-6">                  <div>
+                    <h3 className="font-semibold mb-2">{t('billing.contractInfo')}</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Avtalsnummer:</span>
@@ -397,34 +381,30 @@ const Billing = () => {
                       </div>
                     </div>
                   </div>
-                  
-                  <div>
-                    <h3 className="font-semibold mb-2">Kontaktinformation</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Kontoansvarig:</span>
+                    <div>
+                    <h3 className="font-semibold mb-2">{t('common.contactInfo')}</h3>
+                    <div className="space-y-2 text-sm">                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">{t('common.accountManager')}:</span>
                         <span>Marcus Andersson</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">E-post:</span>
+                        <span className="text-muted-foreground">{t('common.email')}:</span>
                         <span>marcus@zectordigital.se</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Telefon:</span>
+                        <span className="text-muted-foreground">{t('common.phone')}:</span>
                         <span>+46 8 123 456 78</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Support:</span>
+                        <span className="text-muted-foreground">{t('common.support')}:</span>
                         <span>support@zectordigital.se</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <Separator />
-
-                <div>
-                  <h3 className="font-semibold mb-4">Avtalsdokument</h3>
+                <Separator />                <div>
+                  <h3 className="font-semibold mb-4">{t('billing.contractDocuments')}</h3>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-3">

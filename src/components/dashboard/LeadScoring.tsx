@@ -12,6 +12,7 @@ import { Star, Settings, TrendingUp, Eye, Clock, Download, Phone } from 'lucide-
 import { Company } from '@/types/leads';
 import { leadsApi } from '@/lib/api';
 import { toast } from '@/components/ui/use-toast';
+import { useTranslation } from 'react-i18next';
 
 interface ScoringRule {
   id: string;
@@ -25,24 +26,24 @@ interface ScoringRule {
 const defaultRules: ScoringRule[] = [
   {
     id: 'pricing-page',
-    name: 'Besökt prissida',
-    description: 'Företag som besökt prissidan',
+    name: 'Visited pricing page',
+    description: 'Companies that visited pricing page',
     points: 25,
     isActive: true,
     icon: Star
   },
   {
     id: 'contact-page',
-    name: 'Besökt kontaktsida',
-    description: 'Företag som besökt kontaktinformation',
+    name: 'Visited contact page',
+    description: 'Companies that visited contact information',
     points: 30,
     isActive: true,
     icon: Phone
   },
   {
     id: 'demo-page',
-    name: 'Bokat demo',
-    description: 'Företag som visat intresse för demo',
+    name: 'Booked demo',
+    description: 'Companies that showed interest in demo',
     points: 40,
     isActive: true,
     icon: Eye
@@ -74,6 +75,7 @@ const defaultRules: ScoringRule[] = [
 ];
 
 export const LeadScoring = () => {
+  const { t } = useTranslation();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [rules, setRules] = useState<ScoringRule[]>(defaultRules);
   const [loading, setLoading] = useState(true);
@@ -90,8 +92,8 @@ export const LeadScoring = () => {
       setCompanies(data);
     } catch (error) {
       toast({
-        title: 'Fel',
-        description: 'Kunde inte hämta företagsdata',
+        title: t('error'),
+        description: t('could_not_fetch_companies'),
         variant: 'destructive'
       });
     } finally {
@@ -110,11 +112,10 @@ export const LeadScoring = () => {
     if (score >= 60) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
     return 'text-blue-600 bg-blue-50 border-blue-200';
   };
-
   const getScoreLevel = (score: number) => {
-    if (score >= 80) return 'Het';
-    if (score >= 60) return 'Varm';
-    return 'Kall';
+    if (score >= 80) return t('status.hot');
+    if (score >= 60) return t('status.warm');
+    return t('status.cold');
   };
 
   const sortedCompanies = [...companies].sort((a, b) => b.score - a.score);
@@ -124,21 +125,21 @@ export const LeadScoring = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-semibold">Lead Scoring</h2>
+          <h2 className="text-xl font-semibold">{t('lead_scoring')}</h2>
           <p className="text-sm text-muted-foreground">
-            Automatisk poängsättning baserat på besökarbeteende
+            {t('automatic_scoring_based_on_visitor_behavior')}
           </p>
         </div>
         <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
               <Settings className="h-4 w-4 mr-2" />
-              Konfigurera regler
+              {t('configure_rules')}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Konfigurera scoring-regler</DialogTitle>
+              <DialogTitle>{t('configure_scoring_rules')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-6 max-h-96 overflow-y-auto">
               {rules.map((rule) => {
@@ -154,7 +155,7 @@ export const LeadScoring = () => {
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right min-w-20">
-                        <Label htmlFor={`points-${rule.id}`} className="text-xs">Poäng</Label>
+                        <Label htmlFor={`points-${rule.id}`} className="text-xs">{t('points')}</Label>
                         <div className="flex items-center gap-2">
                           <Slider
                             id={`points-${rule.id}`}
@@ -179,7 +180,7 @@ export const LeadScoring = () => {
             </div>
             <div className="pt-4 border-t">
               <div className="text-sm text-muted-foreground">
-                Totala möjliga poäng: <span className="font-medium">{totalActivePoints}</span>
+                {t('total_possible_points')}: <span className="font-medium">{totalActivePoints}</span>
               </div>
             </div>
           </DialogContent>
@@ -194,7 +195,7 @@ export const LeadScoring = () => {
               <div className="w-3 h-3 bg-red-500 rounded-full"></div>
               <div>
                 <p className="text-2xl font-bold">{companies.filter(c => c.score >= 80).length}</p>
-                <p className="text-xs text-muted-foreground">Heta leads (80+)</p>
+                <p className="text-xs text-muted-foreground">{t('hot_leads')} (80+)</p>
               </div>
             </div>
           </CardContent>
@@ -206,7 +207,7 @@ export const LeadScoring = () => {
               <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
               <div>
                 <p className="text-2xl font-bold">{companies.filter(c => c.score >= 60 && c.score < 80).length}</p>
-                <p className="text-xs text-muted-foreground">Varma leads (60-79)</p>
+                <p className="text-xs text-muted-foreground">{t('warm_leads')} (60-79)</p>
               </div>
             </div>
           </CardContent>
@@ -218,7 +219,7 @@ export const LeadScoring = () => {
               <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
               <div>
                 <p className="text-2xl font-bold">{companies.filter(c => c.score < 60).length}</p>
-                <p className="text-xs text-muted-foreground">Kalla leads (&lt;60)</p>
+                <p className="text-xs text-muted-foreground">{t('cold_leads')} (&lt;60)</p>
               </div>
             </div>
           </CardContent>
@@ -230,7 +231,7 @@ export const LeadScoring = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="h-5 w-5" />
-            Högst rankade företag
+            {t('top_rated_companies')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -242,12 +243,12 @@ export const LeadScoring = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Ranking</TableHead>
-                  <TableHead>Företag</TableHead>
-                  <TableHead>Bransch</TableHead>
-                  <TableHead>Besök</TableHead>
-                  <TableHead>Poäng</TableHead>
-                  <TableHead>Nivå</TableHead>
+                  <TableHead>{t('ranking')}</TableHead>
+                  <TableHead>{t('company')}</TableHead>
+                  <TableHead>{t('industry')}</TableHead>
+                  <TableHead>{t('visits')}</TableHead>
+                  <TableHead>{t('points')}</TableHead>
+                  <TableHead>{t('level')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

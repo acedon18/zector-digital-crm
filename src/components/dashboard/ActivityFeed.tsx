@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 type ActivityType = 'call' | 'email' | 'meeting' | 'note';
 
@@ -94,10 +95,12 @@ function ActivityTypeIcon({ type }: { type: ActivityType }) {
 }
 
 export function ActivityFeed() {
+  const { t } = useTranslation();
+
   return (
     <Card className="dashboard-card">
       <CardHeader className="mb-6 p-0">
-        <CardTitle className="text-lg font-medium">Activity Feed</CardTitle>
+        <CardTitle className="text-lg font-medium">{t('activityFeed.title')}</CardTitle>
       </CardHeader>
       <CardContent className="overflow-auto max-h-[400px] px-0 pt-4">
         <div className="space-y-5">
@@ -111,7 +114,7 @@ export function ActivityFeed() {
                 <div className="flex flex-wrap gap-2 items-center text-sm ">
                   <span className="font-medium">{activity.user.name}</span>
                   <ActivityTypeIcon type={activity.type} />
-                  <span>with</span>
+                  <span>{t('activityFeed.with')}</span>
                   <span className="font-medium">{activity.target}</span>
                 </div>
                 <p className="text-sm text-muted-foreground">{activity.content}</p>
