@@ -202,10 +202,9 @@ export default function CompanyProfile() {
                     <div className="flex items-center space-x-1">
                       <MapPin className="h-4 w-4" />
                       <span>{company.location.city}, {company.location.country}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
+                    </div>                    <div className="flex items-center space-x-1">
                       <Users className="h-4 w-4" />
-                      <span>{company.size} anställda</span>
+                      <span>{company.size} {t('common.employees')}</span>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2 mt-3">
@@ -322,9 +321,8 @@ export default function CompanyProfile() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="visits" fill="#f59e0b" name="Besök" />
-                    <Bar dataKey="avgTime" fill="#8b5cf6" name="Genomsnittlig tid (s)" />
+                    <Tooltip />                    <Bar dataKey="visits" fill="#f59e0b" name={t('analytics.visits')} />
+                    <Bar dataKey="avgTime" fill="#8b5cf6" name={t('analytics.avgTime')} />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>

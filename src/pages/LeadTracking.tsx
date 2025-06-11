@@ -120,9 +120,8 @@ const LeadTracking = () => {  const [companies, setCompanies] = useState<Company
               </div>              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder={t('common.status')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Alla statusar</SelectItem>
+                </SelectTrigger>                <SelectContent>
+                  <SelectItem value="all">{t('common.allStatuses')}</SelectItem>
                   <SelectItem value="hot">{t('leadTracking.status.hot')}</SelectItem>
                   <SelectItem value="warm">{t('leadTracking.status.warm')}</SelectItem>
                   <SelectItem value="cold">{t('leadTracking.status.cold')}</SelectItem>
@@ -131,26 +130,23 @@ const LeadTracking = () => {  const [companies, setCompanies] = useState<Company
               <Select value={industryFilter} onValueChange={setIndustryFilter}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder={t('common.industry')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Alla branscher</SelectItem>
-                  <SelectItem value="Technology">Teknik</SelectItem>
-                  <SelectItem value="Financial Services">Finansiella tjänster</SelectItem>
-                  <SelectItem value="Manufacturing">Tillverkning</SelectItem>
-                  <SelectItem value="Retail">Detaljhandel</SelectItem>
-                  <SelectItem value="Healthcare">Sjukvård</SelectItem>
+                </SelectTrigger>                <SelectContent>
+                  <SelectItem value="all">{t('common.allIndustries')}</SelectItem>
+                  <SelectItem value="Technology">{t('industries.technology')}</SelectItem>
+                  <SelectItem value="Financial Services">{t('industries.finance')}</SelectItem>
+                  <SelectItem value="Manufacturing">{t('industries.manufacturing')}</SelectItem>
+                  <SelectItem value="Retail">{t('industries.retail')}</SelectItem>
+                  <SelectItem value="Healthcare">{t('industries.healthcare')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </CardContent>
-        </Card>
-
-        {/* Företagslista */}
+        </Card>        {/* Company list */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Eye className="h-5 w-5" />
-              Identifierade företag ({filteredCompanies.length})
+              {t('leadTracking.identifiedCompanies', { count: filteredCompanies.length })}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -159,16 +155,15 @@ const LeadTracking = () => {  const [companies, setCompanies] = useState<Company
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             ) : (
-              <Table>
-                <TableHeader>
+              <Table>                <TableHeader>
                   <TableRow>
-                    <TableHead>Företag</TableHead>
-                    <TableHead>Bransch</TableHead>
-                    <TableHead>Plats</TableHead>
-                    <TableHead>Senaste besök</TableHead>
-                    <TableHead>Besök</TableHead>
-                    <TableHead>Poäng</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>{t('common.company')}</TableHead>
+                    <TableHead>{t('common.industry')}</TableHead>
+                    <TableHead>{t('common.location')}</TableHead>
+                    <TableHead>{t('leadTracking.lastVisit')}</TableHead>
+                    <TableHead>{t('leadTracking.totalVisits')}</TableHead>
+                    <TableHead>{t('common.score')}</TableHead>
+                    <TableHead>{t('common.status')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

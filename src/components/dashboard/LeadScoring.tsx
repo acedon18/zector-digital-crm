@@ -47,27 +47,25 @@ const defaultRules: ScoringRule[] = [
     points: 40,
     isActive: true,
     icon: Eye
-  },
-  {
+  },  {
     id: 'multiple-visits',
-    name: 'Flera besök',
-    description: 'Företag med 3+ besök',
+    name: t('leadScoring.multipleVisits'),
+    description: t('leadScoring.multipleVisitsDesc'),
     points: 20,
     isActive: true,
     icon: TrendingUp
-  },
-  {
+  },  {
     id: 'long-session',
-    name: 'Långa sessioner',
-    description: 'Sessionstid över 5 minuter',
+    name: 'Long sessions',
+    description: 'Session time over 5 minutes',
     points: 15,
     isActive: true,
     icon: Clock
   },
   {
     id: 'downloaded-content',
-    name: 'Nedladdat innehåll',
-    description: 'Laddat ner whitepaper, case studies etc',
+    name: 'Downloaded content',
+    description: 'Downloaded whitepaper, case studies etc',
     points: 35,
     isActive: true,
     icon: Download

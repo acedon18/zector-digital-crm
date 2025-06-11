@@ -255,18 +255,17 @@ export const EmailAlertSystem = () => {
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium">{template.name}</h3>
-                        {template.isActive ? (
-                          <Badge variant="secondary" className="bg-green-100 text-green-800">Aktiv</Badge>
+                        <h3 className="font-medium">{template.name}</h3>                        {template.isActive ? (
+                          <Badge variant="secondary" className="bg-green-100 text-green-800">{t('status.active')}</Badge>
                         ) : (
-                          <Badge variant="secondary">Inaktiv</Badge>
+                          <Badge variant="secondary">{t('status.inactive')}</Badge>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-2">
-                        <strong>Ämne:</strong> {template.subject}
+                        <strong>{t('emailAlerts.subject')}:</strong> {template.subject}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        <strong>Trigger:</strong> {template.trigger}
+                        <strong>{t('emailAlerts.trigger')}:</strong> {template.trigger}
                       </p>
                     </div>
                     <div className="flex gap-2">
@@ -283,118 +282,112 @@ export const EmailAlertSystem = () => {
                         value={testEmail}
                         onChange={(e) => setTestEmail(e.target.value)}
                         className="flex-1"
-                      />
-                      <Button 
+                      />                      <Button 
                         variant="outline" 
                         size="sm"
                         onClick={() => sendTestEmail(template.id)}
                       >
                         <Send className="h-4 w-4 mr-1" />
-                        Testa
+                        {t('emailAlerts.test')}
                       </Button>
                       <Button variant="outline" size="sm">
                         <Settings className="h-4 w-4 mr-1" />
-                        Redigera
+                        {t('emailAlerts.edit')}
                       </Button>
                     </div>
                   </div>
                 </div>
-              ))}
-
-              <Button className="w-full">
+              ))}              <Button className="w-full">
                 <Mail className="h-4 w-4 mr-2" />
-                Skapa ny mall
+                {t('emailAlerts.createNewTemplate')}
               </Button>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">            <Card>
               <CardHeader>
-                <CardTitle>SMTP Inställningar</CardTitle>
+                <CardTitle>{t('emailAlerts.smtpSettings')}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="smtp-host">SMTP Server</Label>                  <Input id="smtp-host" placeholder={t('placeholders.smtpHost')} />
+              <CardContent className="space-y-4">                <div>
+                  <Label htmlFor="smtp-host">{t('labels.smtpServer')}</Label>
+                  <Input id="smtp-host" placeholder={t('placeholders.smtpHost')} />
                 </div>
                 <div>
-                  <Label htmlFor="smtp-port">Port</Label>
+                  <Label htmlFor="smtp-port">{t('labels.port')}</Label>
                   <Input id="smtp-port" placeholder={t('placeholders.smtpPort')} />
                 </div>
                 <div>
-                  <Label htmlFor="smtp-user">Användarnamn</Label>
+                  <Label htmlFor="smtp-user">{t('labels.username')}</Label>
                   <Input id="smtp-user" placeholder={t('placeholders.yourEmail')} />
                 </div>
                 <div>
-                  <Label htmlFor="smtp-pass">Lösenord</Label>
+                  <Label htmlFor="smtp-pass">{t('labels.password')}</Label>
                   <Input id="smtp-pass" type="password" placeholder={t('placeholders.yourPassword')} />
                 </div>
                 <Button className="w-full">
                   <Send className="h-4 w-4 mr-2" />
-                  Testa anslutning
+                  {t('buttons.testConnection')}
                 </Button>
               </CardContent>
-            </Card>
-
-            <Card>
+            </Card>            <Card>
               <CardHeader>
-                <CardTitle>Allmänna Inställningar</CardTitle>
+                <CardTitle>{t('emailAlerts.generalSettings')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label>Aktivera e-postaviseringar</Label>
-                    <p className="text-sm text-muted-foreground">Huvudbrytare för alla e-postuppdateringar</p>
+                    <Label>{t('emailAlerts.enableEmailAlerts')}</Label>
+                    <p className="text-sm text-muted-foreground">{t('emailAlerts.mainToggleDesc')}</p>
                   </div>
                   <Switch defaultChecked />
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label>Samla meddelanden</Label>
-                    <p className="text-sm text-muted-foreground">Skicka max 1 e-post per timme</p>
+                    <Label>{t('emailAlerts.batchMessages')}</Label>
+                    <p className="text-sm text-muted-foreground">{t('emailAlerts.batchMessagesDesc')}</p>
                   </div>
                   <Switch defaultChecked />
-                </div>                <div>
-                  <Label htmlFor="from-email">Från e-postadress</Label>
+                </div>
+
+                <div>
+                  <Label htmlFor="from-email">{t('emailAlerts.fromEmailAddress')}</Label>
                   <Input id="from-email" placeholder={t('placeholders.fromEmail')} />
                 </div>
 
                 <div>
-                  <Label htmlFor="from-name">Avsändarnamn</Label>
+                  <Label htmlFor="from-name">{t('emailAlerts.senderName')}</Label>
                   <Input id="from-name" placeholder={t('placeholders.fromName')} />
                 </div>
 
                 <Button className="w-full">
                   <Settings className="h-4 w-4 mr-2" />
-                  Spara inställningar
+                  {t('emailAlerts.saveSettings')}
                 </Button>
               </CardContent>
             </Card>
-          </div>
-
-          <Card>
+          </div>          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5" />
-                Test & Felsökning
+                {t('emailAlerts.testAndTroubleshooting')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="bg-yellow-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-yellow-800 mb-2">Senaste e-postaviseringar</h4>
+                  <h4 className="font-medium text-yellow-800 mb-2">{t('emailAlerts.recentEmailAlerts')}</h4>
                   <div className="space-y-2">
                     <div className="text-sm">
-                      <span className="font-medium">09:23:</span> Het lead alert skickat för Volvo Group
+                      <span className="font-medium">09:23:</span> {t('emailAlerts.hotLeadAlertSent')} Volvo Group
                     </div>
                     <div className="text-sm">
-                      <span className="font-medium">08:45:</span> Prissida besök för Spotify Technology
+                      <span className="font-medium">08:45:</span> {t('emailAlerts.pricingPageVisit')} Spotify Technology
                     </div>
                     <div className="text-sm">
-                      <span className="font-medium">07:12:</span> Högt engagemang för Klarna Bank
+                      <span className="font-medium">07:12:</span> {t('emailAlerts.highEngagement')} Klarna Bank
                     </div>
                   </div>
                 </div>
@@ -402,11 +395,11 @@ export const EmailAlertSystem = () => {
                 <div className="flex gap-2">
                   <Button variant="outline" className="flex-1">
                     <Zap className="h-4 w-4 mr-2" />
-                    Skicka test-alert
+                    {t('emailAlerts.sendTestAlert')}
                   </Button>
                   <Button variant="outline" className="flex-1">
                     <Settings className="h-4 w-4 mr-2" />
-                    Visa loggar
+                    {t('buttons.showLogs')}
                   </Button>
                 </div>
               </div>

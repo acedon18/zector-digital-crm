@@ -362,21 +362,20 @@ const Billing = () => {
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">                  <div>
                     <h3 className="font-semibold mb-2">{t('billing.contractInfo')}</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Avtalsnummer:</span>
+                    <div className="space-y-2 text-sm">                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">{t('billing.contractNumber')}:</span>
                         <span>ZD-2024-0156</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Startdatum:</span>
+                        <span className="text-muted-foreground">{t('billing.startDate')}:</span>
                         <span>15 januari 2024</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Avtalsperiod:</span>
+                        <span className="text-muted-foreground">{t('billing.contractPeriod')}:</span>
                         <span>12 månader</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Automatisk förnyelse:</span>
+                        <span className="text-muted-foreground">{t('billing.autoRenewal')}:</span>
                         <span>Ja</span>
                       </div>
                     </div>
@@ -408,15 +407,14 @@ const Billing = () => {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-3">
-                        <FileText className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="font-medium">Huvudavtal - Digitala Marknadsföringstjänster</p>
-                          <p className="text-sm text-muted-foreground">Signerat 15 januari 2024</p>
+                        <FileText className="h-5 w-5 text-muted-foreground" />                        <div>
+                          <p className="font-medium">{t('billing.mainContract')}</p>
+                          <p className="text-sm text-muted-foreground">{t('billing.signedDate', { date: '15 januari 2024' })}</p>
                         </div>
                       </div>
                       <Button variant="outline" size="sm">
                         <Download className="h-4 w-4 mr-2" />
-                        Ladda ner
+                        {t('buttons.download')}
                       </Button>
                     </div>
                     
@@ -424,45 +422,41 @@ const Billing = () => {
                       <div className="flex items-center gap-3">
                         <FileText className="h-5 w-5 text-muted-foreground" />
                         <div>
-                          <p className="font-medium">Tilläggsavtal - Google Ads Management</p>
-                          <p className="text-sm text-muted-foreground">Signerat 1 mars 2024</p>
+                          <p className="font-medium">{t('billing.additionalContract')}</p>
+                          <p className="text-sm text-muted-foreground">{t('billing.signedDate', { date: '1 mars 2024' })}</p>
                         </div>
                       </div>
                       <Button variant="outline" size="sm">
                         <Download className="h-4 w-4 mr-2" />
-                        Ladda ner
+                        {t('buttons.download')}
                       </Button>
-                    </div>
-
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                    </div>                    <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-3">
                         <FileText className="h-5 w-5 text-muted-foreground" />
                         <div>
-                          <p className="font-medium">Allmänna Villkor</p>
+                          <p className="font-medium">{t('billing.generalTerms')}</p>
                           <p className="text-sm text-muted-foreground">Version 2.1 - Gäller från 1 januari 2024</p>
                         </div>
                       </div>
                       <Button variant="outline" size="sm">
                         <Download className="h-4 w-4 mr-2" />
-                        Ladda ner
+                        {t('buttons.download')}
                       </Button>
                     </div>
                   </div>
                 </div>
 
-                <Separator />
-
-                <div>
-                  <h3 className="font-semibold mb-2">Uppsägning & Förnyelse</h3>
+                <Separator />                <div>
+                  <h3 className="font-semibold mb-2">{t('billing.cancellationRenewal')}</h3>
                   <div className="bg-muted/50 p-4 rounded-lg space-y-2 text-sm">
                     <p>
-                      <strong>Uppsägningstid:</strong> 30 dagar före avtalsperiodens slut
+                      <strong>{t('billing.cancellationPeriod')}:</strong> 30 dagar före avtalsperiodens slut
                     </p>
                     <p>
-                      <strong>Nästa förnyelse:</strong> 15 januari 2025
+                      <strong>{t('billing.nextRenewal')}:</strong> 15 januari 2025
                     </p>
                     <p>
-                      <strong>Senaste uppsägningsdatum:</strong> 15 december 2024
+                      <strong>{t('billing.lastCancellationDate')}:</strong> 15 december 2024
                     </p>
                   </div>
                 </div>

@@ -37,9 +37,8 @@ export const LiveVisitors = () => {
   const loadRecentVisitors = async () => {
     try {
       const visitors = await leadsApi.getRecentVisitors(8);
-      setRecentVisitors(visitors);
-    } catch (error) {
-      console.error('Kunde inte hämta senaste besökare:', error);
+      setRecentVisitors(visitors);    } catch (error) {
+      console.error('Could not fetch recent visitors:', error);
     }
   };
 

@@ -119,7 +119,7 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="companyName">Företagsnamn</Label>
+                    <Label htmlFor="companyName">{t('labels.companyName')}</Label>
                     <Input
                       id="companyName"
                       value={profileSettings.companyName}
@@ -175,8 +175,8 @@ const Settings = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Aktivera spårning</Label>
-                      <p className="text-sm text-muted-foreground">Tillåt spårning av besökare på din webbplats</p>
+                      <Label>{t('settings.enableTracking')}</Label>
+                      <p className="text-sm text-muted-foreground">{t('settings.trackingDescription')}</p>
                     </div>
                     <Switch
                       checked={trackingSettings.enableTracking}
@@ -186,8 +186,8 @@ const Settings = () => {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>GDPR-kompatibelt läge</Label>
-                      <p className="text-sm text-muted-foreground">Följ EU:s dataskyddsförordning</p>
+                      <Label>{t('settings.gdprCompliant')}</Label>
+                      <p className="text-sm text-muted-foreground">{t('settings.gdprDescription')}</p>
                     </div>
                     <Switch
                       checked={trackingSettings.gdprCompliant}
@@ -197,8 +197,8 @@ const Settings = () => {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Anonymisera IP-adresser</Label>
-                      <p className="text-sm text-muted-foreground">Anonymisera besökarnas IP-adresser</p>
+                      <Label>{t('settings.anonymizeIp')}</Label>
+                      <p className="text-sm text-muted-foreground">{t('settings.ipDescription')}</p>
                     </div>
                     <Switch
                       checked={trackingSettings.anonymizeIp}
@@ -208,7 +208,7 @@ const Settings = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="sessionTimeout">Session timeout (minuter)</Label>
+                      <Label htmlFor="sessionTimeout">{t('settings.sessionTimeout')}</Label>
                       <Input
                         id="sessionTimeout"
                         type="number"
@@ -217,7 +217,7 @@ const Settings = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="dataRetention">Databevarande (dagar)</Label>
+                      <Label htmlFor="dataRetention">{t('settings.dataRetention')}</Label>
                       <Input
                         id="dataRetention"
                         type="number"
@@ -304,7 +304,7 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="hubspotApiKey">HubSpot API-nyckel</Label>
+                    <Label htmlFor="hubspotApiKey">{t('settings.hubspotApiKey')}</Label>
                     <Input
                       id="hubspotApiKey"
                       type="password"
@@ -315,7 +315,7 @@ const Settings = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="pipedriveApiKey">Pipedrive API-nyckel</Label>
+                    <Label htmlFor="pipedriveApiKey">{t('settings.pipedriveApiKey')}</Label>
                     <Input
                       id="pipedriveApiKey"
                       type="password"
@@ -334,12 +334,12 @@ const Settings = () => {
                       placeholder={t('placeholders.enterWebhookUrl')}
                     />
                     <p className="text-sm text-muted-foreground mt-1">
-                      URL för att skicka lead-data till dina egna system
+                      {t('settings.webhookDescription')}
                     </p>
                   </div>
 
                   <div>
-                    <Label htmlFor="exportFormat">Standard exportformat</Label>
+                    <Label htmlFor="exportFormat">{t('settings.exportFormat')}</Label>
                     <Select value={integrationSettings.exportFormat} onValueChange={(value) => setIntegrationSettings(prev => ({ ...prev, exportFormat: value }))}>
                       <SelectTrigger>
                         <SelectValue />
