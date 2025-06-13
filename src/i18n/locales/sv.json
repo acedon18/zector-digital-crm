@@ -1,4 +1,5 @@
-{  "dashboard": {
+{
+  "dashboard": {
     "title": "Instrumentpanel",
     "stats": "Statistik",
     "leads": "Leads",
@@ -53,6 +54,7 @@
     "open": "Öppna",
     "download": "Ladda ner",
     "upload": "Ladda upp",
+    "refresh": "Uppdatera",
     "status": "Status",
     "active": "Aktiv",
     "inactive": "Inaktiv",
@@ -62,19 +64,37 @@
     "email": "E-post",
     "phone": "Telefon",
     "address": "Adress",
-    "company": "Företag",    "website": "Webbplats",
+    "company": "Företag",
+    "website": "Webbplats",
     "domain": "Domän",
     "script": "Script",
-    "copied": "Kopierat",    "industry": "Bransch",
+    "copied": "Kopierat",
+    "industry": "Bransch",
     "location": "Plats",
     "score": "Poäng",
-    "beta": "Beta",
-    "allStatuses": "Alla statusar",
-    "allIndustries": "Alla branscher",
-    "employees": "anställda",
     "contactInfo": "Kontaktinformation",
     "accountManager": "Kontoansvarig",
-    "support": "Support"
+    "support": "Support",
+    "contractDocuments": "Kontraktsdokument",
+    "mainContract": "Huvudkontrakt - Digital Marknadsföringsservice",
+    "signed": "Signerat",
+    "additionalContract": "Tilläggskontrakt - Google Ads Management",
+    "generalTerms": "Allmänna Villkor",
+    "version": "Version",
+    "effectiveFrom": "Gäller från",
+    "beta": "Beta",
+    "lead_scoring": "Lead Scoring",
+    "automatic_scoring_based_on_visitor_behavior": "Automatisk poängsättning baserad på besökarbeteende",
+    "configure_rules": "Konfigurera Regler",
+    "configure_scoring_rules": "Konfigurera Scoring Regler",
+    "total_possible_points": "Totalt möjliga poäng",
+    "hot_leads": "Heta leads",
+    "warm_leads": "Varma leads",
+    "cold_leads": "Kalla leads",
+    "top_rated_companies": "Toppbedömda Företag",
+    "ranking": "Ranking",
+    "could_not_fetch_companies": "Kunde inte hämta företag",
+    "yes": "Ja"
   },
   "leadTracking": {
     "title": "Leadspårning",
@@ -86,7 +106,120 @@
       "hot": "Het",
       "warm": "Varm",
       "cold": "Kall"
-    }
+    },
+    "totalCompanies": "Totala Företag",
+    "platformEnhanced": "Plattform Förbättrade",
+    "averageScore": "Genomsnittlig Poäng",
+    "enrichmentQuality": "bearbetningskvalitet",
+    "connectedSources": "Anslutna Källor",
+    "activeIntegrations": "aktiva integrationer",
+    "enhancedTracking": "Förbättrad Spårning",
+    "platformData": "Plattformsdata",
+    "standardView": "Standardvy",
+    "standardLeadTracking": "Standard Leadspårning",
+    "standardTrackingDescription": "Denna vy visar traditionell leadspårning utan plattformsintegration. Växla till Förbättrad Spårning för att se de nya funktionerna med plattformsdatabearbetning.",
+    "inYourDatabase": "i din databas",
+    "coverage": "täckning",
+    "platforms": "Plattformar",
+    "enriched": "Bearbetade"
+  },
+  "dashboardLayout": {
+    "analyticsTracking": "Analysspårning",
+    "analyticsDescription": "Tillåt anonym användningsdatainsamling",
+    "autoRefresh": "Auto-uppdatering",
+    "autoRefreshDescription": "Uppdatera data automatiskt var 30:e sekund",
+    "dashboardSettings": "Dashboard-inställningar",
+    "general": "Allmänt",
+    "notifications": "Notifieringar",
+    "advanced": "Avancerat",
+    "compactMode": "Kompakt läge",
+    "compactModeDesc": "Minska storleken på UI-element",
+    "showAvatars": "Visa avatarer",
+    "showAvatarsDesc": "Visa användaravatarer i listor",
+    "emailNotifications": "E-postnotifieringar",
+    "emailNotificationsDesc": "Ta emot e-postnotifieringar",
+    "pushNotifications": "Push-notifieringar",
+    "pushNotificationsDesc": "Ta emot push-notifieringar"
+  },
+  "leadScoring": {
+    "title": "Lead Scoring",
+    "description": "Automatisk poängsättning baserad på besökarbeteende",
+    "configureRules": "Konfigurera Regler",
+    "configureScoringRules": "Konfigurera Scoring Regler",
+    "points": "Poäng",
+    "totalPossiblePoints": "Totalt möjliga poäng",
+    "hotLeads": "Heta leads",
+    "warmLeads": "Varma leads",
+    "coldLeads": "Kalla leads",
+    "topRatedCompanies": "Högst betygsatta företag",
+    "ranking": "Ranking",
+    "visits": "Besök",
+    "level": "Nivå",
+    "rules": {
+      "visitedPricingPage": "Besökte prissida",
+      "visitedPricingPageDesc": "Företag som besökte prissidan",
+      "visitedContactPage": "Besökte kontaktsida",
+      "visitedContactPageDesc": "Företag som besökte kontaktinformation",
+      "bookedDemo": "Bokade demo",
+      "bookedDemoDesc": "Företag som visade intresse för demo",
+      "multipleVisits": "Flera besök",
+      "multipleVisitsDesc": "Besökte webbplatsen flera gånger",
+      "longSessions": "Långa sessioner",
+      "longSessionsDesc": "Sessionstid över 5 minuter",
+      "downloadedContent": "Laddade ner innehåll",
+      "downloadedContentDesc": "Laddade ner vitbok, fallstudier etc"
+    },
+    "pricingPage": "Besökte prissida",
+    "pricingPageDesc": "Företag som besökte prissidan",
+    "demoInterest": "Visade demointresse",
+    "demoInterestDesc": "Företag som visade intresse för demo",
+    "multipleVisits": "Flera besök",
+    "multipleVisitsDesc": "Företag med 3+ besök",
+    "longSession": "Långa sessioner",
+    "longSessionDesc": "Sessionstid över 5 minuter",
+    "downloadResource": "Laddade ner resurser",
+    "downloadResourceDesc": "Laddade ner vitbok/guide",
+    "contactForm": "Kontaktformulär",
+    "contactFormDesc": "Företag som fyllde i kontaktformulär"
+  },
+  "analytics": {
+    "title": "Plattformsanalys",
+    "description": "Omfattande analys driven av dina anslutna plattformar och databearbetning",
+    "overview": "Översikt",
+    "platforms": "Plattformar",
+    "enrichment": "Bearbetning",
+    "totalLeads": "Totala Leads",
+    "platformEnhanced": "Plattform Förbättrade",
+    "dataSources": "Datakällor",
+    "conversionRate": "Konverteringsgrad",
+    "leadSources": "Lead-källor",
+    "platformPerformance": "Plattformsprestanda",
+    "platformPerformanceDetails": "Detaljerad plattformsprestanda",
+    "enrichmentQuality": "Bearbetningskvalitet",
+    "refreshAnalytics": "Analys uppdaterad",
+    "refreshDescription": "Data har uppdaterats med senaste plattformsinformation",
+    "loadingFailed": "Kunde inte hämta analys",
+    "loadingFailedDescription": "Försök igen senare",
+    "connectedPlatforms": "anslutna plattformar",
+    "visitorToLead": "besökare till lead",
+    "enrichmentCoverage": "Bearbetningstäckning",
+    "companiesEnriched": "Företag Bearbetade",
+    "totalCompanies": "Totala Företag",
+    "enriched": "Bearbetade",
+    "averageEnrichmentScore": "Genomsnittlig Bearbetningspoäng",
+    "qualityPoor": "Dålig",
+    "qualityGood": "Bra",
+    "qualityExcellent": "Utmärkt",
+    "leads": "leads",
+    "qualityScore": "Kvalitetspoäng",
+    "growth": "Tillväxt",
+    "score": "Poäng",
+    "platformDataDashboard": "Plattformsdata Dashboard",
+    "monitorPlatformIntegrations": "Övervaka dina plattformsintegrationer och datasynkronisering",
+    "enrichedCompanies": "Bearbetade Företag",
+    "platformStatus": "Plattformsstatus",
+    "recentSyncJobs": "Senaste Synkjobb",
+    "platformCoverage": "Plattformstäckning"
   },
   "settings": {
     "title": "Inställningar",
@@ -102,7 +235,21 @@
     "hubspotApiKey": "HubSpot API-nyckel",
     "pipedriveApiKey": "Pipedrive API-nyckel",
     "webhookDescription": "URL för att skicka lead-data till dina egna system",
-    "exportFormat": "Standard exportformat"
+    "exportFormat": "Standard exportformat",
+    "notificationSettings": "Notifieringsinställningar",
+    "emailAlerts": "E-postaviseringar",
+    "emailAlertsDescription": "Ta emot e-postaviseringar för viktiga händelser",
+    "hotLeadAlerts": "Heta lead-aviseringar",
+    "hotLeadAlertsDescription": "Notifiering när ett hot lead identifieras",
+    "weeklyReports": "Veckorapporter",
+    "weeklyReportsDescription": "Få veckovisa sammanfattningar via e-post",
+    "realTimeNotifications": "Realtidsnotifieringar",
+    "realTimeNotificationsDescription": "Omedelbara notifieringar för viktiga händelser",
+    "profileSettings": "Profilinställningar",
+    "description": "Hantera dina kontoinställningar och preferenser",
+    "emailAddress": "E-postadress",
+    "domain": "Domän",
+    "webhookUrl": "Webhook URL"
   },
   "billing": {
     "title": "Fakturering & Prenumerationer",
@@ -142,7 +289,8 @@
     "cancellationPeriod": "Uppsägningstid",
     "nextRenewal": "Nästa förnyelse",
     "lastCancellationDate": "Senaste uppsägningsdatum"
-  },  "websiteIntelligence": {
+  },
+  "websiteIntelligence": {
     "title": "Webbplatsintelligens",
     "description": "Djup analys av besökarbeteende och företagsidentifiering",
     "couldNotLoadAnalytics": "Kunde inte hämta analysdata",
@@ -163,9 +311,7 @@
     "source": "Källa",
     "visits": "Besök",
     "share": "Andel",
-    "trend": "Trend",
-    "topIndustries": "Toppbranscher",
-    "recentActivity": "Senaste aktivitet"
+    "trend": "Trend"
   },
   "companyProfile": {
     "companyNotFound": "Företag hittades inte",
@@ -189,7 +335,8 @@
     "contactInfo": "Kontaktinformation",
     "companyDetails": "Företagsdetaljer",
     "employees": "anställda",
-    "nextSteps": "Nästa steg",    "sendEmail": "Skicka e-post",
+    "nextSteps": "Nästa steg",
+    "sendEmail": "Skicka e-post",
     "callUp": "Ring upp",
     "bookMeeting": "Boka möte",
     "mockData": {
@@ -197,7 +344,8 @@
       "pricing": "Priser",
       "home": "Hem"
     }
-  },  "onboarding": {
+  },
+  "onboarding": {
     "welcomeTitle": "Välkommen till Zector Digital",
     "welcomeSubtitle": "Låt oss sätta upp din lead intelligence plattform",
     "welcomeDescription": "Vi hjälper dig att identifiera och konvertera webbplatsbesökare till värdefulla leads. Låt oss sätta upp din plattform på några minuter.",
@@ -258,7 +406,8 @@
       "automaticCleanup": "Automatisk datarensning"
     },
     "stepProgress": "Steg {{current}} av {{total}}"
-  },"toast": {
+  },
+  "toast": {
     "profileUpdated": "Profil uppdaterad",
     "profileDescription": "Dina profilinställningar har sparats",
     "trackingUpdated": "Tracking uppdaterad",
@@ -269,8 +418,10 @@
     "integrationsDescription": "Dina integrationsinställningar har sparats",
     "exportCompleted": "Export slutförd",
     "exportDescription": "Företagsdata har exporterats till CSV",
-    "exportFailed": "Export misslyckades",    "exportFailedDescription": "Kunde inte exportera data"
-  },  "buttons": {
+    "exportFailed": "Export misslyckades",
+    "exportFailedDescription": "Kunde inte exportera data"
+  },
+  "buttons": {
     "createCustomer": "Skapa kund",
     "activate": "Aktivera",
     "deactivate": "Inaktivera",
@@ -348,7 +499,8 @@
     "minutes": "minuter",
     "realTimeNotifications": "Realtidsnotifieringar",
     "pushNotificationsDesc": "Push-notifieringar i realtid"
-  },  "adminPanel": {
+  },
+  "adminPanel": {
     "title": "Adminpanel",
     "description": "Hantera kunder, tracking scripts och systemöversikt",
     "generateTrackingScript": "Generera Tracking Script",
@@ -371,7 +523,8 @@
     "never": "Aldrig",
     "activeScripts": "Aktiva scripts",
     "customerManagement": "Kundhantering"
-  },"trackingScript": {
+  },
+  "trackingScript": {
     "title": "Tracking Script Generator",
     "description": "Generera anpassat spårningsscript för din kundens webbplats",
     "scriptConfiguration": "Scriptkonfiguration",
@@ -463,7 +616,8 @@
   "exportSystem": {
     "title": "Avancerad Export & CRM Integration",
     "description": "Exportera leads till olika format eller synkronisera direkt med ditt CRM-system"
-  },  "tabs": {
+  },
+  "tabs": {
     "profile": "Profil",
     "tracking": "Spårning",
     "notifications": "Notifieringar",
@@ -508,7 +662,8 @@
     "basic": "Grundläggande",
     "professional": "Professionell",
     "enterprise": "Företag"
-  },  "aiScore": {
+  },
+  "aiScore": {
     "label": "AI Poäng",
     "fit": "Passform",
     "urgency": "Brådska",
@@ -518,7 +673,8 @@
     "technographics": "Teknografi",
     "companySignals": "Företagssignaler",
     "timeBasedFactors": "Tidsbaserade faktorer"
-  },  "aiQualification": {
+  },
+  "aiQualification": {
     "title": "AI Lead Kvalificering",
     "advancedAnalysis": "Avancerad AI-analys av lead-kvalitet och köpintention",
     "highEngagement": "Hög engagemang - flera återbesök",
@@ -555,7 +711,8 @@
   "nextAutomaticExport": "Nästa automatiska export",
   "tomorrow": "Imorgon",
   "nextMonday": "Nästa måndag",
-  "firstDayNextMonth": "Första dagen nästa månad",  "at": "kl",
+  "firstDayNextMonth": "Första dagen nästa månad",
+  "at": "kl",
   "liveVisitors": {
     "liveActivity": "Live Aktivitet",
     "activeNow": "Aktiva nu",
@@ -594,8 +751,31 @@
     "fromName": "Zector Digital",
     "daysCount": "60",
     "hubspotToken": "pat-na1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "salesforceToken": "00D000000000000!ARxxxxxxxxxxxxxxxxxxxxxxx",    "mailchimpKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "salesforceToken": "00D000000000000!ARxxxxxxxxxxxxxxxxxxxxxxx",
+    "mailchimpKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "zoomKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-us1",
     "companyNameOnboarding": "t.ex. Mitt Företag AB"
+  },
+  "contactUs": {
+    "title": "Kontakta oss",
+    "description": "Kontakta vårt team för support och förfrågningar"
+  },
+  "revenueChart": {
+    "title": "Intäkter i år",
+    "fromLastMonth": "från förra månaden"
+  },
+  "topAgents": {
+    "title": "Topppresterande Agenter",
+    "deals": "affärer"
+  },
+  "errorBoundary": {
+    "title": "Något gick fel",
+    "description": "Ett oväntat fel uppstod. Vänligen försök igen eller kontakta support om problemet kvarstår.",
+    "technicalInfo": "Teknisk information",
+    "tryAgain": "Försök igen"
+  },
+  "notifications": {
+    "markAllAsRead": "Markera alla som lästa",
+    "noNotifications": "Inga notifieringar"
   }
 }

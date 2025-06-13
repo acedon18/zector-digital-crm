@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from 'react-i18next';
 
 const data = [
   {
@@ -41,6 +42,8 @@ const data = [
 ];
 
 export function RevenueChart() {
+  const { t } = useTranslation();
+  
   // Calculate current month's revenue change percentage
   const currentMonth = data[data.length - 1];
   const previousMonth = data[data.length - 2];
@@ -50,10 +53,10 @@ export function RevenueChart() {
   return (
     <Card className="dashboard-card">
       <CardHeader className="flex flex-row items-center justify-between mb-6 p-0">
-        <CardTitle className="text-lg font-medium">Revenue This Year</CardTitle>
+        <CardTitle className="text-lg font-medium">{t('revenueChart.title')}</CardTitle>
         <Badge variant="outline" className={isPositive ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}>
           {isPositive ? '+' : ''}
-          {changePercentage}% from last month
+          {changePercentage}% {t('revenueChart.fromLastMonth')}
         </Badge>
       </CardHeader>
       <CardContent className="px-0 pt-4">

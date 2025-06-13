@@ -65,15 +65,17 @@ export const TrackingScriptGenerator = () => {
     if (zld.config.anonymizeIp) {
       // IP anonymization handled server-side
       payload.anonymizeIp = true;
-    }
-
-    // Send to tracking endpoint
-    fetch('https://api.zectordigital.com/track', {
+    }    // Send to tracking endpoint
+    fetch('${process.env.VITE_API_ENDPOINT || 'https://api.zectordigital.com'}/track', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)
+    }).then(function(response) {
+      if (!response.ok) {
+        console.warn('Zector tracking response error:', response.status);
+      }
     }).catch(function(error) {
       console.warn('Zector tracking error:', error);
     });

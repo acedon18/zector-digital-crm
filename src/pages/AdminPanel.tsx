@@ -15,7 +15,6 @@ import { Users, Plus, Code, Settings, BarChart3, Eye, Clock, Shield } from 'luci
 import { Customer } from '@/types/leads';
 import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
-import { sv } from 'date-fns/locale';
 
 // Mock data för kunder
 const mockCustomers: Customer[] = [
@@ -76,12 +75,11 @@ const AdminPanel = () => {
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
-
   const getPlanText = (plan: string) => {
     switch (plan) {
-      case 'basic': return 'Basic';
-      case 'professional': return 'Professional';
-      case 'enterprise': return 'Enterprise';
+      case 'basic': return t('adminPanel.basicPlan', 'Basic');
+      case 'professional': return t('adminPanel.professionalPlan', 'Professional');
+      case 'enterprise': return t('adminPanel.enterprisePlan', 'Enterprise');
       default: return plan;
     }
   };
@@ -136,9 +134,9 @@ const AdminPanel = () => {
               {t('adminPanel.description')}
             </p>
           </div>
-          <div className="flex gap-2">
-            <Dialog open={isScriptDialogOpen} onOpenChange={setIsScriptDialogOpen}>
-              <DialogTrigger asChild>                <Button variant="outline">
+          <div className="flex gap-2">            <Dialog open={isScriptDialogOpen} onOpenChange={setIsScriptDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
                   <Code className="h-4 w-4 mr-2" />
                   {t('adminPanel.generateTrackingScript')}
                 </Button>
@@ -149,9 +147,9 @@ const AdminPanel = () => {
                 <TrackingScriptGenerator />
               </DialogContent>
             </Dialog>
-            
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>                <Button>
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
                   <Plus className="h-4 w-4 mr-2" />
                   {t('adminPanel.addCustomer')}
                 </Button>
@@ -260,9 +258,9 @@ const AdminPanel = () => {
               <Users className="h-5 w-5" />
               {t('adminPanel.customerManagement')}
             </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>              <TableHeader>
+          </CardHeader>          <CardContent>
+            <Table>
+              <TableHeader>
                 <TableRow>
                   <TableHead>{t('adminPanel.customer')}</TableHead>
                   <TableHead>{t('labels.domain')}</TableHead>
@@ -272,45 +270,45 @@ const AdminPanel = () => {
                   <TableHead>{t('adminPanel.created')}</TableHead>
                   <TableHead>{t('adminPanel.actions')}</TableHead>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {customers.map((customer) => (
-                  <TableRow key={customer.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback>
-                            {customer.name.substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{customer.name}</div>
-                          <div className="text-sm text-muted-foreground">{customer.email}</div>
-                        </div>
+              </TableHeader>              <TableBody>{customers.map((customer) => (
+                <TableRow key={customer.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>
+                          {customer.name.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-medium">{customer.name}</div>
+                        <div className="text-sm text-muted-foreground">{customer.email}</div>
                       </div>
-                    </TableCell>
+                    </div>
+                  </TableCell>
                     <TableCell>
                       <code className="text-sm bg-muted px-2 py-1 rounded">{customer.domain}</code>
-                    </TableCell>
-                    <TableCell>
+                    </TableCell>                    <TableCell>
                       <Badge className={getPlanColor(customer.plan)}>
                         {getPlanText(customer.plan)}
                       </Badge>
                     </TableCell>
-                    <TableCell>                      <Badge variant={customer.isActive ? 'default' : 'secondary'}>
+                    <TableCell>
+                      <Badge variant={customer.isActive ? 'default' : 'secondary'}>
                         {customer.isActive ? t('status.active') : t('status.inactive')}
                       </Badge>
                     </TableCell>
-                    <TableCell>                      <div className="flex items-center gap-1 text-sm">
+                    <TableCell>
+                      <div className="flex items-center gap-1 text-sm">
                         <Clock className="h-3 w-3" />
-                        {customer.lastLogin ? format(customer.lastLogin, 'PPp', { locale: sv }) : t('adminPanel.never')}
+                        {customer.lastLogin ? format(customer.lastLogin, 'PPp') : t('adminPanel.never')}
                       </div>
                     </TableCell>
                     <TableCell>
-                      {format(customer.createdAt, 'PP', { locale: sv })}
+                      {format(customer.createdAt, 'PP')}
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-2">                        <Button
+                      <div className="flex gap-2">
+                        <Button
                           variant="outline"
                           size="sm"
                           onClick={() => toggleCustomerStatus(customer.id)}
@@ -325,10 +323,8 @@ const AdminPanel = () => {
                           <Settings className="h-3 w-3" />
                         </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
+                    </TableCell>                  </TableRow>
+                ))}</TableBody>
             </Table>
           </CardContent>
         </Card>

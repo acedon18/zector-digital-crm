@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { useCustomerSettings } from '@/contexts/CustomerContext';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 interface HeaderProps {
@@ -15,6 +16,11 @@ interface HeaderProps {
 
 export function Header({ toggleSidebar, openSettings }: HeaderProps) {
   const { t } = useTranslation();
+  const { branding, isAgencyMode } = useCustomerSettings();
+  
+  // Determine what to show in the header based on mode
+  const displayName = isAgencyMode ? 'CRM Platform' : branding.companyName;
+  const showLogo = branding.logoUrl && !isAgencyMode;
   
   return (
     <header className="sticky top-0 z-30 bg-background border-b border-border h-16 flex items-center px-4 md:px-6 shadow-sm">
@@ -26,7 +32,18 @@ export function Header({ toggleSidebar, openSettings }: HeaderProps) {
 
         <div className="hidden md:flex md:w-[240px]">
           <Link to="/" className="flex items-center space-x-2">
-            <h1 className="text-xl font-bold tracking-tight">Zector Digital</h1>
+            {showLogo && (
+              <img 
+                src={branding.logoUrl} 
+                alt={branding.companyName}
+                className="h-8 w-auto object-contain"
+              />
+            )}
+            <h1 
+              className={`text-xl font-bold tracking-tight ${!isAgencyMode ? 'text-primary' : ''}`}
+            >
+              {displayName}
+            </h1>
           </Link>
         </div>
 

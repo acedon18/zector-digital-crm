@@ -58,7 +58,7 @@ En GDPR-kompatibel lead tracking och website intelligence plattform speciellt ut
 
 4. **Öppna applikationen**
    ```
-   http://localhost:8080
+   http://localhost:5173
    ```
 
 ## 🎯 Funktionalitet
@@ -78,7 +78,7 @@ Denna applikation är nu komplett med:
 
 ## 🔧 Utveckling
 
-Applikationen körs nu på `http://localhost:8080` och alla funktioner är testbara med mock-data.
+Applikationen körs nu på `http://localhost:5173` och alla funktioner är testbara med mock-data.
 
 ### Nästa steg för produktion:
 1. Implementera riktiga API endpoints

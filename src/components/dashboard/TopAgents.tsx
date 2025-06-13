@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useTranslation } from 'react-i18next';
 
 interface Agent {
   id: string;
@@ -57,6 +58,8 @@ const agents: Agent[] = [
 ];
 
 export function TopAgents() {
+  const { t } = useTranslation();
+  
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -68,7 +71,7 @@ export function TopAgents() {
   return (
     <Card className="dashboard-card">
       <CardHeader className=" mb-6 p-0">
-        <CardTitle className="text-lg font-medium">Top Performing Agents</CardTitle>
+        <CardTitle className="text-lg font-medium">{t('topAgents.title', 'Top Performing Agents')}</CardTitle>
       </CardHeader>
       <CardContent className="px-0 pt-4">
         <div className="space-y-4">
@@ -93,7 +96,7 @@ export function TopAgents() {
                     </div>
                     <div className="flex items-center">
                       <Badge variant="outline" className="text-xs">
-                        {agent.deals}/{agent.target} deals
+                        {agent.deals}/{agent.target} {t('topAgents.deals', 'deals')}
                       </Badge>
                     </div>
                   </div>

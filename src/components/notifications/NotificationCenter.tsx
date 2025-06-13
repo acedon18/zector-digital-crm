@@ -7,6 +7,7 @@ import { Bell, X, Eye, Star, Clock, Building2 } from 'lucide-react';
 import { Company } from '@/types/leads';
 import { format } from 'date-fns';
 import { sv } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
 
 interface Notification {
   id: string;
@@ -59,6 +60,7 @@ const mockNotifications: Notification[] = [
 ];
 
 export function NotificationCenter() {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -150,16 +152,15 @@ export function NotificationCenter() {
           <Card className="shadow-lg border">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Notifieringar</CardTitle>
+                <CardTitle className="text-lg">{t('common.notifications')}</CardTitle>
                 <div className="flex items-center space-x-2">
                   {unreadCount > 0 && (
                     <Button
                       variant="ghost"
-                      size="sm"
-                      onClick={markAllAsRead}
+                      size="sm"                      onClick={markAllAsRead}
                       className="text-xs"
                     >
-                      Markera alla som lästa
+                      {t('notifications.markAllAsRead')}
                     </Button>
                   )}
                   <Button
@@ -176,7 +177,7 @@ export function NotificationCenter() {
               {notifications.length === 0 ? (
                 <div className="p-4 text-center text-muted-foreground">
                   <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p>Inga notifieringar</p>
+                  <p>{t('notifications.noNotifications')}</p>
                 </div>
               ) : (
                 <div className="space-y-1">

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, BarChart3, MessageSquare, Calendar, Settings, LogOut, ChevronLeft, ChevronRight, LifeBuoy, Eye, Globe, Target, Shield, Brain, Mail, Download, CreditCard } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, MessageSquare, Calendar, Settings, LogOut, ChevronLeft, ChevronRight, LifeBuoy, Eye, Globe, Target, Shield, Brain, Mail, Download, CreditCard, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -98,6 +98,7 @@ export function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
           <Separator className="my-4" />
 
           <nav className="grid gap-1 mt-auto">
+            <NavItem icon={UserPlus} label="Customer Onboarding" href="/customer-onboarding" isCollapsed={isCollapsed} />
             <NavItem icon={CreditCard} label={t('navigation.billing')} href="/billing" isCollapsed={isCollapsed} />
             <NavItem icon={Shield} label={t('navigation.adminPanel')} href="/admin" isCollapsed={isCollapsed} />
             <NavItem icon={Settings} label={t('navigation.settings')} href="/settings" isCollapsed={isCollapsed} />

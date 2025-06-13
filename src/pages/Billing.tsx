@@ -368,15 +368,15 @@ const Billing = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">{t('billing.startDate')}:</span>
-                        <span>15 januari 2024</span>
+                        <span>{t('billing.contractStartDate', '15 januari 2024')}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">{t('billing.contractPeriod')}:</span>
-                        <span>12 månader</span>
+                        <span>{t('billing.contractMonths', '12 månader')}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">{t('billing.autoRenewal')}:</span>
-                        <span>Ja</span>
+                        <span>{t('common.yes', 'Ja')}</span>
                       </div>
                     </div>
                   </div>
@@ -388,7 +388,7 @@ const Billing = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">{t('common.email')}:</span>
-                        <span>marcus@zectordigital.se</span>
+                        <span>{t('contacts.accountManagerEmail', 'marcus@zectordigital.se')}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">{t('common.phone')}:</span>
@@ -435,7 +435,7 @@ const Billing = () => {
                         <FileText className="h-5 w-5 text-muted-foreground" />
                         <div>
                           <p className="font-medium">{t('billing.generalTerms')}</p>
-                          <p className="text-sm text-muted-foreground">Version 2.1 - Gäller från 1 januari 2024</p>
+                          <p className="text-sm text-muted-foreground">{t('billing.versionInfo', { version: '2.1', date: '1 januari 2024' })}</p>
                         </div>
                       </div>
                       <Button variant="outline" size="sm">
@@ -448,15 +448,14 @@ const Billing = () => {
 
                 <Separator />                <div>
                   <h3 className="font-semibold mb-2">{t('billing.cancellationRenewal')}</h3>
-                  <div className="bg-muted/50 p-4 rounded-lg space-y-2 text-sm">
-                    <p>
-                      <strong>{t('billing.cancellationPeriod')}:</strong> 30 dagar före avtalsperiodens slut
+                  <div className="bg-muted/50 p-4 rounded-lg space-y-2 text-sm">                    <p>
+                      <strong>{t('billing.cancellationPeriod')}:</strong> {t('billing.cancellationDays', '30 dagar före avtalsperiodens slut')}
                     </p>
                     <p>
-                      <strong>{t('billing.nextRenewal')}:</strong> 15 januari 2025
+                      <strong>{t('billing.nextRenewal')}:</strong> {t('billing.nextRenewalDate', '15 januari 2025')}
                     </p>
                     <p>
-                      <strong>{t('billing.lastCancellationDate')}:</strong> 15 december 2024
+                      <strong>{t('billing.lastCancellationDate')}:</strong> {t('billing.lastCancellationDateValue', '15 december 2024')}
                     </p>
                   </div>
                 </div>

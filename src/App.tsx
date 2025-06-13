@@ -1,59 +1,77 @@
-import { Toaster } from '@/components/ui/toaster';
-import { Toaster as Sonner } from '@/components/ui/sonner';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
+import TranslatedErrorBoundary from '@/components/ErrorBoundary';
+import { CustomerProvider } from '@/contexts/CustomerContext';
+import { BrandingProvider } from '@/components/layout/BrandingProvider';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import Index from './pages/Index';
-import NotFound from './pages/NotFound';
-import Messages from './pages/Messages';
-import Contactus from './pages/ContactUS';
-import Calendar from './pages/Calendar';
-import Settings from './pages/Settings';
-import Analytics from './pages/Analytics';
-import Support from './pages/Support';
-import LeadTracking from './pages/LeadTracking';
-import WebsiteIntelligence from './pages/WebsiteIntelligence';
-import AdminPanel from './pages/AdminPanel';
-import CompanyProfile from './pages/CompanyProfile';
-import AIQualification from './pages/AIQualification';
-import EmailAlerts from './pages/EmailAlerts';
-import DataExport from './pages/DataExport';
-import Billing from './pages/Billing';
-import { AILeadQualification } from './components/dashboard/AILeadQualification';
-import { EmailAlertSystem } from './components/dashboard/EmailAlertSystem';
-import { AdvancedExportSystem } from './components/dashboard/AdvancedExportSystem';
+import { ThemeProvider } from '@/hooks/useTheme';
+import { Toaster } from '@/components/ui/toaster';
+import { Toaster as Sonner } from '@/components/ui/sonner';
+import { withTranslation, WithTranslation } from 'react-i18next';
+import { LoadingSpinner } from '@/components/ui/loading';
+
+// Lazy load all page components for better code splitting
+const Index = lazy(() => import('./pages/Index'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const Messages = lazy(() => import('./pages/Messages'));
+const Contactus = lazy(() => import('./pages/ContactUS'));
+const Calendar = lazy(() => import('./pages/Calendar'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Analytics = lazy(() => import('./pages/Analytics'));
+const Support = lazy(() => import('./pages/Support'));
+const LeadTracking = lazy(() => import('./pages/LeadTracking'));
+const WebsiteIntelligence = lazy(() => import('./pages/WebsiteIntelligence'));
+const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const CompanyProfile = lazy(() => import('./pages/CompanyProfile'));
+const AIQualification = lazy(() => import('./pages/AIQualification'));
+const EmailAlerts = lazy(() => import('./pages/EmailAlerts'));
+const DataExport = lazy(() => import('./pages/DataExport'));
+const Billing = lazy(() => import('./pages/Billing'));
+const CustomerOnboarding = lazy(() => import('./pages/CustomerOnboarding'));
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ErrorBoundary>
+  <TranslatedErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/contacts" element={<Contactus />} />          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/lead-tracking" element={<LeadTracking />} />
-          <Route path="/company/:id" element={<CompanyProfile />} />
-          <Route path="/website-intelligence" element={<WebsiteIntelligence />} />
-          <Route path="/ai-qualification" element={<AIQualification />} />
-          <Route path="/email-alerts" element={<EmailAlerts />} />
-          <Route path="/data-export" element={<DataExport />} />
-          <Route path="/billing" element={<Billing />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/admin" element={<AdminPanel />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <ThemeProvider>
+        <CustomerProvider>
+          <BrandingProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Suspense fallback={<LoadingSpinner size="lg" text="Loading..." />}>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/contacts" element={<Contactus />} />
+                    <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/lead-tracking" element={<LeadTracking />} />
+                    <Route path="/company/:id" element={<CompanyProfile />} />
+                    <Route path="/website-intelligence" element={<WebsiteIntelligence />} />
+                    <Route path="/ai-qualification" element={<AIQualification />} />
+                    <Route path="/email-alerts" element={<EmailAlerts />} />
+                    <Route path="/data-export" element={<DataExport />} />
+                    <Route path="/billing" element={<Billing />} />
+                    <Route path="/customer-onboarding" element={<CustomerOnboarding />} />
+                    <Route path="/messages" element={<Messages />} />
+                    <Route path="/calendar" element={<Calendar />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/admin" element={<AdminPanel />} />
+                    <Route path="/support" element={<Support />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
+              </BrowserRouter>
+            </TooltipProvider>
+          </BrandingProvider>
+        </CustomerProvider>
+      </ThemeProvider>
     </QueryClientProvider>
-  </ErrorBoundary>
+  </TranslatedErrorBoundary>
 );
 
-export default App;
+// export default withTranslation()(App); // Wrap App with withTranslation
+const TranslatedApp = withTranslation()(App);
+export default TranslatedApp;

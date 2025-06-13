@@ -1,16 +1,20 @@
+import { Suspense, lazy } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { DashboardStats } from '@/components/dashboard/DashboardStats';
-import { SalesPipeline } from '@/components/dashboard/SalesPipeline';
-import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
-import { TopAgents } from '@/components/dashboard/TopAgents';
-import { RevenueChart } from '@/components/dashboard/RevenueChart';
-import { LiveVisitors } from '@/components/dashboard/LiveVisitors';
-import { LeadScoring } from '@/components/dashboard/LeadScoring';
-import { AILeadQualification } from '@/components/dashboard/AILeadQualification';
-import { EmailAlertSystem } from '@/components/dashboard/EmailAlertSystem';
-import { AdvancedExportSystem } from '@/components/dashboard/AdvancedExportSystem';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
+import { LoadingSpinner } from '@/components/ui/loading';
+
+// Lazy load heavy dashboard components
+const SalesPipeline = lazy(() => import('@/components/dashboard/SalesPipeline').then(m => ({ default: m.SalesPipeline })));
+const ActivityFeed = lazy(() => import('@/components/dashboard/ActivityFeed').then(m => ({ default: m.ActivityFeed })));
+const TopAgents = lazy(() => import('@/components/dashboard/TopAgents').then(m => ({ default: m.TopAgents })));
+const RevenueChart = lazy(() => import('@/components/dashboard/RevenueChart').then(m => ({ default: m.RevenueChart })));
+const LiveVisitors = lazy(() => import('@/components/dashboard/LiveVisitors').then(m => ({ default: m.LiveVisitors })));
+const LeadScoring = lazy(() => import('@/components/dashboard/LeadScoring').then(m => ({ default: m.LeadScoring })));
+const AILeadQualification = lazy(() => import('@/components/dashboard/AILeadQualification').then(m => ({ default: m.AILeadQualification })));
+const EmailAlertSystem = lazy(() => import('@/components/dashboard/EmailAlertSystem').then(m => ({ default: m.EmailAlertSystem })));
+const AdvancedExportSystem = lazy(() => import('@/components/dashboard/AdvancedExportSystem').then(m => ({ default: m.AdvancedExportSystem })));
 
 const Index = () => {
   const { t } = useTranslation();
@@ -26,7 +30,9 @@ const Index = () => {
         <DashboardStats />
 
         {/* Live Activity Section */}
-        <LiveVisitors />
+        <Suspense fallback={<LoadingSpinner />}>
+          <LiveVisitors />
+        </Suspense>
 
         {/* Enhanced Features Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
@@ -40,36 +46,52 @@ const Index = () => {
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <div className="col-span-2">
-                <RevenueChart />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <RevenueChart />
+                </Suspense>
               </div>
               <div className="col-span-1">
-                <TopAgents />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <TopAgents />
+                </Suspense>
               </div>
             </div>
 
             {/* Lead Scoring Section */}
-            <LeadScoring />
+            <Suspense fallback={<LoadingSpinner />}>
+              <LeadScoring />
+            </Suspense>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <div className="col-span-1">
-                <SalesPipeline />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <SalesPipeline />
+                </Suspense>
               </div>
               <div className="col-span-1 lg:col-span-2">
-                <ActivityFeed />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <ActivityFeed />
+                </Suspense>
               </div>
             </div>
           </TabsContent>
 
           <TabsContent value="ai-qualification">
-            <AILeadQualification />
+            <Suspense fallback={<LoadingSpinner />}>
+              <AILeadQualification />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="email-alerts">
-            <EmailAlertSystem />
+            <Suspense fallback={<LoadingSpinner />}>
+              <EmailAlertSystem />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="data-export">
-            <AdvancedExportSystem />
+            <Suspense fallback={<LoadingSpinner />}>
+              <AdvancedExportSystem />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </div>

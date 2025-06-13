@@ -9,7 +9,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { TrackingScriptGenerator } from '@/components/dashboard/TrackingScriptGenerator';
-import { Settings as SettingsIcon, Shield, Code, Bell, User, Globe } from 'lucide-react';
+import { PlatformIntegrations } from '@/components/dashboard/PlatformIntegrations';
+import { BrandingSettings } from '@/components/dashboard/BrandingSettings';
+import { WhiteLabelManagement } from '@/components/dashboard/WhiteLabelManagement';
+import { PlatformManagementSettings } from '@/components/dashboard/PlatformManagementSettings';
+import { Settings as SettingsIcon, Shield, Code, Bell, User, Globe, Link, Palette, Database, Building2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { useTranslation } from 'react-i18next';
 
@@ -84,10 +88,26 @@ const Settings = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               {t('tabs.profile')}
+            </TabsTrigger>
+            <TabsTrigger value="branding" className="flex items-center gap-2">
+              <Palette className="h-4 w-4" />
+              {t('tabs.branding')}
+            </TabsTrigger>
+            <TabsTrigger value="white-label" className="flex items-center gap-2">
+              <Building2 className="h-4 w-4" />
+              {t('tabs.whiteLabelManagement')}
+            </TabsTrigger>
+            <TabsTrigger value="platforms" className="flex items-center gap-2">
+              <Link className="h-4 w-4" />
+              {t('tabs.platforms')}
+            </TabsTrigger>
+            <TabsTrigger value="platform-management" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              {t('tabs.platformManagement')}
             </TabsTrigger>
             <TabsTrigger value="tracking" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
@@ -127,7 +147,7 @@ const Settings = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">E-postadress</Label>
+                    <Label htmlFor="email">{t('settings.emailAddress')}</Label>
                     <Input
                       id="email"
                       type="email"
@@ -136,7 +156,7 @@ const Settings = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="domain">Domän</Label>
+                    <Label htmlFor="domain">{t('settings.domain')}</Label>
                     <Input
                       id="domain"
                       value={profileSettings.domain}
@@ -160,6 +180,26 @@ const Settings = () => {
                 <Button onClick={handleSaveProfile}>{t('buttons.saveProfile')}</Button>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Branding Settings */}
+          <TabsContent value="branding">
+            <BrandingSettings />
+          </TabsContent>
+
+          {/* White-Label Management */}
+          <TabsContent value="white-label">
+            <WhiteLabelManagement />
+          </TabsContent>
+
+          {/* Platform Integrations */}
+          <TabsContent value="platforms">
+            <PlatformIntegrations />
+          </TabsContent>
+
+          {/* Platform Management */}
+          <TabsContent value="platform-management">
+            <PlatformManagementSettings />
           </TabsContent>
 
           {/* Tracking Settings */}
@@ -256,8 +296,8 @@ const Settings = () => {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Heta lead-aviseringar</Label>
-                      <p className="text-sm text-muted-foreground">Notifiering när ett hot lead identifieras</p>
+                      <Label>{t('settings.hotLeadAlerts')}</Label>
+                      <p className="text-sm text-muted-foreground">{t('settings.hotLeadAlertsDescription')}</p>
                     </div>
                     <Switch
                       checked={notificationSettings.hotLeadAlerts}
@@ -267,8 +307,8 @@ const Settings = () => {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Veckorapporter</Label>
-                      <p className="text-sm text-muted-foreground">Få veckovisa sammanfattningar via e-post</p>
+                      <Label>{t('settings.weeklyReports')}</Label>
+                      <p className="text-sm text-muted-foreground">{t('settings.weeklyReportsDescription')}</p>
                     </div>
                     <Switch
                       checked={notificationSettings.weeklyReports}
@@ -278,8 +318,8 @@ const Settings = () => {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Realtidsnotifieringar</Label>
-                      <p className="text-sm text-muted-foreground">Push-notifieringar i realtid</p>
+                      <Label>{t('settings.realTimeNotifications')}</Label>
+                      <p className="text-sm text-muted-foreground">{t('settings.realTimeNotificationsDescription')}</p>
                     </div>
                     <Switch
                       checked={notificationSettings.realTimeNotifications}
@@ -298,7 +338,7 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Globe className="h-5 w-5" />
-                  CRM & Export-integrationer
+                  {t('tabs.integrations')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -326,7 +366,7 @@ const Settings = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="webhookUrl">Webhook URL</Label>
+                    <Label htmlFor="webhookUrl">{t('settings.webhookUrl')}</Label>
                     <Input
                       id="webhookUrl"
                       value={integrationSettings.webhookUrl}
@@ -363,7 +403,7 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Code className="h-5 w-5" />
-                  Tracking Script
+                  {t('trackingScript.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
