@@ -467,6 +467,12 @@ const CompanyDetailView: React.FC<{
             <div>
               <span className="font-medium">Lead Score:</span> {company.score}
             </div>
+            <div>
+              <span className="font-medium">E-post:</span> {company.contactInfo?.email || '—'}
+            </div>
+            <div>
+              <span className="font-medium">Telefon:</span> {company.contactInfo?.phone || '—'}
+            </div>
           </CardContent>
         </Card>
 

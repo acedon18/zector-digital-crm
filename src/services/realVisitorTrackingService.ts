@@ -168,30 +168,48 @@ class RealVisitorTrackingService {
     }
   }
 
-  // Enrich data from IP address (using IP geolocation and business intelligence services)
+  // Enrich data from IP address (using IPinfo.io for business enrichment)
   private async enrichFromIP(ip?: string): Promise<any> {
     if (!ip || ip === 'unknown') return null;
 
     try {
-      // You can use services like:
-      // - IPinfo.io
-      // - MaxMind GeoIP
-      // - ipapi.com
-      // - Abstract API
-      
-      const response = await fetch(`https://ipapi.co/${ip}/json/`);
+      // IPinfo API
+      const token = 'b812b9db5828fe'; // Hårdkodad token
+      const response = await fetch(`https://ipinfo.io/${ip}/json?token=${token}`);
       const data = await response.json();
-      
+
+      // If organization/company info is available
+      let companyName = undefined;
+      let companyDomain = undefined;
+      let companyType = undefined;
+      if (data.org) {
+        // Example: "AS12345 Example Company S.L."
+        const orgParts = data.org.split(' ');
+        if (orgParts.length > 1) {
+          companyName = orgParts.slice(1).join(' ');
+        } else {
+          companyName = data.org;
+        }
+      }
+      if (data.company) {
+        companyName = data.company.name || companyName;
+        companyDomain = data.company.domain;
+        companyType = data.company.type;
+      }
+
       return {
+        name: companyName,
+        domain: companyDomain,
+        industry: companyType,
         location: {
           city: data.city,
-          country: data.country_name,
+          country: data.country,
           region: data.region
         },
-        confidence: 0.7
+        confidence: companyName ? 0.9 : 0.7
       };
     } catch (error) {
-      console.error('IP enrichment failed:', error);
+      console.error('IPinfo enrichment failed:', error);
       return null;
     }
   }
