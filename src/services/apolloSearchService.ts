@@ -2,6 +2,7 @@
 // Place in src/api/searchPeople.ts (or your backend routes folder)
 
 import axios from 'axios';
+import { ApolloSearchParams, ApolloSearchResponse } from './apolloSearchTypes';
 
 const APOLLO_API_KEY = process.env.APOLLO_API_KEY || '';
 const APOLLO_SEARCH_URL = 'https://api.apollo.io/v1/mixed/people/search';
@@ -11,7 +12,7 @@ const APOLLO_SEARCH_URL = 'https://api.apollo.io/v1/mixed/people/search';
  * @param {object} params - Search parameters (title, company, location, etc.)
  * @returns {Promise<any>} - Apollo search results
  */
-export async function searchPeopleWithApollo(params: Record<string, any>): Promise<any> {
+export async function searchPeopleWithApollo(params: ApolloSearchParams): Promise<ApolloSearchResponse> {
   if (!APOLLO_API_KEY) {
     throw new Error('Apollo API key is not set in environment variables.');
   }
@@ -27,7 +28,7 @@ export async function searchPeopleWithApollo(params: Record<string, any>): Promi
         },
       }
     );
-    return response.data;
+    return response.data as ApolloSearchResponse;
   } catch (error) {
     console.error('Apollo Search API error:', error);
     throw error;

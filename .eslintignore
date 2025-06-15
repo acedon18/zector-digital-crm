@@ -1,0 +1,5 @@
+# Ignore backup and original files for linting
+backup-files/
+*.bak.tsx
+*.original.ts
+*.backup.ts
