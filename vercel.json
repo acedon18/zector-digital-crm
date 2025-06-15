@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "devCommand": "npm run dev",
   "builds": [
     {
       "src": "package.json",
@@ -14,6 +17,9 @@
     {
       "src": "/track",
       "dest": "server.cjs"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
