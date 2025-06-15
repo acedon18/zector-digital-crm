@@ -10,7 +10,6 @@ import { Zap, Database, BarChart3, TrendingUp, Activity, Target } from 'lucide-r
 import { useTranslation } from 'react-i18next';
 import { useCustomerSettings } from '@/contexts/CustomerContext';
 import { leadsApi } from '@/lib/api';
-import { realVisitorTrackingService } from '@/services/realVisitorTrackingService';
 
 const LeadTracking = () => {
   const { t } = useTranslation();
