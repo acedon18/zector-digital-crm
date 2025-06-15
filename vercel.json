@@ -1,12 +1,26 @@
 {
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "package.json",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server.cjs"
+    },
+    {
+      "src": "/track",
+      "dest": "server.cjs"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ],
   "env": {
-    "VITE_USE_REAL_DATA": "false",
-    "VITE_API_ENDPOINT": "https://api.zectordigital.com"
+    "VITE_USE_REAL_DATA": "true"
   }
 }
