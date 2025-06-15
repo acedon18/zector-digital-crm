@@ -3,10 +3,20 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
+const http = require('http');
+const { Server } = require('socket.io');
+
 const connectDB = require('./db/connection.cjs');
 const { Company, Visit, Customer, TrackingScript } = require('./db/models.cjs');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
 
 app.use(cors());
 app.use(express.json());
@@ -15,7 +25,10 @@ app.use(express.json());
 let dbConnected = false;
 connectDB().then(connected => {
   dbConnected = connected;
-  if (!connected) {
+  if (connected) {
+    console.log('🚀 Connected to MongoDB Atlas database');
+    console.log('💾 Using MongoDB for data storage');
+  } else {
     console.warn('⚠️ Using in-memory storage because database connection failed');
   }
 });
@@ -57,6 +70,14 @@ let companies = [
     website: 'www.ecommerce.com'
   }
 ];
+
+// Broadcast new leads to all connected clients
+function emitNewLead(lead) {
+  io.emit('new-lead', lead);
+}
+
+// Example: emitNewLead can be called after a new lead is created/enriched
+// You should call emitNewLead(lead) in your enrichment or lead creation logic
 
 // Main tracking endpoint
 app.post('/track', async (req, res) => {
@@ -721,6 +742,7 @@ app.get('/api/companies/filtered', async (req, res) => {
   console.log('📌 Request URL:', req.originalUrl);
   console.log('📌 Request path:', req.path);
   console.log('📌 Request method:', req.method);
+  console.log('💾 Database connection status:', dbConnected ? 'Connected' : 'Not connected');
   try {
     // Parse query parameters
     const { status, industry, search, sortBy, limit = 20 } = req.query;
@@ -763,12 +785,17 @@ app.get('/api/companies/filtered', async (req, res) => {
         default:
           sortOptions = { lastVisit: -1 };
       }
+        // Execute query with filtering, sorting, and limiting
+      console.log('🔎 MongoDB Query:', JSON.stringify(query));
+      console.log('🔢 Sort Options:', JSON.stringify(sortOptions));
+      console.log('📏 Limit:', limit);
       
-      // Execute query with filtering, sorting, and limiting
       const companies = await Company.find(query)
         .sort(sortOptions)
         .limit(parseInt(limit))
         .lean();
+      
+      console.log('📊 MongoDB Results Count:', companies.length);
       
       // Format response
       const formattedCompanies = companies.map(company => ({
@@ -880,7 +907,7 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Zector Digital CRM Backend Server running on port ${PORT}`);
   console.log(`📊 API endpoints available at http://localhost:${PORT}`);
   console.log(`❤️  Health check: http://localhost:${PORT}/health`);
@@ -904,4 +931,4 @@ app.listen(PORT, () => {
   console.log('GET: /api/test');
 });
 
-module.exports = app;
+module.exports = { app, emitNewLead };

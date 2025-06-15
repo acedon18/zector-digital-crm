@@ -2,6 +2,29 @@
 
 En GDPR-kompatibel lead tracking och website intelligence plattform speciellt utvecklad för svenska byråer och deras kunder.
 
+## 🆕 Recent Updates
+
+### TypeScript Backend Improvements
+The TypeScript implementation of our tracking server has been significantly improved:
+
+- **Fixed TypeScript Errors** - Resolved issues with Express route handlers and typing
+- **Properly Typed MongoDB Queries** - Replaced `any` types with proper interfaces
+- **Enhanced Error Handling** - Improved error handling with consistent patterns
+- **Documentation** - Added developer documentation for TypeScript implementation
+
+For more details on the TypeScript improvements, see [TYPESCRIPT-FIX-IMPLEMENTATION.md](./TYPESCRIPT-FIX-IMPLEMENTATION.md).
+
+### LiveVisitors Feature Implementation
+The LiveVisitors (LeadTracker) feature has been fully implemented with the following enhancements:
+
+- **MongoDB Integration** - Real-time visitor data is now stored in MongoDB Atlas
+- **Advanced Filtering** - Filter leads by status (hot/warm/cold), industry, and search terms
+- **Robust Error Handling** - Graceful fallbacks to in-memory data if database is unavailable
+- **Improved UI/UX** - Cleaner display of company information with contact details
+- **Real-time Updates** - See new visitors as they arrive on your website
+
+See [README-BACKEND.md](./README-BACKEND.md) for detailed backend setup instructions.
+
 ## 🚀 Funktioner
 
 ### Lead Tracking & Management

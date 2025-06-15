@@ -1,8 +1,23 @@
 // Real Visitor Tracking Service - Collect actual visitor data
 import { Company } from '../types/leads';
 
-// Define enrichment data interfaces
-export interface EnrichmentData {
+// Define enrichment data interf      company: {
+        id: \`company-\${Date.now()}\`,
+        name: 'Acme Inc',
+        domain: 'acme.com',
+        industry: 'Technology',
+        size: '50-200',
+        location: {
+          city: 'San Francisco',
+          country: 'USA',
+        },
+        lastVisit: new Date(),
+        totalVisits: 5,
+        score: 85,
+        status: 'hot',
+        tags: ['tech', 'software'],
+        website: 'https://acme.com'
+      }, interface EnrichmentData {
   name?: string;
   domain?: string;
   industry?: string;
@@ -55,7 +70,7 @@ const COMPANY_LOOKUP_ENDPOINT = process.env.COMPANY_API_ENDPOINT || '/api/compan
  */
 export async function trackVisitorEvent(visitorId: string, eventData: Partial<TrackingEventData>): Promise<VisitorData> {
   try {
-    console.log("Tracking event for visitor " + visitorId + ":", eventData);
+    console.log(`Tracking event for visitor ${visitorId}:`, eventData);
     
     // In a production environment, this would send data to a tracking backend
     // For development, use mock data
@@ -83,7 +98,7 @@ export async function trackVisitorEvent(visitorId: string, eventData: Partial<Tr
     return updatedVisitorData;
   } catch (error) {
     console.error('Error tracking visitor event:', error);
-    throw new Error("Failed to track visitor event: " + (error instanceof Error ? error.message : 'Unknown error'));
+    throw new Error(`Failed to track visitor event: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -136,7 +151,17 @@ export async function getVisitorData(visitorId: string): Promise<VisitorData | n
           timestamp: Date.now() - 30 * 60 * 1000
         }
       ],
-      company: createMockCompany('Acme Inc', 'acme.com', 'Technology', '50-200', 'San Francisco', 'USA', 'hot'),
+      company: {
+        id: `company-${Date.now()}`,
+        name: 'Acme Inc',
+        domain: 'acme.com',
+        industry: 'Technology',
+        size: '50-200',
+        location: 'San Francisco, CA',
+        country: 'USA',
+        status: 'hot',
+        createdAt: new Date().toISOString()
+      },
       enrichmentStatus: 'complete'
     };
     
@@ -172,7 +197,7 @@ function createNewVisitor(visitorId: string): VisitorData {
  */
 export async function identifyVisitorCompany(visitorId: string, ipAddress?: string): Promise<Company | null> {
   try {
-    console.log("Identifying company for visitor " + visitorId + " with IP: " + (ipAddress || 'unknown'));
+    console.log(`Identifying company for visitor ${visitorId} with IP: ${ipAddress || 'unknown'}`);
     
     // In production, call an IP-to-company service
     // For development, return mock data
@@ -189,9 +214,39 @@ export async function identifyVisitorCompany(visitorId: string, ipAddress?: stri
     
     // Mock company data
     const companies = [
-      createMockCompany('TechCorp', 'techcorp.com', 'Technology', '50-200', 'San Francisco', 'USA', 'hot'),
-      createMockCompany('Finance Group', 'finance-group.com', 'Finance', '500-1000', 'New York', 'USA', 'warm'),
-      createMockCompany('Healthcare Plus', 'healthcare-plus.co', 'Healthcare', '200-500', 'Chicago', 'USA', 'cold')
+      {
+        id: `company-${Date.now()}-1`,
+        name: 'TechCorp',
+        domain: 'techcorp.com',
+        industry: 'Technology',
+        size: '50-200',
+        location: 'San Francisco, CA',
+        country: 'USA',
+        status: 'hot',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: `company-${Date.now()}-2`,
+        name: 'Finance Group',
+        domain: 'finance-group.com',
+        industry: 'Finance',
+        size: '500-1000',
+        location: 'New York, NY',
+        country: 'USA',
+        status: 'warm',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: `company-${Date.now()}-3`,
+        name: 'Healthcare Plus',
+        domain: 'healthcare-plus.co',
+        industry: 'Healthcare',
+        size: '200-500',
+        location: 'Chicago, IL',
+        country: 'USA',
+        status: 'cold',
+        createdAt: new Date().toISOString()
+      }
     ];
     
     // Return a random company from our list
@@ -211,7 +266,7 @@ export async function identifyVisitorCompany(visitorId: string, ipAddress?: stri
  */
 export async function getVisitorsInTimeRange(startTime: number, endTime: number): Promise<VisitorData[]> {
   try {
-    console.log("Getting visitors between " + new Date(startTime).toISOString() + " and " + new Date(endTime).toISOString());
+    console.log(`Getting visitors between ${new Date(startTime).toISOString()} and ${new Date(endTime).toISOString()}`);
     
     // In production, query from database
     // For development, return mock data
@@ -229,14 +284,9 @@ export async function getVisitorsInTimeRange(startTime: number, endTime: number)
       const totalVisits = Math.floor(Math.random() * 10) + 1;
       const totalPageviews = totalVisits * (Math.floor(Math.random() * 6) + 1);
       
-      const industries = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Manufacturing'];
-      const sizes = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'];
-      const cities = ['San Francisco', 'New York', 'Chicago', 'Austin', 'Seattle'];
-      const statuses = ['hot', 'warm', 'cold'] as ('hot' | 'warm' | 'cold')[];
-      
       visitors.push({
-        id: "visitor-" + Date.now() + "-" + i,
-        ipAddress: "192.168.1." + (i + 1),
+        id: `visitor-${Date.now()}-${i}`,
+        ipAddress: `192.168.1.${i + 1}`,
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         firstSeen,
         lastSeen,
@@ -244,17 +294,18 @@ export async function getVisitorsInTimeRange(startTime: number, endTime: number)
         totalPageviews,
         averageTimeOnSite: Math.floor(Math.random() * 300) + 30, // 30-330 seconds
         events: [],
-        company: Math.random() > 0.3 ? 
-          createMockCompany(
-            "Company " + (i + 1),
-            "company" + (i + 1) + ".com",
-            industries[Math.floor(Math.random() * industries.length)],
-            sizes[Math.floor(Math.random() * sizes.length)],
-            cities[Math.floor(Math.random() * cities.length)],
-            'USA',
-            statuses[Math.floor(Math.random() * statuses.length)]
-          ) : null,
-        enrichmentStatus: Math.random() > 0.7 ? 'complete' : Math.random() > 0.5 ? 'pending' : 'failed'
+        company: Math.random() > 0.3 ? {
+          id: `company-${Date.now()}-${i}`,
+          name: `Company ${i + 1}`,
+          domain: `company${i + 1}.com`,
+          industry: ['Technology', 'Finance', 'Healthcare', 'Retail', 'Manufacturing'][Math.floor(Math.random() * 5)],
+          size: ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'][Math.floor(Math.random() * 6)],
+          location: ['San Francisco, CA', 'New York, NY', 'Chicago, IL', 'Austin, TX', 'Seattle, WA'][Math.floor(Math.random() * 5)],
+          country: 'USA',
+          status: ['hot', 'warm', 'cold'][Math.floor(Math.random() * 3)],
+          createdAt: new Date().toISOString()
+        } : null,
+        enrichmentStatus: ['pending', 'complete', 'failed'][Math.floor(Math.random() * 3)]
       });
     }
     
@@ -263,35 +314,4 @@ export async function getVisitorsInTimeRange(startTime: number, endTime: number)
     console.error('Error getting visitors in time range:', error);
     return [];
   }
-}
-
-/**
- * Helper to create properly typed mock company data
- */
-function createMockCompany(
-  name: string, 
-  domain: string, 
-  industry: string, 
-  size: string, 
-  city: string, 
-  country: string, 
-  status: 'hot' | 'warm' | 'cold'
-): Company {
-  return {
-    id: "company-" + Date.now() + "-" + name.replace(/\s+/g, '-').toLowerCase(),
-    name,
-    domain,
-    industry,
-    size,
-    location: {
-      city,
-      country,
-    },
-    lastVisit: new Date(),
-    totalVisits: Math.floor(Math.random() * 20) + 1,
-    score: Math.floor(Math.random() * 40) + 60, // 60-100
-    status,
-    tags: [industry.toLowerCase(), size.toLowerCase()],
-    website: "https://" + domain,
-  };
 }

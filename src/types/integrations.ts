@@ -10,6 +10,33 @@ export interface PlatformCredentials {
   errorMessage?: string;
 }
 
+export type SyncDirection = 'import' | 'export' | 'bidirectional';
+
+export interface SyncStatus {
+  id: string;
+  platformId: string;
+  platformName: string;
+  direction: SyncDirection;
+  startTime: Date;
+  endTime?: Date;
+  status: 'running' | 'completed' | 'failed' | 'pending';
+  recordsProcessed?: number;
+  recordsSuccessful?: number;
+  recordsFailed?: number;
+  errorMessage?: string;
+  logs?: SyncLogEntry[];
+  // Added for compatibility with service usage
+  lastSyncTime?: string | null;
+  error?: string | null;
+}
+
+export interface SyncLogEntry {
+  timestamp: Date;
+  level: 'info' | 'warning' | 'error';
+  message: string;
+  data?: any;
+}
+
 export type PlatformType = 
   | 'google_analytics'
   | 'google_ads'
@@ -29,6 +56,23 @@ export interface PlatformConfig {
   requiredFields: PlatformField[];
   optional?: boolean;
   features: string[];
+  // Additional properties needed by service files
+  url?: string;
+  apiVersion?: string;
+  apiEndpoints?: {
+    [key: string]: string;
+  };
+  authType?: 'apiKey' | 'basic' | 'oauth2' | 'none';
+  apiKey?: string;
+  username?: string;
+  password?: string;
+  syncEnabled?: boolean;
+  syncDirection?: SyncDirection;
+  syncInterval?: number; // in minutes
+  fieldMapping?: {
+    [key: string]: string;
+  };
+  settings?: Record<string, unknown>;
 }
 
 export interface PlatformField {

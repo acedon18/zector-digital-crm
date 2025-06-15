@@ -1,13 +1,11 @@
 // Backend Tracking Endpoint - Handle incoming visitor data
 // TypeScript implementation
 
-// Use require instead of import for CommonJS compatibility
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-// Import visitor tracking service
-import * as visitorTrackingService from '../services/realVisitorTrackingService';
+import express, { Request, Response } from 'express';
+import cors from 'cors';
+import { realVisitorTrackingService } from '../services/realVisitorTrackingService';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
 // Initialize environment variables
 dotenv.config();
@@ -105,11 +103,13 @@ app.post('/track', (req: Request, res: Response) => {
       return res.status(400).json({ 
         error: 'Missing required fields: customerId, domain, event' 
       });
-    }    // Process the tracking data
-    visitorTrackingService.trackVisitorEvent(trackingData.customerId, trackingData).then(() => {
-      res.status(200).json({
-        success: true,
-        message: 'Tracking data processed successfully'
+    }
+
+    // Process the tracking data
+    realVisitorTrackingService.processTrackingData(trackingData).then(() => {
+      res.status(200).json({ 
+        success: true, 
+        message: 'Tracking data processed successfully' 
       });
     });
 
