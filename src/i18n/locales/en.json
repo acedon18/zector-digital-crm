@@ -614,6 +614,7 @@
     "dataExport": "Data Export"
   },
   "status": {
+    "all": "All",
     "active": "Active",
     "inactive": "Inactive",
     "connected": "Connected",
@@ -685,15 +686,30 @@
   "nextAutomaticExport": "Next automatic export",
   "tomorrow": "Tomorrow",
   "nextMonday": "Next Monday",
-  "firstDayNextMonth": "First day next month",  "at": "at",
-  "liveVisitors": {
+  "firstDayNextMonth": "First day next month",  "at": "at",  "liveVisitors": {
     "liveActivity": "Live Activity",
     "activeNow": "Active now",
     "lastHour": "Last hour",
     "activityIncrease": "Activity up 15% compared to yesterday",
     "recentVisitors": "Recent Visitors",
+    "filteredVisitors": "Filtered Visitors",
     "visits": "visits",
-    "noVisitors": "No visitors right now"
+    "noVisitors": "No visitors right now",
+    "filter": "Filter",
+    "clearAll": "Clear All",
+    "resetFilters": "Reset Filters",
+    "statusFilter": "Filter by Status",
+    "industryFilter": "Filter by Industry",
+    "search": "Search",
+    "searchPlaceholder": "Search by name, domain or email",
+    "sortBy": "Sort By",
+    "selectIndustry": "Select Industry",
+    "allIndustries": "All Industries",
+    "selectSortOption": "Select Sort Option",
+    "sortByLastVisit": "Last Visit",
+    "sortByScore": "Lead Score",
+    "sortByVisits": "Number of Visits",
+    "noFilterResults": "No results match your filters"
   },
   "placeholders": {
     "searchLeadsCompany": "Search leads, company...",

@@ -6,7 +6,7 @@ import { realVisitorTrackingService, RealTimeVisitor, VisitorSession } from '@/s
 import { PlatformType } from '@/types/integrations';
 
 // Configuration for using real data
-const useRealData = process.env.VITE_USE_REAL_DATA === 'true';
+const useRealData = import.meta.env.VITE_USE_REAL_DATA === 'true';
 
 // Initialize real-time discovery service
 if (typeof window !== 'undefined') {
@@ -30,7 +30,10 @@ const mockCompanies: Company[] = [
     totalVisits: 12,
     score: 95,
     status: 'hot',
-    tags: ['Enterprise', 'B2B', 'Manufacturing']
+    tags: ['Enterprise', 'B2B', 'Manufacturing'],
+    phone: '+46 31 66 00 00',
+    email: 'info@volvogroup.com',
+    website: 'www.volvogroup.com'
   },
   {
     id: '2',
@@ -43,7 +46,10 @@ const mockCompanies: Company[] = [
     totalVisits: 8,
     score: 78,
     status: 'warm',
-    tags: ['Tech', 'Media', 'B2C']
+    tags: ['Tech', 'Media', 'B2C'],
+    phone: '+46 8 410 242 00',
+    email: 'press@spotify.com',
+    website: 'www.spotify.com'
   },
   {
     id: '3',
@@ -56,7 +62,10 @@ const mockCompanies: Company[] = [
     totalVisits: 5,
     score: 62,
     status: 'warm',
-    tags: ['Retail', 'Global', 'B2C']
+    tags: ['Retail', 'Global', 'B2C'],
+    phone: '+46 40 38 80 00',
+    email: 'customerservice@ikea.com',
+    website: 'www.ikea.com'
   },
   {
     id: '4',
@@ -69,7 +78,10 @@ const mockCompanies: Company[] = [
     totalVisits: 15,
     score: 88,
     status: 'hot',
-    tags: ['Fintech', 'B2B', 'SaaS']
+    tags: ['Fintech', 'B2B', 'SaaS'],
+    phone: '+46 8 120 120 00',
+    email: 'info@klarna.com',
+    website: 'www.klarna.com'
   },
   {
     id: '5',
@@ -82,7 +94,10 @@ const mockCompanies: Company[] = [
     totalVisits: 3,
     score: 45,
     status: 'cold',
-    tags: ['Fashion', 'Retail', 'B2C']
+    tags: ['Fashion', 'Retail', 'B2C'],
+    phone: '+46 8 796 55 00',
+    email: 'info@hm.com',
+    website: 'www.hm.com'
   }
 ];
 
@@ -116,41 +131,37 @@ const mockAnalytics: Analytics = {
   ]
 };
 
+const API_BASE = import.meta.env.VITE_API_ENDPOINT || 'http://localhost:3001';
+
 // Enhanced API functions with platform integration
-export const leadsApi = {
-  // Get all companies with filtering and enrichment
+export const leadsApi = {  // Get all companies with filtering and enrichment
   getCompanies: async (filters?: {
     status?: string;
     industry?: string;
     minScore?: number;
     enriched?: boolean;
   }): Promise<Company[]> => {
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
-    
-    let filtered = [...mockCompanies];
-    
-    // Apply traditional filters
-    if (filters?.status) {
-      filtered = filtered.filter(c => c.status === filters.status);
-    }
-    if (filters?.industry) {
-      filtered = filtered.filter(c => c.industry === filters.industry);    }
-    if (filters?.minScore) {
-      filtered = filtered.filter(c => c.score >= filters.minScore);
-    }
-    
-    // Apply platform enrichment if requested
-    if (filters?.enriched) {
-      try {
-        const enrichedData = await dataEnrichmentService.enrichCompanies(filtered);
-        filtered = enrichedData.map(e => e.company);
-      } catch (error) {
-        console.error('Failed to enrich companies:', error);
-        // Continue with non-enriched data
+    try {
+      const params = new URLSearchParams();
+      if (filters?.minScore) params.append('minConfidence', (filters.minScore / 100).toString());
+      if (filters?.industry) params.append('industry', filters.industry);
+      if (filters?.status) params.append('status', filters.status);
+      
+      const res = await fetch(`${API_BASE}/api/companies/leads?${params}`);
+      if (!res.ok) {
+        console.warn('API call failed, falling back to mock data');
+        return mockCompanies.filter(company => {
+          if (filters?.status && company.status !== filters.status) return false;
+          if (filters?.industry && company.industry !== filters.industry) return false;
+          if (filters?.minScore && company.score < filters.minScore) return false;
+          return true;
+        });
       }
+      return await res.json();
+    } catch (error) {
+      console.error('Failed to fetch companies:', error);
+      return mockCompanies;
     }
-    
-    return filtered.sort((a, b) => b.lastVisit.getTime() - a.lastVisit.getTime());
   },
 
   // Get enriched company data with platform information
@@ -159,38 +170,26 @@ export const leadsApi = {
     industry?: string;
     minScore?: number;
   }): Promise<EnrichedLeadData[]> => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    let filtered = [...mockCompanies];
-    
-    if (filters?.status) {
-      filtered = filtered.filter(c => c.status === filters.status);
-    }
-    if (filters?.industry) {
-      filtered = filtered.filter(c => c.industry === filters.industry);
-    }
-    if (filters?.minScore) {
-      filtered = filtered.filter(c => c.score >= filters.minScore);
-    }
-    
-    // Enrich companies with platform data
-    const enrichedData = await dataEnrichmentService.enrichCompanies(filtered);
-    return enrichedData.sort((a, b) => b.company.lastVisit.getTime() - a.company.lastVisit.getTime());
+    const params = new URLSearchParams();
+    if (filters?.minScore) params.append('minConfidence', filters.minScore.toString());
+    if (filters?.industry) params.append('industry', filters.industry);
+    if (filters?.status) params.append('status', filters.status);
+    const res = await fetch(`${API_BASE}/api/visitors/companies/enriched?${params}`);
+    return await res.json();
   },
 
   // Get a specific company
   getCompany: async (id: string): Promise<Company | null> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return mockCompanies.find(c => c.id === id) || null;
+    const res = await fetch(`${API_BASE}/api/visitors/companies/${id}`);
+    if (!res.ok) return null;
+    return await res.json();
   },
 
   // Get enriched company data
   getEnrichedCompany: async (id: string): Promise<EnrichedLeadData | null> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const company = mockCompanies.find(c => c.id === id);
-    if (!company) return null;
-    
-    return await dataEnrichmentService.enrichCompany(company);
+    const res = await fetch(`${API_BASE}/api/visitors/companies/${id}/enriched`);
+    if (!res.ok) return null;
+    return await res.json();
   },
 
   // Get analytics data with platform enhancement
@@ -308,39 +307,49 @@ export const leadsApi = {
         averageScore: 0
       };
     }
-  },
-
-  // Get recent visitors with enrichment
+  },  // Get recent visitors with enrichment
   getRecentVisitors: async (limit: number = 10): Promise<Company[]> => {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    const recent = mockCompanies
-      .sort((a, b) => b.lastVisit.getTime() - a.lastVisit.getTime())
-      .slice(0, limit);
-    
-    // Try to enrich recent visitors for better insights
     try {
-      const enrichedData = await dataEnrichmentService.enrichCompanies(recent);
-      return enrichedData.map(e => e.company);
+      const res = await fetch(`${API_BASE}/api/visitors/companies/recent?limit=${limit}`);
+      if (!res.ok) {
+        console.warn('Recent visitors API failed, falling back to mock data');
+        throw new Error('API call failed');
+      }
+        // Parse the response
+      const data = await res.json();
+      
+      // Convert date strings to Date objects
+      return data.map((company: Omit<Company, 'lastVisit'> & { lastVisit: string | Date }) => ({
+        ...company,
+        lastVisit: new Date(company.lastVisit)
+      }));
     } catch (error) {
-      console.error('Failed to enrich recent visitors:', error);
-      return recent;
+      console.error('Failed to fetch recent visitors:', error);
+      // Return mock recent visitors
+      return mockCompanies.slice(0, limit);
     }
   },
-
   // Get hot leads with enrichment
   getHotLeads: async (): Promise<Company[]> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    const hotLeads = mockCompanies.filter(c => c.status === 'hot');
-    
-    // Enrich hot leads for better qualification
     try {
-      const enrichedData = await dataEnrichmentService.enrichCompanies(hotLeads);
-      return enrichedData.map(e => e.company);
+      const res = await fetch(`${API_BASE}/api/visitors/companies/hot`);
+      if (!res.ok) {
+        console.warn('Hot leads API failed, falling back to mock data');
+        throw new Error('API call failed');
+      }
+      
+      // Parse the response
+      const data = await res.json();
+      
+      // Convert date strings to Date objects
+      return data.map((company: Omit<Company, 'lastVisit'> & { lastVisit: string | Date }) => ({
+        ...company,
+        lastVisit: new Date(company.lastVisit)
+      }));
     } catch (error) {
-      console.error('Failed to enrich hot leads:', error);
-      return hotLeads;
+      console.error('Failed to fetch hot leads:', error);
+      // Return mock hot leads
+      return mockCompanies.filter(c => c.status === 'hot');
     }
   },
 
@@ -365,51 +374,65 @@ export const leadsApi = {
     
     return new Blob([csvContent], { type: 'text/csv' });
   },
-
   // Real data methods using visitor tracking service
-  async getRealTimeVisitors(): Promise<any[]> {
-    if (useRealData) {
-      try {
-        return await realVisitorTrackingService.getRealTimeVisitors();
-      } catch (error) {
-        console.error('Failed to get real-time visitors:', error);
+  async getRealTimeVisitors(): Promise<RealTimeVisitor[]> {
+    try {
+      const res = await fetch(`${API_BASE}/api/visitors/realtime`);
+      if (!res.ok) {
+        console.warn('Real-time visitors API failed, falling back to mock data');
+        throw new Error('API call failed');
       }
+      return await res.json();
+    } catch (error) {
+      console.error('Failed to get real-time visitors:', error);
+        // Return mock real-time visitors
+      return [
+        {
+          sessionId: 'session_1',
+          ip: '192.168.1.100',
+          currentPage: '/pricing',
+          startTime: new Date(Date.now() - 300000), // 5 minutes ago
+          lastActivity: new Date(Date.now() - 30000), // 30 seconds ago
+          pageViews: 3,
+          isActive: true,
+          companyInfo: {
+            name: 'TechCorp Solutions',
+            domain: 'techcorp.com',
+            industry: 'Technology',
+            size: '51-200',
+            location: { city: 'Stockholm', country: 'Sweden' },
+            confidence: 0.85,
+            enrichedAt: new Date(),
+            enrichmentSource: ['ip'],
+            phone: '+46 8 123 45 67',
+            email: 'contact@techcorp.com',
+            website: 'www.techcorp.com'
+          }
+        },
+        {
+          sessionId: 'session_2',
+          ip: '10.0.0.50',
+          currentPage: '/features',
+          startTime: new Date(Date.now() - 120000), // 2 minutes ago
+          lastActivity: new Date(Date.now() - 10000), // 10 seconds ago
+          pageViews: 2,
+          isActive: true,
+          companyInfo: {
+            name: 'Digital Marketing Pro',
+            domain: 'digitalmarketing.se',
+            industry: 'Marketing',
+            size: '11-50',
+            location: { city: 'Malmö', country: 'Sweden' },
+            email: 'info@digitalmarketing.se',
+            confidence: 0.92,
+            enrichedAt: new Date(),
+            enrichmentSource: ['domain', 'email'],
+            phone: '+46 40 987 65 43',
+            website: 'www.digitalmarketing.se'
+          }
+        }
+      ];
     }
-    
-    // Return mock real-time visitors
-    return [
-      {
-        sessionId: 'session_1',
-        ip: '192.168.1.100',
-        currentPage: '/pricing',
-        startTime: new Date(Date.now() - 300000), // 5 minutes ago
-        lastActivity: new Date(Date.now() - 30000), // 30 seconds ago
-        pageViews: 3,
-        isActive: true,
-        companyInfo: {
-          name: 'TechCorp Solutions',
-          domain: 'techcorp.com',
-          industry: 'Technology',
-          confidence: 0.85
-        }
-      },
-      {
-        sessionId: 'session_2',
-        ip: '10.0.0.50',
-        currentPage: '/features',
-        startTime: new Date(Date.now() - 120000), // 2 minutes ago
-        lastActivity: new Date(Date.now() - 10000), // 10 seconds ago
-        pageViews: 2,
-        isActive: true,
-        companyInfo: {
-          name: 'Digital Marketing Pro',
-          domain: 'digitalmarketing.se',
-          industry: 'Marketing',
-          email: 'info@digitalmarketing.se',
-          confidence: 0.92
-        }
-      }
-    ];
   },
 
   async getVisitorSessions(filters?: {
@@ -417,17 +440,98 @@ export const leadsApi = {
     to?: Date;
     domain?: string;
     hasCompanyInfo?: boolean;
-  }): Promise<any[]> {
-    if (useRealData) {
-      try {
-        return await realVisitorTrackingService.getVisitorSessions(filters);
-      } catch (error) {
-        console.error('Failed to get visitor sessions:', error);
+  }): Promise<VisitorSession[]> {
+    try {
+      const params = new URLSearchParams();
+      if (filters?.from) params.append('from', filters.from.toISOString());
+      if (filters?.to) params.append('to', filters.to.toISOString());
+      if (filters?.domain) params.append('domain', filters.domain);
+      if (filters?.hasCompanyInfo !== undefined) params.append('hasCompanyInfo', filters.hasCompanyInfo.toString());
+
+      const res = await fetch(`${API_BASE}/api/visitors/sessions?${params}`);
+      if (!res.ok) {
+        console.warn('Visitor sessions API failed, falling back to mock data');
+        throw new Error('API call failed');
       }
+      return await res.json();
+    } catch (error) {
+      console.error('Failed to get visitor sessions:', error);
+      // Return mock session data
+      return [];
     }
-    
-    // Return mock session data
-    return [];
+  },
+
+  // Get filtered companies with advanced filters
+  getFilteredCompanies: async (filters?: {
+    status?: string;
+    industry?: string;
+    search?: string;
+    sortBy?: 'lastVisit' | 'score' | 'totalVisits';
+    limit?: number;
+  }): Promise<Company[]> => {
+    try {
+      const params = new URLSearchParams();
+      if (filters?.status) params.append('status', filters.status);
+      if (filters?.industry) params.append('industry', filters.industry);
+      if (filters?.search) params.append('search', filters.search);
+      if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+      if (filters?.limit) params.append('limit', filters.limit.toString());
+      
+      const res = await fetch(`${API_BASE}/api/companies/filtered?${params}`);
+      if (!res.ok) {
+        console.warn('Filtered companies API failed, falling back to mock data');
+        throw new Error('API call failed');
+      }
+      
+      // Parse the response and ensure dates are proper Date objects
+      const data = await res.json();
+      return data.map((company: Omit<Company, 'lastVisit'> & { lastVisit: string | Date }) => ({
+        ...company,
+        lastVisit: company.lastVisit instanceof Date ? 
+                  company.lastVisit : 
+                  new Date(company.lastVisit)
+      }));
+    } catch (error) {
+      console.error('Failed to fetch filtered companies:', error);
+      // Return filtered mock data
+      let filteredCompanies = [...mockCompanies];
+      
+      if (filters?.status && filters.status !== 'all') {
+        filteredCompanies = filteredCompanies.filter(c => c.status === filters.status);
+      }
+      
+      if (filters?.industry && filters.industry !== 'all') {
+        filteredCompanies = filteredCompanies.filter(c => c.industry === filters.industry);
+      }
+      
+      if (filters?.search) {
+        const searchLower = filters.search.toLowerCase();
+        filteredCompanies = filteredCompanies.filter(c => 
+          c.name.toLowerCase().includes(searchLower) || 
+          c.domain.toLowerCase().includes(searchLower) || 
+          (c.email && c.email.toLowerCase().includes(searchLower)) || 
+          (c.website && c.website.toLowerCase().includes(searchLower))
+        );
+      }
+      
+      switch (filters?.sortBy) {
+        case 'score':
+          filteredCompanies.sort((a, b) => b.score - a.score);
+          break;
+        case 'totalVisits':
+          filteredCompanies.sort((a, b) => b.totalVisits - a.totalVisits);
+          break;
+        case 'lastVisit':
+        default:
+          filteredCompanies.sort((a, b) => b.lastVisit.getTime() - a.lastVisit.getTime());
+      }
+      
+      if (filters?.limit) {
+        filteredCompanies = filteredCompanies.slice(0, filters.limit);
+      }
+      
+      return filteredCompanies;
+    }
   },
 };
 
@@ -442,7 +546,7 @@ export const subscribeToLiveUpdates = (callback: (company: Company) => void) => 
       const enrichedData = await dataEnrichmentService.enrichCompany(randomCompany);
       const updatedCompany = {
         ...enrichedData.company,
-        lastVisit: new Date(),
+        lastVisit: new Date(), // Always use a fresh Date object
         totalVisits: enrichedData.company.totalVisits + 1
       };
       callback(updatedCompany);
@@ -450,7 +554,7 @@ export const subscribeToLiveUpdates = (callback: (company: Company) => void) => 
       // Fallback to regular update if enrichment fails
       const updatedCompany = {
         ...randomCompany,
-        lastVisit: new Date(),
+        lastVisit: new Date(), // Always use a fresh Date object
         totalVisits: randomCompany.totalVisits + 1
       };
       callback(updatedCompany);

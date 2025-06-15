@@ -1,6 +1,47 @@
 // Real Visitor Tracking Service - Collect actual visitor data
 import { Company } from '@/types/leads';
 
+// Define enrichment data interfaces
+export interface EnrichmentData {
+  name?: string;
+  domain?: string;
+  industry?: string;
+  size?: string;
+  location?: {
+    city?: string;
+    country?: string;
+    region?: string;
+  };
+  email?: string;
+  phone?: string;
+  website?: string;
+  confidence: number;
+}
+
+export interface TrackingEventData {
+  title?: string;
+  depth?: number;
+  duration?: number;
+  [key: string]: string | number | boolean | undefined;
+}
+
+export interface CreateSessionData {
+  sessionId: string;
+  ip: string;
+  userAgent: string;
+  domain: string;
+  customerId: string;
+  referrer?: string;
+  timestamp: Date;
+}
+
+export interface EmailSearchResult {
+  value: string;
+  type: string;
+  first_name?: string;
+  confidence: number;
+}
+
 export interface VisitorSession {
   id: string;
   ip: string;
@@ -34,6 +75,7 @@ export interface CompanyInfo {
   };
   email?: string;
   phone?: string;
+  website?: string;
   enrichedAt: Date;
   enrichmentSource: string[];
   confidence: number;
@@ -51,10 +93,9 @@ export interface RealTimeVisitor {
 }
 
 class RealVisitorTrackingService {
-  private apiEndpoint = process.env.VITE_API_ENDPOINT || 'https://api.zectordigital.com';
+  private apiEndpoint = import.meta.env.VITE_API_ENDPOINT || 'https://api.zectordigital.com';
   private activeSessions = new Map<string, RealTimeVisitor>();
-  
-  // Store incoming tracking data from your website
+    // Store incoming tracking data from your website
   async processTrackingData(data: {
     event: string;
     customerId: string;
@@ -65,7 +106,7 @@ class RealVisitorTrackingService {
     referrer?: string;
     timestamp: string;
     anonymizeIp?: boolean;
-    data?: any;
+    data?: TrackingEventData;
   }): Promise<void> {
     try {
       const sessionId = this.generateSessionId(data.ip || 'unknown', data.userAgent);
@@ -124,7 +165,7 @@ class RealVisitorTrackingService {
         this.enrichFromBusinessDirectories(domain)
       ]);
 
-      let companyInfo: Partial<CompanyInfo> = {
+      const companyInfo: Partial<CompanyInfo> = {
         domain,
         enrichedAt: new Date(),
         enrichmentSource: [],
@@ -141,13 +182,13 @@ class RealVisitorTrackingService {
           companyInfo.enrichmentSource!.push(sources[index]);
           
           // Merge data with confidence weighting
-          const data = result.value;
-          if (data.name && !companyInfo.name) companyInfo.name = data.name;
+          const data = result.value;          if (data.name && !companyInfo.name) companyInfo.name = data.name;
           if (data.industry && !companyInfo.industry) companyInfo.industry = data.industry;
           if (data.size && !companyInfo.size) companyInfo.size = data.size;
           if (data.location && !companyInfo.location) companyInfo.location = data.location;
           if (data.email && !companyInfo.email) companyInfo.email = data.email;
           if (data.phone && !companyInfo.phone) companyInfo.phone = data.phone;
+          if (data.website && !companyInfo.website) companyInfo.website = data.website;
           
           totalConfidence += data.confidence || 0;
           sourceCount++;
@@ -167,9 +208,8 @@ class RealVisitorTrackingService {
       return null;
     }
   }
-
   // Enrich data from IP address (using IPinfo.io for business enrichment)
-  private async enrichFromIP(ip?: string): Promise<any> {
+  private async enrichFromIP(ip?: string): Promise<EnrichmentData | null> {
     if (!ip || ip === 'unknown') return null;
 
     try {
@@ -213,9 +253,8 @@ class RealVisitorTrackingService {
       return null;
     }
   }
-
   // Enrich data from domain (using WHOIS and business databases)
-  private async enrichFromDomain(domain: string): Promise<any> {
+  private async enrichFromDomain(domain: string): Promise<EnrichmentData | null> {
     try {
       // You can use services like:
       // - Clearbit API
@@ -223,17 +262,15 @@ class RealVisitorTrackingService {
       // - FullContact
       // - ZoomInfo API
       // - LinkedIn Company API
-      
-      // Example with a generic business data API
+        // Example with a generic business data API
       const response = await fetch(`https://api.clearbit.com/v2/companies/find?domain=${domain}`, {
         headers: {
-          'Authorization': `Bearer ${process.env.VITE_CLEARBIT_API_KEY}`
+          'Authorization': `Bearer ${import.meta.env.VITE_CLEARBIT_API_KEY}`
         }
       });
       
       if (response.ok) {
-        const data = await response.json();
-        return {
+        const data = await response.json();        return {
           name: data.name,
           industry: data.category?.industry,
           size: this.mapEmployeeCount(data.metrics?.employees),
@@ -242,6 +279,7 @@ class RealVisitorTrackingService {
             country: data.geo?.country
           },
           phone: data.phone,
+          website: data.domain ? `https://${data.domain}` : undefined,
           confidence: 0.9
         };
       }
@@ -252,20 +290,18 @@ class RealVisitorTrackingService {
       return null;
     }
   }
-
   // Enrich from email domains and patterns
-  private async enrichFromEmailDomains(domain: string): Promise<any> {
+  private async enrichFromEmailDomains(domain: string): Promise<EnrichmentData | null> {
     try {
       // Use email finding services like Hunter.io
-      const response = await fetch(`https://api.hunter.io/v2/domain-search?domain=${domain}&api_key=${process.env.VITE_HUNTER_API_KEY}`);
+      const response = await fetch(`https://api.hunter.io/v2/domain-search?domain=${domain}&api_key=${import.meta.env.VITE_HUNTER_API_KEY}`);
       
       if (response.ok) {
         const data = await response.json();
         const emails = data.data?.emails || [];
-        
-        if (emails.length > 0) {
+          if (emails.length > 0) {
           // Find the most likely contact email
-          const contactEmail = emails.find((email: any) => 
+          const contactEmail = emails.find((email: EmailSearchResult) => 
             email.type === 'generic' || 
             email.first_name?.toLowerCase().includes('contact') ||
             email.first_name?.toLowerCase().includes('info') ||
@@ -285,9 +321,8 @@ class RealVisitorTrackingService {
       return null;
     }
   }
-
   // Enrich from business directories
-  private async enrichFromBusinessDirectories(domain: string): Promise<any> {
+  private async enrichFromBusinessDirectories(domain: string): Promise<EnrichmentData | null> {
     try {
       // Use business directory APIs like:
       // - Google Places API
@@ -324,7 +359,7 @@ class RealVisitorTrackingService {
     return null;
   }
 
-  private async createSession(data: any): Promise<VisitorSession> {
+  private async createSession(data: CreateSessionData): Promise<VisitorSession> {
     // Implement database insert for new session
     return {} as VisitorSession;
   }
@@ -333,7 +368,7 @@ class RealVisitorTrackingService {
     // Implement database update for page view
   }
 
-  private async recordFormSubmission(sessionId: string, formData: any): Promise<void> {
+  private async recordFormSubmission(sessionId: string, formData: TrackingEventData): Promise<void> {
     // Implement database update for form submission
   }
 
@@ -412,17 +447,15 @@ class RealVisitorTrackingService {
       name: companyInfo.name || companyInfo.domain,
       domain: companyInfo.domain,
       industry: companyInfo.industry || 'Unknown',
-      size: companyInfo.size || 'Unknown',
-      location: companyInfo.location || { city: 'Unknown', country: 'Unknown' },
+      size: companyInfo.size || 'Unknown',      location: {
+        city: companyInfo.location?.city || 'Unknown',
+        country: companyInfo.location?.country || 'Unknown'
+      },
       lastVisit: session.timestamp,
       totalVisits: session.pages.length,
       score: Math.round(companyInfo.confidence * 100),
       status: this.calculateLeadStatus(session),
-      tags: this.generateTags(session),
-      contactInfo: {
-        email: companyInfo.email,
-        phone: companyInfo.phone
-      }
+      tags: this.generateTags(session)
     };
   }
 

@@ -107,14 +107,184 @@ app.get('/api/companies/leads', async (req, res) => {
   }
 });
 
+// API endpoints for companies (Lead Tracking)
+app.get('/api/visitors/companies', async (req, res) => {
+  try {
+    const { minConfidence, industry, status } = req.query;
+    
+    const filters: {
+      minConfidence?: number;
+      industry?: string;
+      size?: string;
+      hasContactInfo?: boolean;
+    } = {};
+    if (minConfidence) filters.minConfidence = parseFloat(minConfidence as string);
+    if (industry) filters.industry = industry as string;
+
+    let companies = await realVisitorTrackingService.getCompanyLeads(filters);
+    
+    // Filter by status if provided
+    if (status) {
+      companies = companies.filter(c => c.status === status);
+    }
+    
+    res.json(companies);
+  } catch (error) {
+    console.error('Company leads error:', error);
+    res.status(500).json({ error: 'Failed to get companies' });
+  }
+});
+
+app.get('/api/visitors/companies/enriched', async (req, res) => {
+  try {
+    const { minConfidence, industry, status } = req.query;
+    
+    const filters: {
+      minConfidence?: number;
+      industry?: string;
+      size?: string;
+      hasContactInfo?: boolean;
+    } = {};
+    if (minConfidence) filters.minConfidence = parseFloat(minConfidence as string);
+    if (industry) filters.industry = industry as string;
+
+    let companies = await realVisitorTrackingService.getCompanyLeads(filters);
+    
+    // Filter by status if provided
+    if (status) {
+      companies = companies.filter(c => c.status === status);
+    }
+    
+    // Mock enriched data structure for now
+    const enrichedData = companies.map(company => ({
+      company,
+      platformData: {},
+      enrichmentScore: Math.random() * 100,
+      lastEnriched: new Date()
+    }));
+    
+    res.json(enrichedData);
+  } catch (error) {
+    console.error('Enriched companies error:', error);
+    res.status(500).json({ error: 'Failed to get enriched companies' });
+  }
+});
+
+app.get('/api/visitors/companies/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companies = await realVisitorTrackingService.getCompanyLeads();
+    const company = companies.find(c => c.id === id);
+    
+    if (!company) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+    
+    res.json(company);
+  } catch (error) {
+    console.error('Get company error:', error);
+    res.status(500).json({ error: 'Failed to get company' });
+  }
+});
+
+app.get('/api/visitors/companies/recent', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 10;
+    let companies = await realVisitorTrackingService.getCompanyLeads();
+    companies = companies.sort((a, b) => b.lastVisit.getTime() - a.lastVisit.getTime()).slice(0, limit);
+    res.json(companies);
+  } catch (error) {
+    console.error('Recent visitors error:', error);
+    res.status(500).json({ error: 'Failed to get recent visitors' });
+  }
+});
+
+app.get('/api/visitors/companies/hot', async (req, res) => {
+  try {
+    let companies = await realVisitorTrackingService.getCompanyLeads();
+    companies = companies.filter(c => c.status === 'hot');
+    res.json(companies);
+  } catch (error) {
+    console.error('Hot leads error:', error);
+    res.status(500).json({ error: 'Failed to get hot leads' });
+  }
+});
+
+// API endpoints for companies (Lead Tracking)
+app.get('/api/companies/filtered', async (req, res) => {
+  try {
+    // Parse query parameters
+    const { status, industry, search, sortBy, limit = 20 } = req.query;
+    
+    // Start with all company leads
+    let filteredCompanies = await realVisitorTrackingService.getCompanyLeads();
+    
+    // Apply filters
+    if (status && status !== 'all') {
+      filteredCompanies = filteredCompanies.filter(c => c.status === status);
+    }
+    
+    if (industry && industry !== 'all') {
+      filteredCompanies = filteredCompanies.filter(c => c.industry === industry);
+    }
+    
+    if (search) {
+      const searchLower = (search as string).toLowerCase();
+      filteredCompanies = filteredCompanies.filter(c => 
+        (c.name && c.name.toLowerCase().includes(searchLower)) || 
+        (c.domain && c.domain.toLowerCase().includes(searchLower)) || 
+        (c.email && c.email.toLowerCase().includes(searchLower)) || 
+        (c.website && c.website.toLowerCase().includes(searchLower))
+      );
+    }
+    
+    // Apply sorting
+    switch (sortBy) {
+      case 'score':
+        filteredCompanies.sort((a, b) => b.score - a.score);
+        break;
+      case 'totalVisits':
+        filteredCompanies.sort((a, b) => b.totalVisits - a.totalVisits);
+        break;
+      case 'lastVisit':
+      default:
+        filteredCompanies.sort((a, b) => {
+          const dateA = a.lastVisit instanceof Date ? a.lastVisit : new Date(a.lastVisit);
+          const dateB = b.lastVisit instanceof Date ? b.lastVisit : new Date(b.lastVisit);
+          return dateB.getTime() - dateA.getTime();
+        });
+    }
+    
+    // Apply limit
+    const limitNum = parseInt(limit as string);
+    filteredCompanies = filteredCompanies.slice(0, limitNum);
+    
+    res.json(filteredCompanies);
+  } catch (error) {
+    console.error('Filtered companies error:', error);
+    res.status(500).json({ error: 'Failed to get filtered companies' });
+  }
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Tracking server running on port ${PORT}`);
+
+// Try to start the server with port checking
+const server = app.listen(PORT, () => {
+  console.log(`🚀 TypeScript Tracking server running on port ${PORT}`);
+  console.log(`📊 API endpoints available at http://localhost:${PORT}`);
+  console.log(`❤️  Health check: http://localhost:${PORT}/health`);
+}).on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`⚠️  Port ${PORT} is already in use. This is normal if the main server.cjs is running.`);
+    console.log(`ℹ️  The TypeScript implementation is meant for development/testing purposes.`);
+  } else {
+    console.error('Server error:', err);
+  }
 });
 
 export default app;

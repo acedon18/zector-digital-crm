@@ -17,6 +17,10 @@ export interface Company {
   score: number;
   status: 'hot' | 'warm' | 'cold';
   tags: string[];
+  // Contact information
+  phone?: string;
+  email?: string;
+  website?: string; // Sometimes different from domain
 }
 
 export interface Visit {
