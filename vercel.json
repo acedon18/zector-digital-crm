@@ -4,16 +4,9 @@
       "main": true
     }
   },
-  "builds": [
-    {
-      "src": "pulse-main/package.json",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "pulse-main/dist/$1"
-    }
-  ]
+  "clone": true,
+  "buildCommand": "cd pulse-main && npm install && npm run build",
+  "outputDirectory": "pulse-main/dist",
+  "installCommand": "echo 'Skipping root install'",
+  "framework": null
 }
