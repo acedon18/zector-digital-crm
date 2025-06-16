@@ -1,11 +1,19 @@
 {
-  "buildCommand": "cd pulse-main && npm install && npm run build",
-  "outputDirectory": "pulse-main/dist",
-  "framework": "vite",
-  "rewrites": [
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  },
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "pulse-main/package.json",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "pulse-main/dist/$1"
     }
   ]
 }
