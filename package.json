@@ -1,0 +1,18 @@
+{
+  "name": "zector-digital-crm",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "cd pulse-main && npm install && cd .. && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vite": "^6.3.5",
+    "@vitejs/plugin-react-swc": "^3.5.0"
+  }
+}
