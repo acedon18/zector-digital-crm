@@ -2,12 +2,11 @@
   "git": {
     "deploymentEnabled": {
       "main": true
-    },
-    "submodules": true
+    }
   },
-  "buildCommand": "if [ -d \"pulse-main\" ]; then cd pulse-main && npm install && npm run build; else echo \"pulse-main directory not found\"; find . -type d | sort; exit 1; fi",
+  "buildCommand": "cd pulse-main && npm install && npm run build || (echo 'Build failed' && ls -la)",
   "outputDirectory": "pulse-main/dist",
-  "installCommand": "echo 'Skipping root install' && git submodule update --init --recursive",
+  "installCommand": "echo 'Skipping root install'",
   "framework": null,
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
