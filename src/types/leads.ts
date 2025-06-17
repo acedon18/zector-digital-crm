@@ -76,6 +76,9 @@ export interface Lead {
   // Added for compatibility with mock data
   firstName?: string;
   lastName?: string;
+  // Added for compatibility with lead discovery events
+  discoverySource?: string;
+  confidence?: number;
 }
 
 export interface Visit {

@@ -4,7 +4,7 @@
 import axios from 'axios';
 import { ApolloSearchParams, ApolloSearchResponse } from './apolloSearchTypes';
 
-const APOLLO_API_KEY = process.env.APOLLO_API_KEY || '';
+const APOLLO_API_KEY = import.meta.env.VITE_APOLLO_API_KEY || '';
 const APOLLO_SEARCH_URL = 'https://api.apollo.io/v1/mixed/people/search';
 
 /**

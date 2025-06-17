@@ -34,7 +34,7 @@ export interface SyncLogEntry {
   timestamp: Date;
   level: 'info' | 'warning' | 'error';
   message: string;
-  data?: any;
+  data?: unknown;
 }
 
 export type PlatformType = 

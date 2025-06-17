@@ -3,7 +3,7 @@
 
 import axios from 'axios';
 
-const APOLLO_API_KEY = process.env.APOLLO_API_KEY || '';
+const APOLLO_API_KEY = import.meta.env.VITE_APOLLO_API_KEY || '';
 const APOLLO_API_URL = 'https://api.apollo.io/v1/mixed/company/enrich';
 
 export interface ApolloCompanyData {

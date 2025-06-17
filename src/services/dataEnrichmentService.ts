@@ -68,49 +68,6 @@ export async function enrichLeadData(lead: LeadType): Promise<LeadType> {
 }
 
 /**
- * Mock function to simulate API call for development
- */
-async function mockEnrichmentCall(lead: LeadType): Promise<EnrichmentData> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  // Return mock data based on lead domain if available
-  const domain = lead.email?.split('@')[1] || lead.website?.replace(/^https?:\/\//, '') || '';
-  
-  if (domain.includes('tech')) {
-    return {
-      industry: 'Technology',
-      size: '50-200',
-      location: { city: 'San Francisco', country: 'USA', region: 'West' },
-      website: `https://${domain}`,
-      phone: '+1-415-555-1234',
-      confidence: 0.9
-    };
-  }
-  
-  if (domain.includes('finance')) {
-    return {
-      industry: 'Finance',
-      size: '500-1000',
-      location: { city: 'New York', country: 'USA', region: 'East' },
-      website: `https://${domain}`,
-      phone: '+1-212-555-6789',
-      confidence: 0.85
-    };
-  }
-  
-  // Default data with low confidence
-  return {
-    industry: 'Unknown',
-    size: 'Unknown',
-    location: { city: '', country: '', region: '' },
-    website: lead.website || '',
-    phone: '',
-    confidence: 0.3
-  };
-}
-
-/**
  * Batch enrich multiple leads
  * @param leads Array of leads to enrich
  * @returns Promise with array of enriched leads

@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -19,7 +18,6 @@ import {
   RefreshCw,
   AlertTriangle
 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 import { toast } from '@/components/ui/use-toast';
 import { 
   realTimeLeadDiscoveryService, 
@@ -31,10 +29,9 @@ import { PlatformType } from '@/types/integrations';
 import { PLATFORM_CONFIGS } from '@/lib/platformConfigs';
 
 export const PlatformManagementSettings: React.FC = () => {
-  const { t } = useTranslation();
   const [discoveryConfig, setDiscoveryConfig] = useState<LeadDiscoveryConfig | null>(null);
-  const [discoveryStatus, setDiscoveryStatus] = useState<any>(null);
-  const [syncStatus, setSyncStatus] = useState<any>(null);
+  const [discoveryStatus, setDiscoveryStatus] = useState<{ isRunning: boolean; lastDiscoveryRun?: string; nextDiscoveryRun?: string; enabledPlatforms: string[] } | null>(null);
+  const [syncStatus, setSyncStatus] = useState<{ activeSyncs: number; totalPlatforms: number; lastSyncTime?: string; nextSyncTime?: string; recentJobs: Array<{ jobId: string; status: string; platformType: string; recordsProcessed: number }> } | null>(null);
   const [loading, setLoading] = useState(true);
   const [recentEvents, setRecentEvents] = useState<LeadDiscoveryEvent[]>([]);
 
@@ -44,11 +41,10 @@ export const PlatformManagementSettings: React.FC = () => {
     // Subscribe to discovery events
     const eventListener = (event: LeadDiscoveryEvent) => {
       setRecentEvents(prev => [event, ...prev.slice(0, 9)]);
-      
-      if (event.type === 'new_lead') {
+        if (event.type === 'new_lead') {
         toast({
           title: 'New Lead Discovered!',
-          description: `Found ${event.lead.company.name} from ${event.lead.discoverySource}`,
+          description: `Found ${event.lead.company?.name || event.lead.companyName || 'Unknown Company'} from ${event.lead.discoverySource || 'unknown source'}`,
         });
       }
     };
@@ -149,14 +145,6 @@ export const PlatformManagementSettings: React.FC = () => {
         variant: 'destructive'
       });
     }
-  };
-
-  const handleTogglePlatformSync = (platform: PlatformType, enabled: boolean) => {
-    platformSyncService.setSyncEnabled(platform, enabled);
-    toast({
-      title: `${PLATFORM_CONFIGS[platform].name} Sync ${enabled ? 'Enabled' : 'Disabled'}`,
-      description: `Background sync has been ${enabled ? 'activated' : 'paused'} for this platform`
-    });
   };
 
   if (loading || !discoveryConfig || !discoveryStatus || !syncStatus) {
@@ -364,7 +352,7 @@ export const PlatformManagementSettings: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-sm font-medium">Recent Sync Jobs</Label>
               <div className="space-y-2">
-                {syncStatus.recentJobs.slice(0, 3).map((job: any) => (
+                {syncStatus.recentJobs.slice(0, 3).map((job) => (
                   <div key={job.jobId} className="flex items-center justify-between p-2 border rounded">
                     <div className="flex items-center gap-2">
                       {job.status === 'completed' ? (
@@ -408,16 +396,15 @@ export const PlatformManagementSettings: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {recentEvents.slice(0, 5).map((event, index) => (
-                <div key={index} className="flex items-center justify-between p-2 border rounded">
+              {recentEvents.slice(0, 5).map((event, index) => (                <div key={index} className="flex items-center justify-between p-2 border rounded">
                   <div className="flex items-center gap-2">
                     <Target className="h-4 w-4 text-blue-600" />
                     <div>
-                      <span className="text-sm font-medium">{event.lead.company.name}</span>
+                      <span className="text-sm font-medium">{event.lead.company?.name || event.lead.companyName || 'Unknown Company'}</span>
                       <p className="text-xs text-muted-foreground">
-                        from {event.lead.discoverySource.replace('_', ' ')} • 
-                        Score: {event.lead.company.score} • 
-                        Confidence: {(event.lead.confidence * 100).toFixed(0)}%
+                        from {event.lead.discoverySource?.replace('_', ' ') || 'unknown source'} • 
+                        Score: {event.lead.company?.score || event.lead.score || 0} • 
+                        Confidence: {((event.lead.confidence || 0) * 100).toFixed(0)}%
                       </p>
                     </div>
                   </div>

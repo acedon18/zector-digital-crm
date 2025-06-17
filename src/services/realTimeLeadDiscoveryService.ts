@@ -15,6 +15,34 @@ export interface LeadDiscoveryFilters {
   toDate?: string;
 }
 
+// Lead discovery configuration interface
+export interface LeadDiscoveryConfig {
+  enableRealTimeDiscovery: boolean;
+  discoverySources: LeadSource[];
+  refreshInterval: number; // minutes
+  scoreThreshold: number;
+  notificationEnabled: boolean;
+  automatedLeadCreation: boolean;
+  excludedCompanies?: string[];
+  priorityIndustries?: string[];
+  // Additional properties needed by components
+  discoveryInterval: number;
+  minEngagementScore: number;
+  autoEnrichNewLeads: boolean;
+  notifyOnNewLeads: boolean;
+}
+
+// Lead discovery event interface
+export interface LeadDiscoveryEvent {
+  id: string;
+  type: 'new_lead' | 'lead_update' | 'lead_score_change' | 'discovery_run';
+  timestamp: number;
+  lead: Lead;
+  discoverySource?: LeadSource;
+  score?: number;
+  details?: Record<string, unknown>;
+}
+
 /**
  * Discover new leads in real-time based on various signals
  * @param filters Optional filters to apply to lead discovery
@@ -223,8 +251,143 @@ export async function getLeadDiscoveryStats(): Promise<{
   };
 }
 
+/**
+ * Get current lead discovery configuration
+ * @returns Current configuration
+ */
+export function getConfig(): LeadDiscoveryConfig {
+  // Default configuration values
+  return {
+    enableRealTimeDiscovery: true,
+    discoverySources: ['website', 'social', 'event'],
+    refreshInterval: 30, // minutes
+    scoreThreshold: 60,
+    notificationEnabled: true,
+    automatedLeadCreation: false,
+    priorityIndustries: ['Technology', 'Finance', 'Healthcare'],
+    // Additional properties for UI components
+    discoveryInterval: 30,
+    minEngagementScore: 50,
+    autoEnrichNewLeads: true,
+    notifyOnNewLeads: true
+  };
+}
+
+/**
+ * Update lead discovery configuration
+ * @param updates Configuration updates to apply
+ * @returns Updated configuration
+ */
+export function updateConfig(updates: Partial<LeadDiscoveryConfig>): LeadDiscoveryConfig {
+  const currentConfig = getConfig();
+  console.log('Updating lead discovery configuration:', updates);
+  
+  // In a real implementation, save this to persistent storage
+  return {
+    ...currentConfig,
+    ...updates
+  };
+}
+
+/**
+ * Get current lead discovery status
+ * @returns Current status
+ */
+export function getStatus(): { isRunning: boolean; lastDiscoveryRun?: string; nextDiscoveryRun?: string; enabledPlatforms: string[] } {
+  // Mock status information
+  return {
+    isRunning: true,
+    lastDiscoveryRun: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
+    nextDiscoveryRun: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes from now
+    enabledPlatforms: ['website', 'linkedin', 'twitter']
+  };
+}
+
+/**
+ * Start lead discovery process
+ */
+export function start(): void {
+  console.log('Starting lead discovery process');
+  // In a real implementation, start background process or timer
+}
+
+/**
+ * Stop lead discovery process
+ */
+export function stop(): void {
+  console.log('Stopping lead discovery process');
+  // In a real implementation, stop background process or timer
+}
+
+/**
+ * Run lead discovery process immediately
+ * @returns Discovery results
+ */
+export async function discoverNow(): Promise<{ discovered: number; processed: number }> {
+  console.log('Running lead discovery now');
+  
+  // In a real implementation, run the actual discovery process
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  
+  return {
+    discovered: Math.floor(Math.random() * 10) + 5,
+    processed: Math.floor(Math.random() * 20) + 10
+  };
+}
+
+/**
+ * Register event listener for discovery events
+ * @param listener Function to call when events occur
+ */
+export function addEventListener(listener: (event: LeadDiscoveryEvent) => void): void {
+  console.log('Added event listener for lead discovery events');
+  // In a real implementation, register the listener
+  // For now, simulate an event after a delay
+  setTimeout(() => {
+    const mockEvent: LeadDiscoveryEvent = {
+      id: `event-${Date.now()}`,
+      type: 'new_lead',
+      timestamp: Date.now(),
+      lead: {
+        id: `lead-${Date.now()}`,
+        firstName: 'Jane',
+        lastName: 'Smith',
+        email: 'jane@example.com',
+        companyName: 'ABC Corp',
+        company: {
+          id: `company-${Date.now()}`,
+          name: 'ABC Corp',
+          domain: 'abccorp.com',
+          industry: 'Technology'
+        },
+        source: 'website',
+        createdAt: new Date()
+      },
+      discoverySource: 'website',
+      score: 85
+    };
+    listener(mockEvent);
+  }, 3000);
+}
+
+/**
+ * Remove event listener
+ * @param _listener Listener to remove
+ */
+export function removeEventListener(_listener: (event: LeadDiscoveryEvent) => void): void {
+  console.log('Removed event listener for lead discovery events');
+  // In a real implementation, unregister the listener
+}
+
 export const realTimeLeadDiscoveryService = {
   discoverLeads,
   scoreLeadQuality,
-  // Add other main functions here as needed
+  getConfig,
+  updateConfig,
+  getStatus,
+  start,
+  stop,
+  discoverNow,
+  addEventListener,
+  removeEventListener
 };

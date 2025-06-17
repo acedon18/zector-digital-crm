@@ -44,10 +44,10 @@ export async function authenticateWithPlatform(platformId: string, config: Platf
 
 /**
  * Handle OAuth2 authentication flow
- * @param config Platform configuration
+ * @param _config Platform configuration (unused in mock implementation)
  * @returns OAuth2 token
  */
-async function authenticateOAuth2(config: PlatformConfig): Promise<string> {
+async function authenticateOAuth2(_config: PlatformConfig): Promise<string> {
   try {
     // In production, this would make a real OAuth2 token request
     // For now, return mock token
@@ -71,9 +71,9 @@ export async function makePlatformRequest(
   platformId: string,
   endpoint: string,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
-  data?: unknown,
-  token?: string
-): Promise<any> {
+  data?: Record<string, unknown>,
+  _token?: string
+): Promise<unknown> {
   try {
     console.log(`Making ${method} request to ${platformId} platform: ${endpoint}`);
     
@@ -85,7 +85,7 @@ export async function makePlatformRequest(
       success: true,
       data: {
         id: `mock-${Date.now()}`,
-        ...data
+        ...(data || {})
       },
       timestamp: new Date().toISOString()
     };
@@ -105,7 +105,14 @@ export async function checkPlatformConnection(platformId: string, config: Platfo
   try {
     const token = await authenticateWithPlatform(platformId, config);
     const response = await makePlatformRequest(platformId, ENDPOINTS.SYNC_STATUS, 'GET', undefined, token);
-    return response && response.success;
+    
+    // Type guard for response.success
+    if (response && typeof response === 'object' && 'success' in response) {
+      const typedResponse = response as { success: unknown };
+      return typeof typedResponse.success === 'boolean' && typedResponse.success;
+    }
+    
+    return false;
   } catch (error) {
     console.error(`Connection check failed for platform ${platformId}:`, error);
     return false;

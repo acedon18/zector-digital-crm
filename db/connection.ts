@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { ConnectOptions } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/zector-crm';
 
@@ -7,6 +7,6 @@ export function connectDB() {
   mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-  } as any);
+  } as ConnectOptions);
   return mongoose.connection;
 }

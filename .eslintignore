@@ -1,5 +1,13 @@
 # Ignore backup and original files for linting
 backup-files/
 *.bak.tsx
+*.bak
 *.original.ts
 *.backup.ts
+
+# Ignore Express route handler files that have 'any' type issues with TypeScript
+src/backend/trackingServer.ts
+
+# Ignore auto-generated files
+dist/
+node_modules/

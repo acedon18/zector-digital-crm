@@ -27,6 +27,10 @@ export interface TrackingEventData {
   queryParams?: Record<string, string>;
   referrer?: string;
   timestamp: number;
+  customerId?: string; // Added for tracking data
+  domain?: string;     // Added for tracking data
+  event?: string;      // Added for tracking data
+  ip?: string;         // Added for tracking data
 }
 
 export interface VisitorData {
@@ -43,9 +47,32 @@ export interface VisitorData {
   enrichmentStatus?: 'pending' | 'complete' | 'failed';
 }
 
+// Interface for real-time visitors used in the API
+export interface RealTimeVisitor {
+  sessionId: string;
+  ip: string;
+  currentPage: string;
+  startTime: Date | number;
+  lastActivity: Date | number;
+  pageViews: number;
+  companyInfo: {
+    name: string;
+    domain: string;
+    industry?: string;
+    size?: string;
+    confidence: number;
+    phone?: string;
+    email?: string;
+    website?: string;
+  };
+  isActive: boolean;
+}
+
 // Visitor tracking configuration
-const TRACKING_ENDPOINT = process.env.TRACKING_API_ENDPOINT || '/api/tracking';
-const COMPANY_LOOKUP_ENDPOINT = process.env.COMPANY_API_ENDPOINT || '/api/companies';
+// These endpoints would be used in a production environment for API calls
+// Commenting out to avoid unused variable warnings
+// const TRACKING_ENDPOINT = process.env.TRACKING_API_ENDPOINT || '/api/tracking';
+// const COMPANY_LOOKUP_ENDPOINT = process.env.COMPANY_API_ENDPOINT || '/api/companies';
 
 /**
  * Track a visitor event
@@ -294,4 +321,140 @@ function createMockCompany(
     tags: [industry.toLowerCase(), size.toLowerCase()],
     website: "https://" + domain,
   };
+}
+
+/**
+ * Process tracking data from website visitors
+ * @param trackingData Tracking data from website
+ * @returns Promise that resolves when data has been processed
+ */
+export async function processTrackingData(trackingData: TrackingEventData): Promise<void> {
+  try {
+    console.log("Processing tracking data:", trackingData);
+    
+    // Create a unique visitor ID
+    const visitorId = `visitor_${trackingData.customerId}_${Date.now()}`;
+    
+    // Track the visitor event
+    await trackVisitorEvent(visitorId, trackingData);
+    
+    // Attempt to identify company if IP is available
+    if (trackingData.ip) {
+      const company = await identifyVisitorCompany(visitorId, trackingData.ip);
+      if (company) {
+        console.log(`Identified company: ${company.name}`);
+      }
+    }
+    
+    // In production environment, store in database
+    console.log("Tracking data processed successfully");
+  } catch (error) {
+    console.error("Error processing tracking data:", error);
+    throw new Error("Failed to process tracking data: " + (error instanceof Error ? error.message : 'Unknown error'));
+  }
+}
+
+/**
+ * Get real-time visitors for the dashboard
+ * @returns Promise with real-time visitor data
+ */
+export async function getRealTimeVisitors(): Promise<RealTimeVisitor[]> {
+  try {
+    console.log("Getting real-time visitors");
+    
+    // Get recent visitors from the last 30 minutes
+    const now = Date.now();
+    const thirtyMinutesAgo = now - 30 * 60 * 1000;
+    
+    const recentVisitors = await getVisitorsInTimeRange(thirtyMinutesAgo, now);
+    
+    // Format as RealTimeVisitor objects
+    return recentVisitors.map(visitor => ({
+      sessionId: visitor.id,
+      ip: visitor.ipAddress || '192.168.0.1', // Anonymized for privacy
+      currentPage: visitor.events.length > 0 ? (visitor.events[visitor.events.length - 1].path || '/') : '/',
+      startTime: visitor.firstSeen,
+      lastActivity: visitor.lastSeen,
+      pageViews: visitor.totalPageviews,
+      companyInfo: {
+        name: visitor.company?.name || visitor.company?.domain || 'Unknown',
+        domain: visitor.company?.domain || 'unknown.com',
+        industry: visitor.company?.industry,
+        size: visitor.company?.size,
+        confidence: (visitor.company?.score || 50) / 100,
+        phone: visitor.company?.phone,
+        email: visitor.company?.email,
+        website: visitor.company?.website
+      },
+      isActive: (now - visitor.lastSeen) < 5 * 60 * 1000 // Active if activity in last 5 minutes
+    }));
+  } catch (error) {
+    console.error("Error getting real-time visitors:", error);
+    return [];
+  }
+}
+
+/**
+ * Get all company leads
+ * @param filters Optional filters to apply
+ * @returns Promise with company data
+ */
+export async function getCompanyLeads(filters?: {
+  status?: string;
+  industry?: string;
+  search?: string;
+}): Promise<Company[]> {
+  try {
+    console.log("Getting company leads with filters:", filters);
+    
+    // Generate mock company data
+    const companyCount = 20; // Simulate having 20 leads
+    const companies: Company[] = [];
+    
+    const industries = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Manufacturing', 'Education', 'Media'];
+    const sizes = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'];
+    const cities = ['San Francisco', 'New York', 'Chicago', 'Austin', 'Seattle', 'Boston', 'Denver'];
+    const countries = ['USA', 'Canada', 'UK', 'Germany', 'France', 'Australia', 'Japan'];
+    const statuses = ['hot', 'warm', 'cold'];
+    
+    for (let i = 0; i < companyCount; i++) {
+      const industry = industries[Math.floor(Math.random() * industries.length)];
+      const size = sizes[Math.floor(Math.random() * sizes.length)];
+      const city = cities[Math.floor(Math.random() * cities.length)];
+      const country = countries[Math.floor(Math.random() * countries.length)];
+      const status = statuses[Math.floor(Math.random() * statuses.length)];
+      const name = `${industry} Solutions ${i + 1}`;
+      const domain = `${name.toLowerCase().replace(/\s+/g, '-')}.com`;
+      
+      companies.push(createMockCompany(name, domain, industry, size, city, country, status as 'hot' | 'warm' | 'cold'));
+    }
+    
+    // Apply filters if provided
+    let filteredCompanies = [...companies];
+    
+    if (filters) {
+      if (filters.status && filters.status !== 'all') {
+        filteredCompanies = filteredCompanies.filter(c => c.status === filters.status);
+      }
+      
+      if (filters.industry && filters.industry !== 'all') {
+        filteredCompanies = filteredCompanies.filter(c => c.industry === filters.industry);
+      }
+      
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        filteredCompanies = filteredCompanies.filter(c => 
+          (c.name && c.name.toLowerCase().includes(searchLower)) || 
+          (c.domain && c.domain.toLowerCase().includes(searchLower)) || 
+          (c.email && c.email.toLowerCase().includes(searchLower)) || 
+          (c.website && c.website.toLowerCase().includes(searchLower))
+        );
+      }
+    }
+    
+    return filteredCompanies;
+  } catch (error) {
+    console.error("Error getting company leads:", error);
+    return [];
+  }
 }

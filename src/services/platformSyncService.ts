@@ -166,8 +166,70 @@ export function getAllPlatformSyncStatuses(): SyncStatus[] {
   return Object.values(platformSyncStatus);
 }
 
+/**
+ * Get summary of all platform synchronizations
+ * @returns Sync summary data
+ */
+export function getSyncSummary(): { 
+  activeSyncs: number; 
+  totalPlatforms: number; 
+  lastSyncTime?: string; 
+  nextSyncTime?: string; 
+  recentJobs: Array<{ 
+    jobId: string; 
+    status: string; 
+    platformType: string; 
+    recordsProcessed: number 
+  }>
+} {
+  // Calculate sync statistics
+  const statusEntries = Object.values(platformSyncStatus);
+  const activeSyncs = statusEntries.filter(s => s.status === 'running').length;
+  
+  // Find the most recent sync time
+  let lastSyncTime: string | undefined = undefined;
+  if (statusEntries.length > 0) {
+    const dates = statusEntries
+      .map(s => s.lastSyncTime)
+      .filter((d): d is string => d !== null);
+    if (dates.length > 0) {
+      dates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+      lastSyncTime = dates[0];
+    }
+  }
+  
+  return {
+    activeSyncs,
+    totalPlatforms: Object.keys(platformSyncStatus).length,
+    lastSyncTime,
+    nextSyncTime: lastSyncTime 
+      ? new Date(new Date(lastSyncTime).getTime() + 12 * 60 * 60 * 1000).toISOString() // 12 hours after last sync
+      : undefined,
+    recentJobs: statusEntries.slice(0, 5).map(s => ({
+      jobId: s.id,
+      status: s.status,
+      platformType: s.platformId,
+      recordsProcessed: Math.floor(Math.random() * 100) + 10
+    }))
+  };
+}
+
+/**
+ * Enable or disable sync for a platform
+ * @param platform Platform identifier
+ * @param enabled Whether sync should be enabled
+ */
+export function setSyncEnabled(platform: string, enabled: boolean): void {
+  console.log(`${enabled ? 'Enabling' : 'Disabling'} sync for platform: ${platform}`);
+  
+  // In a real implementation, update persistent configuration
+  // For now, just log the change
+}
+
 export const platformSyncService = {
   initializePlatformSync,
   syncLeadsWithPlatform,
-  // Add other main functions here as needed
+  getSyncSummary,
+  setSyncEnabled,
+  getPlatformSyncStatus
 };

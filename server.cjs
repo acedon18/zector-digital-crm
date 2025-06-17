@@ -79,29 +79,41 @@ function emitNewLead(lead) {
 // Example: emitNewLead can be called after a new lead is created/enriched
 // You should call emitNewLead(lead) in your enrichment or lead creation logic
 
-// Main tracking endpoint
-app.post('/track', async (req, res) => {
+// Main tracking endpoint - now with improved error handling and debugging
+app.post('/api/track', async (req, res) => {
+  console.log('📊 Received tracking data:', req.body);
+  
+  // Set CORS headers specifically for tracking endpoint
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  
   try {
     const trackingData = req.body;
-    
-    // Extract real IP address
+      // Extract real IP address
     const ip = req.headers['x-forwarded-for'] || 
                req.headers['x-real-ip'] ||
                req.socket.remoteAddress ||
                req.ip ||
                '127.0.0.1';
-
+               
     trackingData.ip = ip;
     trackingData.timestamp = new Date().toISOString();
     
     // Validate required fields
     if (!trackingData.customerId || !trackingData.domain || !trackingData.event) {
+      console.error('❌ Missing required tracking fields');
       return res.status(400).json({ 
-        error: 'Missing required fields: customerId, domain, event' 
+        error: 'Missing required fields: customerId, domain, event',
+        success: false
       });
     }
 
-    console.log('Received tracking data:', trackingData);
+    console.log('✅ Valid tracking data received:', {
+      event: trackingData.event,
+      customerId: trackingData.customerId,
+      domain: trackingData.domain,
+      ip: trackingData.ip
+    });
     
     // If DB is connected, store data in MongoDB
     if (dbConnected) {
@@ -925,10 +937,10 @@ server.listen(PORT, () => {
   console.log('GET: /api/visitors/sessions');
   console.log('GET: /api/companies/leads');
   console.log('GET: /api/visitors/companies');
-  console.log('GET: /api/visitors/companies/recent');
-  console.log('GET: /api/visitors/companies/hot');
+  console.log('GET: /api/visitors/companies/recent');  console.log('GET: /api/visitors/companies/hot');
   console.log('GET: /api/companies/filtered');
   console.log('GET: /api/test');
+  console.log('POST: /api/track');
 });
 
 module.exports = { app, emitNewLead };

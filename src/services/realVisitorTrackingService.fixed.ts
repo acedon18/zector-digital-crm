@@ -44,8 +44,10 @@ export interface VisitorData {
 }
 
 // Visitor tracking configuration
-const TRACKING_ENDPOINT = process.env.TRACKING_API_ENDPOINT || '/api/tracking';
-const COMPANY_LOOKUP_ENDPOINT = process.env.COMPANY_API_ENDPOINT || '/api/companies';
+// These endpoints would be used in a production environment for API calls
+// Commenting out to avoid unused variable warnings
+// const TRACKING_ENDPOINT = process.env.TRACKING_API_ENDPOINT || '/api/tracking';
+// const COMPANY_LOOKUP_ENDPOINT = process.env.COMPANY_API_ENDPOINT || '/api/companies';
 
 /**
  * Track a visitor event
