@@ -67,7 +67,7 @@ export const TrackingScriptGenerator = () => {
     if (zld.config.anonymizeIp) {
       // IP anonymization handled server-side
       payload.anonymizeIp = true;    }    // Send to tracking endpoint
-    fetch('${import.meta.env.VITE_API_ENDPOINT || 'https://zector-digital-crm.vercel.app'}/api/track', {
+    fetch('${import.meta.env.VITE_API_ENDPOINT || 'https://zector-digital-crm-leads.vercel.app'}/api/track', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
