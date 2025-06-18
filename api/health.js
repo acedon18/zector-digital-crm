@@ -33,7 +33,29 @@ async function connectToDatabase() {
 }
 
 // Import models to test
-const { Company, Visit, Customer, TrackingScript } = require('../db/models.cjs');
+let Company, Visit, Customer, TrackingScript;
+try {
+  // First try the local models.cjs file
+  try {
+    const models = require('./models.cjs');
+    Company = models.Company;
+    Visit = models.Visit;
+    Customer = models.Customer;
+    TrackingScript = models.TrackingScript;
+    console.log('✅ Models imported from local path successfully');
+  } catch (localError) {
+    console.log('⚠️ Local models import failed, trying relative path:', localError.message);
+    // Fall back to the relative path
+    const models = require('../db/models.cjs');
+    Company = models.Company;
+    Visit = models.Visit;
+    Customer = models.Customer;
+    TrackingScript = models.TrackingScript;
+    console.log('✅ Models imported from relative path successfully');
+  }
+} catch (e) {
+  console.error('❌ Error importing models:', e.message);
+}
 
 // Health check endpoint
 module.exports = async (req, res) => {
@@ -68,9 +90,18 @@ module.exports = async (req, res) => {
       },
       responseTime: Date.now() - startTime
     };
-    
-    if (dbConnected) {
+      if (dbConnected) {
       try {
+        // Check if models were properly loaded
+        if (!Company || !Visit || !Customer || !TrackingScript) {
+          status.database.modelsLoaded = false;
+          status.status = 'warning';
+          status.warning = 'Models not properly loaded';
+          return res.status(200).json(status);
+        }
+        
+        status.database.modelsLoaded = true;
+        
         // Test collections
         const companyCount = await Company.countDocuments();
         const visitCount = await Visit.countDocuments();

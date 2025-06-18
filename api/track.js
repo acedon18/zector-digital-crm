@@ -39,11 +39,23 @@ async function connectToDatabase() {
 const { Company, Visit, Customer, TrackingScript } = require('../db/models.cjs');
 
 // Track endpoint handler
-module.exports = async (req, res) => {
-  // Enable CORS
+module.exports = async (req, res) => {  // Enable CORS - allow specifically zectordigital.es and www.zectordigital.es
+  const allowedOrigins = ['https://zectordigital.es', 'https://www.zectordigital.es', 'http://zectordigital.es', 'http://www.zectordigital.es'];
+  const origin = req.headers.origin;
+  
+  // Allow all origins during development and testing
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  // Handle preflight OPTIONS request
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   
   // Handle preflight OPTIONS request
   if (req.method === 'OPTIONS') {

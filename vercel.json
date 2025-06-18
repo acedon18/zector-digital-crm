@@ -5,18 +5,37 @@
   "devCommand": "npm run dev",
   "builds": [
     {
+      "src": "api/*.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "package.json",
       "use": "@vercel/node"
     }
-  ],
-  "routes": [
+  ],  "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "server.cjs"
+      "src": "/api/track",
+      "dest": "/api/track.js"
     },
     {
-      "src": "/track",
-      "dest": "server.cjs"
+      "src": "/api/companies",
+      "dest": "/api/companies.js"
+    },
+    {
+      "src": "/api/discover-leads",
+      "dest": "/api/discover-leads.js"
+    },
+    {
+      "src": "/api/visitors",
+      "dest": "/api/visitors.js"
+    },
+    {
+      "src": "/api/health",
+      "dest": "/api/health.js"
+    },
+    {
+      "src": "/api/test",
+      "dest": "/api/test.js"
     },
     {
       "handle": "filesystem"
@@ -25,7 +44,8 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],  "env": {
+  ],
+  "env": {
     "VITE_USE_REAL_DATA": "true",
     "MONGO_URI": "mongodb+srv://zector:b9yyEkABZVUjJucO@zectorleadcrm.27lnmjh.mongodb.net/zector-digital-crm"
   }

@@ -1,6 +1,14 @@
 const mongoose = require('mongoose');
 
 // Define schemas and models for our tracking system
+// Check if models are already defined to avoid "model overwrite" errors
+const modelExists = (modelName) => {
+  try {
+    return !!mongoose.model(modelName);
+  } catch (e) {
+    return false;
+  }
+};
 
 // Company Schema
 const companySchema = new mongoose.Schema({
@@ -209,11 +217,11 @@ const trackingScriptSchema = new mongoose.Schema({
   }
 });
 
-// Create models
-const Company = mongoose.model('Company', companySchema);
-const Visit = mongoose.model('Visit', visitSchema);
-const Customer = mongoose.model('Customer', customerSchema);
-const TrackingScript = mongoose.model('TrackingScript', trackingScriptSchema);
+// Create models - check if they exist first to avoid model overwrite errors
+const Company = modelExists('Company') ? mongoose.model('Company') : mongoose.model('Company', companySchema);
+const Visit = modelExists('Visit') ? mongoose.model('Visit') : mongoose.model('Visit', visitSchema);
+const Customer = modelExists('Customer') ? mongoose.model('Customer') : mongoose.model('Customer', customerSchema);
+const TrackingScript = modelExists('TrackingScript') ? mongoose.model('TrackingScript') : mongoose.model('TrackingScript', trackingScriptSchema);
 
 module.exports = {
   Company,
