@@ -92,4 +92,6 @@ temp/
 *.njsproj
 *.sln
 *.sw?
+
+# Vercel
 .vercel
