@@ -355,54 +355,37 @@ export async function getCompanyLeads(filters?: {
   try {
     console.log("Getting company leads with filters:", filters);
     
-    // Generate mock company data
-    const companyCount = 20; // Simulate having 20 leads
-    const companies: Company[] = [];
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (filters?.status && filters.status !== 'all') {
+      params.append('status', filters.status);
+    }
+    if (filters?.industry && filters.industry !== 'all') {
+      params.append('industry', filters.industry);
+    }
+    if (filters?.search) {
+      params.append('search', filters.search);
+    }
+      // Call the real API endpoint
+    const apiUrl = `/api/companies${params.toString() ? `?${params.toString()}` : ''}`;
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     
-    const industries = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Manufacturing', 'Education', 'Media'];
-    const sizes = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'];
-    const cities = ['San Francisco', 'New York', 'Chicago', 'Austin', 'Seattle', 'Boston', 'Denver'];
-    const countries = ['USA', 'Canada', 'UK', 'Germany', 'France', 'Australia', 'Japan'];
-    const statuses = ['hot', 'warm', 'cold'];
-    
-    for (let i = 0; i < companyCount; i++) {
-      const industry = industries[Math.floor(Math.random() * industries.length)];
-      const size = sizes[Math.floor(Math.random() * sizes.length)];
-      const city = cities[Math.floor(Math.random() * cities.length)];
-      const country = countries[Math.floor(Math.random() * countries.length)];
-      const status = statuses[Math.floor(Math.random() * statuses.length)];
-      const name = `${industry} Solutions ${i + 1}`;
-      const domain = `${name.toLowerCase().replace(/\s+/g, '-')}.com`;
-      
-      companies.push(createMockCompany(name, domain, industry, size, city, country, status as 'hot' | 'warm' | 'cold'));
+    if (!response.ok) {
+      throw new Error(`API call failed: ${response.status} ${response.statusText}`);
     }
     
-    // Apply filters if provided
-    let filteredCompanies = [...companies];
+    const companies: Company[] = await response.json();
+    console.log(`Retrieved ${companies.length} company leads from API`);
     
-    if (filters) {
-      if (filters.status && filters.status !== 'all') {
-        filteredCompanies = filteredCompanies.filter(c => c.status === filters.status);
-      }
-      
-      if (filters.industry && filters.industry !== 'all') {
-        filteredCompanies = filteredCompanies.filter(c => c.industry === filters.industry);
-      }
-      
-      if (filters.search) {
-        const searchLower = filters.search.toLowerCase();
-        filteredCompanies = filteredCompanies.filter(c => 
-          (c.name && c.name.toLowerCase().includes(searchLower)) || 
-          (c.domain && c.domain.toLowerCase().includes(searchLower)) || 
-          (c.email && c.email.toLowerCase().includes(searchLower)) || 
-          (c.website && c.website.toLowerCase().includes(searchLower))
-        );
-      }
-    }
-    
-    return filteredCompanies;
+    return companies;
   } catch (error) {
     console.error("Error getting company leads:", error);
+    // Return empty array instead of mock data when API fails
     return [];
   }
 }

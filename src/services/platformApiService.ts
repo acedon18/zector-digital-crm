@@ -44,14 +44,29 @@ export async function authenticateWithPlatform(platformId: string, config: Platf
 
 /**
  * Handle OAuth2 authentication flow
- * @param _config Platform configuration (unused in mock implementation)
+ * @param config Platform configuration
  * @returns OAuth2 token
  */
-async function authenticateOAuth2(_config: PlatformConfig): Promise<string> {
+async function authenticateOAuth2(config: PlatformConfig): Promise<string> {
   try {
-    // In production, this would make a real OAuth2 token request
-    // For now, return mock token
-    return `mock-oauth-token-${Date.now()}`;
+    // Make a real OAuth2 token request
+    const response = await fetch('/api/oauth2/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        platformId: config.id,
+        apiKey: config.apiKey,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`OAuth2 request failed: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    return result.accessToken;
   } catch (error) {
     console.error('OAuth2 authentication error:', error);
     throw new Error('Failed to authenticate with OAuth2');
@@ -72,23 +87,32 @@ export async function makePlatformRequest(
   endpoint: string,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
   data?: Record<string, unknown>,
-  _token?: string
+  token?: string
 ): Promise<unknown> {
   try {
     console.log(`Making ${method} request to ${platformId} platform: ${endpoint}`);
     
-    // In production, this would make a real API request
-    // For now, return mock data
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    return {
-      success: true,
-      data: {
-        id: `mock-${Date.now()}`,
-        ...(data || {})
+    // Make a real API request through our backend proxy
+    const response = await fetch('/api/platform-request', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
       },
-      timestamp: new Date().toISOString()
-    };
+      body: JSON.stringify({
+        platformId,
+        endpoint,
+        method,
+        data,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Platform API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    return result;
   } catch (error) {
     console.error(`Platform API request error: ${error}`);
     throw new Error(`Failed to make request to ${platformId} platform`);
