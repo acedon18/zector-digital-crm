@@ -10,16 +10,25 @@ async function connectToDatabase() {
     return cachedDb;
   }
   
-  const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/zector-digital-crm';
+  const mongoURI = process.env.MONGO_URI || 
+                   process.env.MONGODB_URI || 
+                   'mongodb://localhost:27017/zector-digital-crm';
   
   try {
-    console.log('🔌 Connecting to MongoDB for companies...');
-    const client = await mongoose.connect(mongoURI);
+    console.log('🔌 Connecting to MongoDB for companies...', mongoURI ? 'URI provided' : 'No URI found');
+    const client = await mongoose.connect(mongoURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
     cachedDb = client.connection.db;
-    console.log('📊 MongoDB Connected Successfully!');
+    console.log('📊 MongoDB Connected Successfully!', cachedDb.databaseName);
     return cachedDb;
   } catch (error) {
     console.error('❌ MongoDB Connection Error:', error.message);
+    console.error('🔍 MongoDB URI available:', !!process.env.MONGO_URI || !!process.env.MONGODB_URI);
     return null;
   }
 }
@@ -44,11 +53,15 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Method not allowed, use GET' });
   }
   
-  try {
-    // Connect to database
+  try {    // Connect to database
     const db = await connectToDatabase();
     if (!db) {
-      return res.status(500).json({ error: 'Database connection failed' });
+      console.error('❌ Database connection failed for companies endpoint');
+      return res.status(500).json({ 
+        error: 'Database connection failed',
+        details: 'Could not connect to MongoDB',
+        hasMongoUri: !!process.env.MONGO_URI || !!process.env.MONGODB_URI
+      });
     }
     
     // Get query parameters

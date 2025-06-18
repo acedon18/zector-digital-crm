@@ -11,17 +11,26 @@ async function connectToDatabase() {
     return cachedDb;
   }
   
-  const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/zector-digital-crm';
+  const mongoURI = process.env.MONGO_URI || 
+                   process.env.MONGODB_URI || 
+                   'mongodb://localhost:27017/zector-digital-crm';
   
   try {
     // Setup MongoDB connection
-    console.log('🔌 Connecting to MongoDB...');
-    const client = await mongoose.connect(mongoURI);
+    console.log('🔌 Connecting to MongoDB...', mongoURI ? 'URI provided' : 'No URI found');
+    const client = await mongoose.connect(mongoURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
     cachedDb = client.connection.db;
-    console.log('📊 MongoDB Connected Successfully!');
+    console.log('📊 MongoDB Connected Successfully!', cachedDb.databaseName);
     return cachedDb;
   } catch (error) {
     console.error('❌ MongoDB Connection Error:', error.message);
+    console.error('🔍 MongoDB URI available:', !!process.env.MONGO_URI || !!process.env.MONGODB_URI);
     return null;
   }
 }
