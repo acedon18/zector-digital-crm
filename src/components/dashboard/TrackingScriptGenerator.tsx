@@ -67,7 +67,7 @@ export const TrackingScriptGenerator = () => {
     if (zld.config.anonymizeIp) {
       // IP anonymization handled server-side
       payload.anonymizeIp = true;    }    // Send to tracking endpoint
-    fetch('${import.meta.env.VITE_API_ENDPOINT || 'https://zector-digital-crm.vercel.app'}/api/track', {
+    fetch('${import.meta.env.VITE_API_ENDPOINT || 'https://zector-digital-crm-leads.vercel.app'}/api/track', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -178,12 +178,11 @@ if (!localStorage.getItem('zld_consent_${customerId}')) {
       description: 'Customer ID generated successfully!'
     });
   };
-  
-  const testTrackingScript = () => {
+    const testTrackingScript = () => {
     setTestStatus('testing');
     
-    // Simulate a test ping to the tracking endpoint
-    fetch(`${import.meta.env.VITE_API_ENDPOINT || 'https://api.zectordigital.com'}/health`, {
+    // Test ping to the tracking endpoint
+    fetch(`${import.meta.env.VITE_API_ENDPOINT || 'https://zector-digital-crm-leads.vercel.app'}/api/health`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -207,7 +206,7 @@ if (!localStorage.getItem('zld_consent_${customerId}')) {
         variant: 'destructive'
       });
     });
-  };  // Platform-specific installation instructions
+  };// Platform-specific installation instructions
   const getPlatformInstructions = () => {
     const commonInstructions = `
 ### ${t('trackingScript.stepVerifyInstallation')}
