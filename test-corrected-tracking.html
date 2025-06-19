@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Corrected Tracking Script</title>
+</head>
+<body>
+    <h1>Testing Corrected Tracking Script</h1>
+    <p>This page tests the corrected tracking script with the proper endpoint.</p>
+    
+    <!-- Test the corrected tracking script -->
+    <script type="text/javascript">
+    (function() {
+      var zld = {
+        customerId: 'TEST_123',
+        domain: 'zectordigital.es',
+        scriptId: 'zld_TEST_123_' + Date.now(),
+        config: {
+          gdprCompliant: true,
+          anonymizeIp: true,
+          trackScrollDepth: false,
+          trackDownloads: false,
+          trackFormSubmissions: false
+        }
+      };
+
+      // Tracking functions
+      zld.track = function(event, data) {
+        var payload = {
+          event: event,
+          data: data || {},
+          timestamp: new Date().toISOString(),
+          url: window.location.href,
+          referrer: document.referrer,
+          userAgent: navigator.userAgent,
+          customerId: zld.customerId,
+          domain: zld.domain
+        };
+
+        if (zld.config.anonymizeIp) {
+          payload.anonymizeIp = true;
+        }
+
+        console.log('Sending tracking data:', payload);
+
+        // Send to tracking endpoint - CORRECTED URL
+        fetch('https://zector-digital-crm-leads.vercel.app/api/track', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        }).then(function(response) {
+          if (!response.ok) {
+            console.error('Zector tracking response error:', response.status, response.statusText);
+            return response.text().then(text => {
+              console.error('Response body:', text);
+            });
+          } else {
+            console.log('✅ Zector tracking event sent successfully:', event);
+            return response.json();
+          }
+        }).then(function(data) {
+          if (data) {
+            console.log('Response data:', data);
+          }
+        }).catch(function(error) {
+          console.error('❌ Zector tracking error:', error);
+        });
+      };
+
+      // Test page view tracking
+      zld.track('page_view', {
+        title: document.title,
+        path: window.location.pathname,
+        test: true
+      });
+
+      console.log('🚀 Zector Digital Lead Tracking TEST initialized for zectordigital.es');
+    })();
+    </script>
+
+    <button onclick="window.ZectorLeadDigital && window.ZectorLeadDigital.track('button_click', {button: 'test', timestamp: new Date().toISOString()})">
+        Test Button Click Tracking
+    </button>
+</body>
+</html>

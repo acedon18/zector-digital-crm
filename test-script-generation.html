@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Script Generation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-info {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0066cc;
+        }
+        .instructions {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            border: 1px solid #e9ecef;
+        }
+        .button {
+            background: #0066cc;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #0052a3;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border: 1px solid #f5c6cb;
+        }
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Tracking Script Generation Test</h1>
+        
+        <div class="test-info">
+            <h3>Test Purpose</h3>
+            <p>This test verifies that the tracking script generator in the CRM dashboard produces a script with the correct endpoint URL: <strong>zector-digital-crm-leads.vercel.app</strong></p>
+        </div>
+
+        <div class="instructions">
+            <h3>Instructions</h3>
+            <ol>
+                <li>Open the CRM dashboard: <a href="https://zector-digital-crm-leads.vercel.app" target="_blank">https://zector-digital-crm-leads.vercel.app</a></li>
+                <li>Navigate to the "Tracking Script Generator" section</li>
+                <li>Fill in the form with test data:
+                    <ul>
+                        <li>Domain: <code>zectordigital.es</code></li>
+                        <li>Customer ID: <code>test-customer-123</code></li>
+                    </ul>
+                </li>
+                <li>Click "Generate Script"</li>
+                <li>Copy the generated script and paste it below</li>
+                <li>Click "Test Script" to verify the endpoint</li>
+            </ol>
+        </div>
+
+        <div>
+            <h3>Generated Script</h3>
+            <textarea id="scriptInput" placeholder="Paste the generated tracking script here..." style="width: 100%; height: 200px; font-family: monospace; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            <br>
+            <button class="button" onclick="testScript()">Test Script</button>
+            <button class="button" onclick="testConnection()">Test Connection</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function testScript() {
+            const scriptText = document.getElementById('scriptInput').value;
+            const resultsDiv = document.getElementById('results');
+            
+            if (!scriptText.trim()) {
+                resultsDiv.innerHTML = '<div class="error">Please paste a script first!</div>';
+                return;
+            }
+
+            // Check for the correct endpoint
+            const correctEndpoint = 'zector-digital-crm-leads.vercel.app';
+            const incorrectEndpoint = 'zector-digital-crm.vercel.app';
+            
+            let results = '<h3>Test Results</h3>';
+            
+            if (scriptText.includes(correctEndpoint)) {
+                results += '<div class="success">✅ Correct endpoint found: ' + correctEndpoint + '</div>';
+            } else {
+                results += '<div class="error">❌ Correct endpoint NOT found: ' + correctEndpoint + '</div>';
+            }
+            
+            if (scriptText.includes(incorrectEndpoint)) {
+                results += '<div class="error">❌ Incorrect endpoint found: ' + incorrectEndpoint + '</div>';
+            } else {
+                results += '<div class="success">✅ No incorrect endpoints found</div>';
+            }
+
+            // Check for HTTPS
+            if (scriptText.includes('https://')) {
+                results += '<div class="success">✅ Uses HTTPS</div>';
+            } else {
+                results += '<div class="error">❌ Does not use HTTPS</div>';
+            }
+
+            // Check for track endpoint
+            if (scriptText.includes('/api/track')) {
+                results += '<div class="success">✅ Uses correct /api/track endpoint</div>';
+            } else {
+                results += '<div class="error">❌ Does not use /api/track endpoint</div>';
+            }
+
+            resultsDiv.innerHTML = results;
+        }
+
+        function testConnection() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div>Testing connection to tracking endpoint...</div>';
+            
+            fetch('https://zector-digital-crm-leads.vercel.app/api/health')
+                .then(response => {
+                    if (response.ok) {
+                        resultsDiv.innerHTML += '<div class="success">✅ Connection test successful - API is reachable</div>';
+                        return response.text();
+                    } else {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                })
+                .then(data => {
+                    resultsDiv.innerHTML += '<div class="success">Response: ' + data + '</div>';
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML += '<div class="error">❌ Connection test failed: ' + error.message + '</div>';
+                });
+        }
+
+        // Auto-test connection on page load
+        window.onload = function() {
+            testConnection();
+        };
+    </script>
+</body>
+</html>
