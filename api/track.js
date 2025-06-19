@@ -11,26 +11,17 @@ async function connectToDatabase() {
     return cachedDb;
   }
   
-  const mongoURI = process.env.MONGO_URI || 
-                   process.env.MONGODB_URI || 
-                   'mongodb://localhost:27017/zector-digital-crm';
+  const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/zector-digital-crm';
   
   try {
     // Setup MongoDB connection
-    console.log('🔌 Connecting to MongoDB...', mongoURI ? 'URI provided' : 'No URI found');
-    const client = await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-    });
+    console.log('🔌 Connecting to MongoDB...');
+    const client = await mongoose.connect(mongoURI);
     cachedDb = client.connection.db;
-    console.log('📊 MongoDB Connected Successfully!', cachedDb.databaseName);
+    console.log('📊 MongoDB Connected Successfully!');
     return cachedDb;
   } catch (error) {
     console.error('❌ MongoDB Connection Error:', error.message);
-    console.error('🔍 MongoDB URI available:', !!process.env.MONGO_URI || !!process.env.MONGODB_URI);
     return null;
   }
 }
@@ -39,23 +30,11 @@ async function connectToDatabase() {
 const { Company, Visit, Customer, TrackingScript } = require('../db/models.cjs');
 
 // Track endpoint handler
-module.exports = async (req, res) => {  // Enable CORS - allow specifically zectordigital.es and www.zectordigital.es
-  const allowedOrigins = ['https://zectordigital.es', 'https://www.zectordigital.es', 'http://zectordigital.es', 'http://www.zectordigital.es'];
-  const origin = req.headers.origin;
-  
-  // Allow all origins during development and testing
+module.exports = async (req, res) => {
+  // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
-  // Handle preflight OPTIONS request
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
   // Handle preflight OPTIONS request
   if (req.method === 'OPTIONS') {

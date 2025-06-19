@@ -84,40 +84,33 @@ export async function trackVisitorEvent(visitorId: string, eventData: Partial<Tr
   try {
     console.log("Tracking event for visitor " + visitorId + ":", eventData);
     
+    // In a production environment, this would send data to a tracking backend
+    // For development, use mock data
+    
     const event: TrackingEventData = {
       timestamp: Date.now(),
       ...eventData
     };
     
-    // Send event to tracking API
-    const response = await fetch('/api/track-event', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        visitorId,
-        event
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const updatedVisitorData = await response.json();
+    // Get existing visitor data or create new
+    const visitorData = await getVisitorData(visitorId) || createNewVisitor(visitorId);
+    
+    // Update visitor data with this event
+    const updatedVisitorData: VisitorData = {
+      ...visitorData,
+      lastSeen: Date.now(),
+      totalPageviews: visitorData.totalPageviews + 1,
+      events: [...visitorData.events, event]
+    };
+    
+    // In production, save this to a database
+    // For development, just log it
+    console.log('Updated visitor data:', updatedVisitorData);
+    
     return updatedVisitorData;
   } catch (error) {
     console.error('Error tracking visitor event:', error);
-    // Return minimal visitor data on error
-    return {
-      id: visitorId,
-      firstSeen: Date.now(),
-      lastSeen: Date.now(),
-      totalVisits: 1,
-      totalPageviews: 1,
-      events: []
-    };
+    throw new Error("Failed to track visitor event: " + (error instanceof Error ? error.message : 'Unknown error'));
   }
 }
 
@@ -128,23 +121,53 @@ export async function trackVisitorEvent(visitorId: string, eventData: Partial<Tr
  */
 export async function getVisitorData(visitorId: string): Promise<VisitorData | null> {
   try {
-    // Fetch real visitor data from the tracking API
-    const response = await fetch(`/api/visitors/${visitorId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null; // Visitor not found
-      }
-      throw new Error(`API error: ${response.status}`);
+    // In production, fetch from database
+    // For development, return mock data
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Randomly decide if we have data for this visitor
+    const visitorExists = Math.random() > 0.3;
+    
+    if (!visitorExists) {
+      return null;
     }
-
-    const visitorData = await response.json();
-    return visitorData;
+    
+    const mockVisitor: VisitorData = {
+      id: visitorId,
+      ipAddress: '192.168.1.1',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      firstSeen: Date.now() - 7 * 24 * 60 * 60 * 1000, // 7 days ago
+      lastSeen: Date.now() - 30 * 60 * 1000, // 30 minutes ago
+      totalVisits: 5,
+      totalPageviews: 18,
+      averageTimeOnSite: 157, // seconds
+      events: [
+        {
+          title: 'Home',
+          path: '/',
+          eventType: 'pageview',
+          timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000
+        },
+        {
+          title: 'Products',
+          path: '/products',
+          eventType: 'pageview',
+          timestamp: Date.now() - 5 * 24 * 60 * 60 * 1000
+        },
+        {
+          title: 'Contact',
+          path: '/contact',
+          eventType: 'pageview',
+          timestamp: Date.now() - 30 * 60 * 1000
+        }
+      ],
+      company: createMockCompany('Acme Inc', 'acme.com', 'Technology', '50-200', 'San Francisco', 'USA', 'hot'),
+      enrichmentStatus: 'complete'
+    };
+    
+    return mockVisitor;
   } catch (error) {
     console.error('Error getting visitor data:', error);
     return null;
@@ -178,27 +201,29 @@ export async function identifyVisitorCompany(visitorId: string, ipAddress?: stri
   try {
     console.log("Identifying company for visitor " + visitorId + " with IP: " + (ipAddress || 'unknown'));
     
-    // Call real IP-to-company service or use Apollo.io enrichment
-    const response = await fetch('/api/identify-company', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        visitorId,
-        ipAddress
-      })
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null; // Company not identified
-      }
-      throw new Error(`API error: ${response.status}`);
+    // In production, call an IP-to-company service
+    // For development, return mock data
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 700));
+    
+    // Randomly decide if we can identify the company
+    const identified = Math.random() > 0.4;
+    
+    if (!identified) {
+      return null;
     }
-
-    const companyData = await response.json();
-    return companyData;
+    
+    // Mock company data
+    const companies = [
+      createMockCompany('TechCorp', 'techcorp.com', 'Technology', '50-200', 'San Francisco', 'USA', 'hot'),
+      createMockCompany('Finance Group', 'finance-group.com', 'Finance', '500-1000', 'New York', 'USA', 'warm'),
+      createMockCompany('Healthcare Plus', 'healthcare-plus.co', 'Healthcare', '200-500', 'Chicago', 'USA', 'cold')
+    ];
+    
+    // Return a random company from our list
+    const randomIndex = Math.floor(Math.random() * companies.length);
+    return companies[randomIndex];
   } catch (error) {
     console.error('Error identifying visitor company:', error);
     return null;
@@ -215,38 +240,65 @@ export async function getVisitorsInTimeRange(startTime: number, endTime: number)
   try {
     console.log("Getting visitors between " + new Date(startTime).toISOString() + " and " + new Date(endTime).toISOString());
     
-    // Query real data from database/API
-    const response = await fetch(`/api/visitors?start=${startTime}&end=${endTime}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+    // In production, query from database
+    // For development, return mock data
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Generate 1-10 random visitors
+    const visitorCount = Math.floor(Math.random() * 10) + 1;
+    const visitors: VisitorData[] = [];
+    
+    for (let i = 0; i < visitorCount; i++) {
+      const firstSeen = startTime + Math.floor(Math.random() * (endTime - startTime));
+      const lastSeen = firstSeen + Math.floor(Math.random() * (endTime - firstSeen));
+      const totalVisits = Math.floor(Math.random() * 10) + 1;
+      const totalPageviews = totalVisits * (Math.floor(Math.random() * 6) + 1);
+      
+      const industries = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Manufacturing'];
+      const sizes = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'];
+      const cities = ['San Francisco', 'New York', 'Chicago', 'Austin', 'Seattle'];
+      const statuses = ['hot', 'warm', 'cold'] as ('hot' | 'warm' | 'cold')[];
+      
+      visitors.push({
+        id: "visitor-" + Date.now() + "-" + i,
+        ipAddress: "192.168.1." + (i + 1),
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        firstSeen,
+        lastSeen,
+        totalVisits,
+        totalPageviews,
+        averageTimeOnSite: Math.floor(Math.random() * 300) + 30, // 30-330 seconds
+        events: [],
+        company: Math.random() > 0.3 ? 
+          createMockCompany(
+            "Company " + (i + 1),
+            "company" + (i + 1) + ".com",
+            industries[Math.floor(Math.random() * industries.length)],
+            sizes[Math.floor(Math.random() * sizes.length)],
+            cities[Math.floor(Math.random() * cities.length)],
+            'USA',
+            statuses[Math.floor(Math.random() * statuses.length)]
+          ) : null,
+        enrichmentStatus: Math.random() > 0.7 ? 'complete' : Math.random() > 0.5 ? 'pending' : 'failed'
+      });
     }
-
-    const visitors = await response.json();
+    
     return visitors;
   } catch (error) {
     console.error('Error getting visitors in time range:', error);
-    return []; // Return empty array on error
+    return [];
   }
 }
 
 /**
- * Real-time visitor data API functions
- * These functions query actual tracking data instead of mock data
+ * Helper to create properly typed mock company data
  */
-
-// Export the tracking service
-export const realVisitorTracking = {
-  trackVisitorEvent,
-  getVisitorData,
-  identifyVisitorCompany,
-  getVisitorsInTimeRange
-};
+function createMockCompany(
+  name: string, 
+  domain: string, 
+  industry: string, 
   size: string, 
   city: string, 
   country: string, 
@@ -355,37 +407,54 @@ export async function getCompanyLeads(filters?: {
   try {
     console.log("Getting company leads with filters:", filters);
     
-    // Build query parameters
-    const params = new URLSearchParams();
-    if (filters?.status && filters.status !== 'all') {
-      params.append('status', filters.status);
-    }
-    if (filters?.industry && filters.industry !== 'all') {
-      params.append('industry', filters.industry);
-    }
-    if (filters?.search) {
-      params.append('search', filters.search);
-    }
-      // Call the real API endpoint
-    const apiUrl = `/api/companies${params.toString() ? `?${params.toString()}` : ''}`;
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    // Generate mock company data
+    const companyCount = 20; // Simulate having 20 leads
+    const companies: Company[] = [];
     
-    if (!response.ok) {
-      throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+    const industries = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Manufacturing', 'Education', 'Media'];
+    const sizes = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'];
+    const cities = ['San Francisco', 'New York', 'Chicago', 'Austin', 'Seattle', 'Boston', 'Denver'];
+    const countries = ['USA', 'Canada', 'UK', 'Germany', 'France', 'Australia', 'Japan'];
+    const statuses = ['hot', 'warm', 'cold'];
+    
+    for (let i = 0; i < companyCount; i++) {
+      const industry = industries[Math.floor(Math.random() * industries.length)];
+      const size = sizes[Math.floor(Math.random() * sizes.length)];
+      const city = cities[Math.floor(Math.random() * cities.length)];
+      const country = countries[Math.floor(Math.random() * countries.length)];
+      const status = statuses[Math.floor(Math.random() * statuses.length)];
+      const name = `${industry} Solutions ${i + 1}`;
+      const domain = `${name.toLowerCase().replace(/\s+/g, '-')}.com`;
+      
+      companies.push(createMockCompany(name, domain, industry, size, city, country, status as 'hot' | 'warm' | 'cold'));
     }
     
-    const companies: Company[] = await response.json();
-    console.log(`Retrieved ${companies.length} company leads from API`);
+    // Apply filters if provided
+    let filteredCompanies = [...companies];
     
-    return companies;
+    if (filters) {
+      if (filters.status && filters.status !== 'all') {
+        filteredCompanies = filteredCompanies.filter(c => c.status === filters.status);
+      }
+      
+      if (filters.industry && filters.industry !== 'all') {
+        filteredCompanies = filteredCompanies.filter(c => c.industry === filters.industry);
+      }
+      
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        filteredCompanies = filteredCompanies.filter(c => 
+          (c.name && c.name.toLowerCase().includes(searchLower)) || 
+          (c.domain && c.domain.toLowerCase().includes(searchLower)) || 
+          (c.email && c.email.toLowerCase().includes(searchLower)) || 
+          (c.website && c.website.toLowerCase().includes(searchLower))
+        );
+      }
+    }
+    
+    return filteredCompanies;
   } catch (error) {
     console.error("Error getting company leads:", error);
-    // Return empty array instead of mock data when API fails
     return [];
   }
 }

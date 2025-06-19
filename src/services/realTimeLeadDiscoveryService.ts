@@ -52,50 +52,12 @@ export async function discoverLeads(filters?: LeadDiscoveryFilters): Promise<Lea
   try {
     console.log('Discovering leads with filters:', filters);
     
-    // Build query parameters
-    const params = new URLSearchParams();
-    if (filters?.industry && filters.industry.length > 0) {
-      params.append('industry', filters.industry.join(','));
-    }
-    if (filters?.companySize && filters.companySize.length > 0) {
-      params.append('companySize', filters.companySize.join(','));
-    }
-    if (filters?.location && filters.location.length > 0) {
-      params.append('location', filters.location.join(','));
-    }
-    if (filters?.score !== undefined) {
-      params.append('score', filters.score.toString());
-    }
-    if (filters?.source && filters.source.length > 0) {
-      params.append('source', filters.source.join(','));
-    }
-    if (filters?.fromDate) {
-      params.append('fromDate', filters.fromDate);
-    }
-    if (filters?.toDate) {
-      params.append('toDate', filters.toDate);
-    }
+    // This would call the real lead discovery API in production
+    // For now, use mock data
+    const leads = await mockLeadDiscoveryCall(filters);
     
-    // Call the real lead discovery API
-    const apiUrl = `/api/discover-leads${params.toString() ? `?${params.toString()}` : ''}`;
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API call failed: ${response.status} ${response.statusText}`);
-    }
-    
-    const leads: Lead[] = await response.json();
-    console.log(`Discovered ${leads.length} leads from API`);
-    
-    // Score each lead before returning
-    const scoredLeads = leads.map(lead => scoreLeadQuality(lead));
-    
-    return scoredLeads;
+    console.log(`Discovered ${leads.length} leads`);
+    return leads;
   } catch (error) {
     console.error('Error discovering leads:', error);
     throw new Error(`Lead discovery failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -139,6 +101,124 @@ export function scoreLeadQuality(lead: Lead): Lead {
 }
 
 /**
+ * Mock function to simulate API call for development
+ */
+async function mockLeadDiscoveryCall(filters?: LeadDiscoveryFilters): Promise<Lead[]> {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  // Generate some mock leads
+  const mockLeads: Lead[] = [
+    {
+      id: `lead-${Date.now()}-1`,
+      firstName: 'Alex',
+      lastName: 'Johnson',
+      email: 'alex.johnson@techcorp.com',
+      companyName: 'TechCorp',
+      industry: 'Technology',
+      companySize: '50-200',
+      location: 'San Francisco',
+      country: 'USA',
+      website: 'https://techcorp.com',
+      source: 'website',
+      createdAt: new Date(),
+      interactions: {
+        websiteVisits: 8,
+        downloadedContent: true,
+        formSubmissions: true,
+        emailOpens: 5,
+        emailClicks: 3
+      }
+    },
+    {
+      id: `lead-${Date.now()}-2`,
+      firstName: 'Sam',
+      lastName: 'Smith',
+      email: 'sam.smith@finance-group.com',
+      companyName: 'Finance Group',
+      industry: 'Finance',
+      companySize: '500-1000',
+      location: 'New York',
+      country: 'USA',
+      website: 'https://finance-group.com',
+      source: 'event',
+      createdAt: new Date(),
+      interactions: {
+        websiteVisits: 3,
+        downloadedContent: true,
+        formSubmissions: false,
+        emailOpens: 2,
+        emailClicks: 1
+      }
+    },
+    {
+      id: `lead-${Date.now()}-3`,
+      firstName: 'Jamie',
+      lastName: 'Williams',
+      email: 'jamie@healthcare-plus.co',
+      companyName: 'Healthcare Plus',
+      industry: 'Healthcare',
+      companySize: '200-500',
+      location: 'Chicago',
+      country: 'USA',
+      website: 'https://healthcare-plus.co',
+      source: 'referral',
+      createdAt: new Date(),
+      interactions: {
+        websiteVisits: 12,
+        downloadedContent: true,
+        formSubmissions: true,
+        emailOpens: 7,
+        emailClicks: 4
+      }
+    }
+  ];
+  
+  // Apply filters if provided
+  let filteredLeads = [...mockLeads];
+  
+  if (filters) {
+    if (filters.industry && filters.industry.length > 0) {
+      filteredLeads = filteredLeads.filter(lead => 
+        lead.industry && filters.industry!.includes(lead.industry)
+      );
+    }
+    
+    if (filters.companySize && filters.companySize.length > 0) {
+      filteredLeads = filteredLeads.filter(lead => 
+        lead.companySize && filters.companySize!.includes(lead.companySize)
+      );
+    }
+    
+    if (filters.location && filters.location.length > 0) {
+      filteredLeads = filteredLeads.filter(lead => 
+        lead.location && filters.location!.some(loc => 
+          lead.location!.toLowerCase().includes(loc.toLowerCase())
+        )
+      );
+    }
+    
+    if (filters.source && filters.source.length > 0) {
+      filteredLeads = filteredLeads.filter(lead => 
+        lead.source && filters.source!.includes(lead.source as LeadSource)
+      );
+    }
+    
+    if (filters.score !== undefined) {
+      // Score the leads first
+      filteredLeads = filteredLeads.map(lead => scoreLeadQuality(lead));
+      // Then filter by score
+      filteredLeads = filteredLeads.filter(lead => 
+        lead.score !== undefined && lead.score >= filters.score!
+      );
+    }
+  }
+  
+  // Score all leads
+  return filteredLeads.map(lead => scoreLeadQuality(lead));
+}
+
+/**
  * Get lead discovery statistics
  * @returns Statistics about discovered leads
  */
@@ -148,36 +228,27 @@ export async function getLeadDiscoveryStats(): Promise<{
   byIndustry: Record<string, number>;
   averageScore: number;
 }> {
-  try {
-    const response = await fetch('/api/lead-discovery-stats', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`API call failed: ${response.status} ${response.statusText}`);
-    }
-
-    const stats = await response.json();
-    return stats;
-  } catch (error) {
-    console.error('Error getting lead discovery stats:', error);
-    // Return empty stats when API fails
-    return {
-      totalDiscovered: 0,
-      bySource: {
-        website: 0,
-        social: 0,
-        partner: 0,
-        event: 0,
-        referral: 0
-      },
-      byIndustry: {},
-      averageScore: 0
-    };
-  }
+  // Mock statistics
+  return {
+    totalDiscovered: 156,
+    bySource: {
+      website: 78,
+      social: 32,
+      partner: 18,
+      event: 15,
+      referral: 13
+    },
+    byIndustry: {
+      Technology: 45,
+      Finance: 28,
+      Healthcare: 22,
+      Manufacturing: 18,
+      Retail: 15,
+      Education: 12,
+      Other: 16
+    },
+    averageScore: 68.5
+  };
 }
 
 /**
@@ -253,40 +324,50 @@ export function stop(): void {
  * @returns Discovery results
  */
 export async function discoverNow(): Promise<{ discovered: number; processed: number }> {
-  try {
-    console.log('Running lead discovery now');
-    
-    const response = await fetch('/api/discover-now', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`API call failed: ${response.status} ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    return result;
-  } catch (error) {
-    console.error('Error running lead discovery:', error);
-    // Return zero results when API fails
-    return {
-      discovered: 0,
-      processed: 0
-    };
-  }
+  console.log('Running lead discovery now');
+  
+  // In a real implementation, run the actual discovery process
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  
+  return {
+    discovered: Math.floor(Math.random() * 10) + 5,
+    processed: Math.floor(Math.random() * 20) + 10
+  };
 }
 
 /**
  * Register event listener for discovery events
- * @param _listener Function to call when events occur
+ * @param listener Function to call when events occur
  */
-export function addEventListener(_listener: (event: LeadDiscoveryEvent) => void): void {
+export function addEventListener(listener: (event: LeadDiscoveryEvent) => void): void {
   console.log('Added event listener for lead discovery events');
-  // In a real implementation, register the listener with WebSocket or Server-Sent Events
-  // This would connect to a real-time event stream from the backend
+  // In a real implementation, register the listener
+  // For now, simulate an event after a delay
+  setTimeout(() => {
+    const mockEvent: LeadDiscoveryEvent = {
+      id: `event-${Date.now()}`,
+      type: 'new_lead',
+      timestamp: Date.now(),
+      lead: {
+        id: `lead-${Date.now()}`,
+        firstName: 'Jane',
+        lastName: 'Smith',
+        email: 'jane@example.com',
+        companyName: 'ABC Corp',
+        company: {
+          id: `company-${Date.now()}`,
+          name: 'ABC Corp',
+          domain: 'abccorp.com',
+          industry: 'Technology'
+        },
+        source: 'website',
+        createdAt: new Date()
+      },
+      discoverySource: 'website',
+      score: 85
+    };
+    listener(mockEvent);
+  }, 3000);
 }
 
 /**
