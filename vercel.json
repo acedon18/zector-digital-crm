@@ -10,7 +10,7 @@
     },
     {
       "src": "package.json",
-      "use": "@vercel/node"
+      "use": "@vercel/static-build"
     }
   ],
   "routes": [
@@ -33,7 +33,8 @@
     {
       "src": "/api/health",
       "dest": "/api/health.js"
-    },    {
+    },
+    {
       "src": "/api/test",
       "dest": "/api/test.js"
     },
