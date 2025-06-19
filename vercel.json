@@ -33,10 +33,13 @@
     {
       "src": "/api/health",
       "dest": "/api/health.js"
-    },
-    {
+    },    {
       "src": "/api/test",
       "dest": "/api/test.js"
+    },
+    {
+      "src": "/api/test-es",
+      "dest": "/api/test-es.js"
     },
     {
       "handle": "filesystem"
