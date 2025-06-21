@@ -14,7 +14,14 @@ async function connectToDatabase() {
     throw new Error('MongoDB URI not found in environment variables');
   }
 
-  const client = new MongoClient(MONGO_URI);
+  const client = new MongoClient(MONGO_URI, {
+    tls: true,
+    tlsAllowInvalidCertificates: false,
+    tlsAllowInvalidHostnames: false,
+    retryWrites: true,
+    w: 'majority'
+  });
+  
   await client.connect();
   const db = client.db();
 
@@ -60,22 +67,23 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid tracking data' });
     }
   }
-  
-  // Handle POST request (main tracking method)
+    // Handle POST request (main tracking method)
   if (req.method === 'POST') {
     try {
       const trackingData = req.body;
       
       if (trackingData && trackingData.event) {
-        console.log('Tracking data received via POST:', trackingData.event, trackingData.customerId);
+        console.log('📊 Tracking data received via POST:', trackingData.event, trackingData.customerId);
         
-        // Store the tracking data in MongoDB
-        await storeTrackingData(trackingData);
+        // Store the tracking data in MongoDB (non-blocking)
+        storeTrackingData(trackingData).catch(error => {
+          console.error('Background storage error:', error);
+        });
       }
       
       return res.status(200).json({
         success: true,
-        message: 'Tracking data received and stored',
+        message: 'Tracking data received and queued for storage',
         event: trackingData?.event || 'unknown',
         timestamp: new Date().toISOString()
       });
@@ -83,7 +91,7 @@ export default async function handler(req, res) {
     } catch (error) {
       console.error('Error processing POST tracking request:', error);
       return res.status(500).json({ 
-        error: 'Error storing tracking data',
+        error: 'Error processing tracking data',
         details: error.message 
       });
     }
@@ -178,11 +186,22 @@ async function storeTrackingData(trackingData) {
       storedAt: new Date()
     });
     
-    console.log('Stored tracking event:', event, 'for session:', sessionId);
+    console.log('✅ Stored tracking event:', event, 'for session:', sessionId);
     
   } catch (error) {
-    console.error('Error storing tracking data:', error);
-    throw error;
+    console.error('❌ Error storing tracking data to MongoDB:', error.message);
+    
+    // Fallback: just log the data for debugging
+    console.log('📊 Tracking data (not stored):', JSON.stringify({
+      event: trackingData.event,
+      customerId: trackingData.customerId,
+      domain: trackingData.domain,
+      url: trackingData.url,
+      timestamp: trackingData.timestamp
+    }));
+    
+    // Don't throw the error - we want the API to still respond successfully
+    // even if database storage fails
   }
 }
 
