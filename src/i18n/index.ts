@@ -8,12 +8,12 @@ import enTranslations from './locales/en.json';
 import svTranslations from './locales/sv.json';
 
 i18n
-  // .use(LanguageDetector) // Disabled language detection - always start with Spanish
+  .use(LanguageDetector) // Enable language detection
   .use(initReactI18next)
   .init({
     debug: import.meta.env.DEV,
-    lng: 'es', // Force Spanish as starting language
-    fallbackLng: 'es', // Spanish as default
+    lng: 'en', // Start with English to avoid missing translations
+    fallbackLng: 'en', // English as fallback
     interpolation: {
       escapeValue: false,
     },

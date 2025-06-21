@@ -91,14 +91,8 @@
   },  "leadTracking": {
     "title": "Lead Tracking",
     "description": "Monitor and analyze visitor behavior on your website",
-    "identifiedCompanies": "Identified companies ({{count}})",
-    "lastVisit": "Last Visit",
+    "identifiedCompanies": "Identified companies ({{count}})",    "lastVisit": "Last Visit",
     "totalVisits": "Visits",
-    "status": {
-      "hot": "Hot",
-      "warm": "Warm",
-      "cold": "Cold"
-    },
     "totalCompanies": "Total Companies",
     "platformEnhanced": "Platform Enhanced",
     "averageScore": "Average Score",
@@ -111,9 +105,13 @@
     "standardTrackingDescription": "This view shows traditional lead tracking without platform integration. Switch to Enhanced Tracking to see the new features with platform data enrichment.",
     "inYourDatabase": "in your database",
     "coverage": "coverage",
-    "platforms": "Platforms",
-    "enriched": "Enriched"
-  },  "dashboardLayout": {
+    "platforms": "Platforms",    "enriched": "Enriched"
+  },
+  "activityFeed": {
+    "title": "Activity Feed",
+    "with": "with"
+  },
+  "dashboardLayout": {
     "analyticsTracking": "Analytics Tracking",
     "analyticsDescription": "Allow anonymous usage data collection",
     "autoRefresh": "Auto Refresh",
@@ -401,8 +399,11 @@
     "integrationsDescription": "Your integration settings have been saved",
     "exportCompleted": "Export completed",
     "exportDescription": "Company data has been exported to CSV",
-    "exportFailed": "Export failed",    "exportFailedDescription": "Could not export data"
-  },  "buttons": {
+    "exportFailed": "Export failed",
+    "exportFailedDescription": "Could not export data"
+  },
+  "buttons": {
+    "profile": "Profile",
     "createCustomer": "Create customer",
     "activate": "Activate",
     "deactivate": "Deactivate",
@@ -612,9 +613,12 @@
     "aiQualification": "AI Qualification",
     "emailAlerts": "Email Alerts",
     "dataExport": "Data Export"
-  },
-  "status": {
+  },  "status": {
     "all": "All",
+    "hot": "Hot",
+    "warm": "Warm", 
+    "cold": "Cold",
+    "new": "New",
     "active": "Active",
     "inactive": "Inactive",
     "connected": "Connected",

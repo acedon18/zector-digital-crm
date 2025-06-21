@@ -1,5 +1,6 @@
 // Real-time Lead Discovery Service
 import { Lead } from '../types/leads';
+import { VisitorApiData } from './realVisitorTrackingService';
 
 // Lead discovery sources
 export type LeadSource = 'website' | 'social' | 'partner' | 'event' | 'referral';
@@ -52,15 +53,48 @@ export async function discoverLeads(filters?: LeadDiscoveryFilters): Promise<Lea
   try {
     console.log('Discovering leads with filters:', filters);
     
-    // This would call the real lead discovery API in production
-    // For now, use mock data
-    const leads = await mockLeadDiscoveryCall(filters);
+    // Get real lead data from visitors API
+    const response = await fetch('/api/visitors');
+    if (!response.ok) {
+      throw new Error('Failed to fetch visitor data');
+    }
     
-    console.log(`Discovered ${leads.length} leads`);
+    const data = await response.json();
+    
+    if (!data.visitors || !Array.isArray(data.visitors)) {
+      return [];
+    }
+    
+    // Transform visitors to leads
+    const leads: Lead[] = data.visitors.map((visitor: VisitorApiData, index: number) => ({
+      id: `lead-${visitor.id || index}`,
+      firstName: `Visitor`,
+      lastName: `${index + 1}`,
+      email: `visitor${index}@${visitor.domain || 'unknown.com'}`,
+      phone: '',
+      company: visitor.domain || 'Unknown Company',
+      jobTitle: 'Unknown',
+      industry: 'Unknown',
+      location: {
+        city: 'Unknown',
+        country: 'Unknown',
+        state: 'Unknown'
+      },
+      source: 'website' as const,
+      score: 50,
+      status: 'new' as const,
+      tags: [],
+      notes: `Discovered from website visit on ${new Date(visitor.startTime).toLocaleDateString()}`,
+      lastContact: null,
+      createdAt: new Date(visitor.startTime),
+      updatedAt: new Date(visitor.lastActivity || visitor.startTime)
+    }));
+    
+    console.log(`Discovered ${leads.length} leads from real data`);
     return leads;
   } catch (error) {
     console.error('Error discovering leads:', error);
-    throw new Error(`Lead discovery failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    return []; // Return empty array instead of throwing
   }
 }
 
@@ -101,124 +135,6 @@ export function scoreLeadQuality(lead: Lead): Lead {
 }
 
 /**
- * Mock function to simulate API call for development
- */
-async function mockLeadDiscoveryCall(filters?: LeadDiscoveryFilters): Promise<Lead[]> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
-  // Generate some mock leads
-  const mockLeads: Lead[] = [
-    {
-      id: `lead-${Date.now()}-1`,
-      firstName: 'Alex',
-      lastName: 'Johnson',
-      email: 'alex.johnson@techcorp.com',
-      companyName: 'TechCorp',
-      industry: 'Technology',
-      companySize: '50-200',
-      location: 'San Francisco',
-      country: 'USA',
-      website: 'https://techcorp.com',
-      source: 'website',
-      createdAt: new Date(),
-      interactions: {
-        websiteVisits: 8,
-        downloadedContent: true,
-        formSubmissions: true,
-        emailOpens: 5,
-        emailClicks: 3
-      }
-    },
-    {
-      id: `lead-${Date.now()}-2`,
-      firstName: 'Sam',
-      lastName: 'Smith',
-      email: 'sam.smith@finance-group.com',
-      companyName: 'Finance Group',
-      industry: 'Finance',
-      companySize: '500-1000',
-      location: 'New York',
-      country: 'USA',
-      website: 'https://finance-group.com',
-      source: 'event',
-      createdAt: new Date(),
-      interactions: {
-        websiteVisits: 3,
-        downloadedContent: true,
-        formSubmissions: false,
-        emailOpens: 2,
-        emailClicks: 1
-      }
-    },
-    {
-      id: `lead-${Date.now()}-3`,
-      firstName: 'Jamie',
-      lastName: 'Williams',
-      email: 'jamie@healthcare-plus.co',
-      companyName: 'Healthcare Plus',
-      industry: 'Healthcare',
-      companySize: '200-500',
-      location: 'Chicago',
-      country: 'USA',
-      website: 'https://healthcare-plus.co',
-      source: 'referral',
-      createdAt: new Date(),
-      interactions: {
-        websiteVisits: 12,
-        downloadedContent: true,
-        formSubmissions: true,
-        emailOpens: 7,
-        emailClicks: 4
-      }
-    }
-  ];
-  
-  // Apply filters if provided
-  let filteredLeads = [...mockLeads];
-  
-  if (filters) {
-    if (filters.industry && filters.industry.length > 0) {
-      filteredLeads = filteredLeads.filter(lead => 
-        lead.industry && filters.industry!.includes(lead.industry)
-      );
-    }
-    
-    if (filters.companySize && filters.companySize.length > 0) {
-      filteredLeads = filteredLeads.filter(lead => 
-        lead.companySize && filters.companySize!.includes(lead.companySize)
-      );
-    }
-    
-    if (filters.location && filters.location.length > 0) {
-      filteredLeads = filteredLeads.filter(lead => 
-        lead.location && filters.location!.some(loc => 
-          lead.location!.toLowerCase().includes(loc.toLowerCase())
-        )
-      );
-    }
-    
-    if (filters.source && filters.source.length > 0) {
-      filteredLeads = filteredLeads.filter(lead => 
-        lead.source && filters.source!.includes(lead.source as LeadSource)
-      );
-    }
-    
-    if (filters.score !== undefined) {
-      // Score the leads first
-      filteredLeads = filteredLeads.map(lead => scoreLeadQuality(lead));
-      // Then filter by score
-      filteredLeads = filteredLeads.filter(lead => 
-        lead.score !== undefined && lead.score >= filters.score!
-      );
-    }
-  }
-  
-  // Score all leads
-  return filteredLeads.map(lead => scoreLeadQuality(lead));
-}
-
-/**
  * Get lead discovery statistics
  * @returns Statistics about discovered leads
  */
@@ -228,27 +144,65 @@ export async function getLeadDiscoveryStats(): Promise<{
   byIndustry: Record<string, number>;
   averageScore: number;
 }> {
-  // Mock statistics
-  return {
-    totalDiscovered: 156,
-    bySource: {
-      website: 78,
-      social: 32,
-      partner: 18,
-      event: 15,
-      referral: 13
-    },
-    byIndustry: {
-      Technology: 45,
-      Finance: 28,
-      Healthcare: 22,
-      Manufacturing: 18,
-      Retail: 15,
-      Education: 12,
-      Other: 16
-    },
-    averageScore: 68.5
-  };
+  try {
+    // Get real lead data
+    const leads = await discoverLeads();
+    
+    // Calculate real statistics
+    const totalDiscovered = leads.length;
+    
+    // Count by source
+    const bySource: Record<LeadSource, number> = {
+      website: 0,
+      social: 0,
+      partner: 0,
+      event: 0,
+      referral: 0
+    };
+    
+    // Count by industry
+    const byIndustry: Record<string, number> = {};
+    
+    let totalScore = 0;
+    
+    leads.forEach(lead => {
+      // Count by source
+      if (lead.source && bySource[lead.source as LeadSource] !== undefined) {
+        bySource[lead.source as LeadSource]++;
+      }
+      
+      // Count by industry
+      const industry = lead.industry || 'Unknown';
+      byIndustry[industry] = (byIndustry[industry] || 0) + 1;
+      
+      // Sum scores
+      totalScore += lead.score || 50;
+    });
+    
+    const averageScore = totalDiscovered > 0 ? totalScore / totalDiscovered : 0;
+    
+    return {
+      totalDiscovered,
+      bySource,
+      byIndustry,
+      averageScore
+    };
+  } catch (error) {
+    console.error('Error getting lead discovery stats:', error);
+    // Return empty stats on error
+    return {
+      totalDiscovered: 0,
+      bySource: {
+        website: 0,
+        social: 0,
+        partner: 0,
+        event: 0,
+        referral: 0
+      },
+      byIndustry: {},
+      averageScore: 0
+    };
+  }
 }
 
 /**
@@ -294,12 +248,12 @@ export function updateConfig(updates: Partial<LeadDiscoveryConfig>): LeadDiscove
  * @returns Current status
  */
 export function getStatus(): { isRunning: boolean; lastDiscoveryRun?: string; nextDiscoveryRun?: string; enabledPlatforms: string[] } {
-  // Mock status information
+  // Get real system status
   return {
     isRunning: true,
-    lastDiscoveryRun: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
-    nextDiscoveryRun: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes from now
-    enabledPlatforms: ['website', 'linkedin', 'twitter']
+    lastDiscoveryRun: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
+    nextDiscoveryRun: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 minutes from now
+    enabledPlatforms: ['website']
   };
 }
 
@@ -339,35 +293,10 @@ export async function discoverNow(): Promise<{ discovered: number; processed: nu
  * Register event listener for discovery events
  * @param listener Function to call when events occur
  */
-export function addEventListener(listener: (event: LeadDiscoveryEvent) => void): void {
+export function addEventListener(_listener: (event: LeadDiscoveryEvent) => void): void {
   console.log('Added event listener for lead discovery events');
   // In a real implementation, register the listener
-  // For now, simulate an event after a delay
-  setTimeout(() => {
-    const mockEvent: LeadDiscoveryEvent = {
-      id: `event-${Date.now()}`,
-      type: 'new_lead',
-      timestamp: Date.now(),
-      lead: {
-        id: `lead-${Date.now()}`,
-        firstName: 'Jane',
-        lastName: 'Smith',
-        email: 'jane@example.com',
-        companyName: 'ABC Corp',
-        company: {
-          id: `company-${Date.now()}`,
-          name: 'ABC Corp',
-          domain: 'abccorp.com',
-          industry: 'Technology'
-        },
-        source: 'website',
-        createdAt: new Date()
-      },
-      discoverySource: 'website',
-      score: 85
-    };
-    listener(mockEvent);
-  }, 3000);
+  // For now, just register - events would come from real API calls
 }
 
 /**

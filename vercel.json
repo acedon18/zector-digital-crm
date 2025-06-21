@@ -37,10 +37,13 @@
     {
       "src": "/api/test",
       "dest": "/api/test.js"
-    },
-    {
+    },    {
       "src": "/api/test-es",
       "dest": "/api/test-es.js"
+    },
+    {
+      "src": "/api/enrich",
+      "dest": "/api/enrich.js"
     },
     {
       "handle": "filesystem"

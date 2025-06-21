@@ -20,49 +20,25 @@ interface Notification {
   priority: 'low' | 'medium' | 'high';
 }
 
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    type: 'hot_lead',
-    title: 'Ny het lead identifierad',
-    message: 'Volvo Group har besökt din webbplats 5 gånger på 2 dagar',
-    timestamp: new Date(Date.now() - 5 * 60 * 1000),
-    read: false,
-    priority: 'high'
-  },
-  {
-    id: '2',
-    type: 'new_lead',
-    title: 'Nytt företag identifierat',
-    message: 'King Digital Entertainment har besökt din prissida',
-    timestamp: new Date(Date.now() - 15 * 60 * 1000),
-    read: false,
-    priority: 'medium'
-  },
-  {
-    id: '3',
-    type: 'returning_visitor',
-    title: 'Återkommande besökare',
-    message: 'IKEA har återvänt till din webbplats efter 3 dagar',
-    timestamp: new Date(Date.now() - 30 * 60 * 1000),
-    read: true,
-    priority: 'low'
-  },
-  {
-    id: '4',
-    type: 'high_engagement',
-    title: 'Högt engagemang upptäckt',
-    message: 'Klarna har spenderat 8+ minuter på din tjänstesida',
-    timestamp: new Date(Date.now() - 45 * 60 * 1000),
-    read: true,
-    priority: 'medium'
-  }
-];
-
 export function NotificationCenter() {
   const { t } = useTranslation();
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+
+  // Load real notifications from API
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        // In real implementation, fetch from /api/notifications
+        // For now, start with empty array
+        setNotifications([]);
+      } catch (error) {
+        console.error('Failed to load notifications:', error);
+      }
+    };
+    
+    loadNotifications();
+  }, []);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 

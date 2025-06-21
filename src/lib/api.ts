@@ -17,87 +17,23 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// Mock data för företag
-const mockCompanies: Company[] = [
+// Mock data as fallback if API fails
+const fallbackCompanies: Company[] = [
   {
     id: '1',
-    name: 'Volvo Group',
-    domain: 'volvo.com',
-    industry: 'Automotive',
-    size: '10,000+',
-    location: { city: 'Göteborg', country: 'Sweden' },
-    lastVisit: new Date('2025-06-09T10:30:00'),
-    totalVisits: 12,
-    score: 95,
-    status: 'hot',
-    tags: ['Enterprise', 'B2B', 'Manufacturing'],
-    phone: '+46 31 66 00 00',
-    email: 'info@volvogroup.com',
-    website: 'www.volvogroup.com'
-  },
-  {
-    id: '2',
-    name: 'Spotify Technology',
-    domain: 'spotify.com',
+    name: 'Example Company',
+    domain: 'example.com',
     industry: 'Technology',
-    size: '5,000-10,000',
+    size: '11-50',
     location: { city: 'Stockholm', country: 'Sweden' },
-    lastVisit: new Date('2025-06-09T09:15:00'),
-    totalVisits: 8,
-    score: 78,
-    status: 'warm',
-    tags: ['Tech', 'Media', 'B2C'],
-    phone: '+46 8 410 242 00',
-    email: 'press@spotify.com',
-    website: 'www.spotify.com'
-  },
-  {
-    id: '3',
-    name: 'IKEA Group',
-    domain: 'ikea.com',
-    industry: 'Retail',
-    size: '10,000+',
-    location: { city: 'Malmö', country: 'Sweden' },
-    lastVisit: new Date('2025-06-09T08:45:00'),
-    totalVisits: 5,
-    score: 62,
-    status: 'warm',
-    tags: ['Retail', 'Global', 'B2C'],
-    phone: '+46 40 38 80 00',
-    email: 'customerservice@ikea.com',
-    website: 'www.ikea.com'
-  },
-  {
-    id: '4',
-    name: 'Klarna Bank',
-    domain: 'klarna.com',
-    industry: 'Financial Services',
-    size: '1,000-5,000',
-    location: { city: 'Stockholm', country: 'Sweden' },
-    lastVisit: new Date('2025-06-09T07:20:00'),
+    lastVisit: new Date(),
     totalVisits: 15,
-    score: 88,
+    score: 85,
     status: 'hot',
-    tags: ['Fintech', 'B2B', 'SaaS'],
-    phone: '+46 8 120 120 00',
-    email: 'info@klarna.com',
-    website: 'www.klarna.com'
-  },
-  {
-    id: '5',
-    name: 'H&M Group',
-    domain: 'hm.com',
-    industry: 'Fashion',
-    size: '10,000+',
-    location: { city: 'Stockholm', country: 'Sweden' },
-    lastVisit: new Date('2025-06-08T16:30:00'),
-    totalVisits: 3,
-    score: 45,
-    status: 'cold',
-    tags: ['Fashion', 'Retail', 'B2C'],
-    phone: '+46 8 796 55 00',
-    email: 'info@hm.com',
-    website: 'www.hm.com'
+    tags: ['Website Visitor', 'High Engagement'],
+    phone: '+46 8 123 456',
+    email: 'contact@example.com',
+    website: 'https://example.com'
   }
 ];
 
@@ -131,7 +67,7 @@ const mockAnalytics: Analytics = {
   ]
 };
 
-const API_BASE = import.meta.env.VITE_API_ENDPOINT || 'http://localhost:3001';
+const API_BASE = typeof window !== 'undefined' ? window.location.origin : 'https://zector-digital-crm-leads.vercel.app';
 
 // Enhanced API functions with platform integration
 export const leadsApi = {  // Get all companies with filtering and enrichment
@@ -143,24 +79,55 @@ export const leadsApi = {  // Get all companies with filtering and enrichment
   }): Promise<Company[]> => {
     try {
       const params = new URLSearchParams();
-      if (filters?.minScore) params.append('minConfidence', (filters.minScore / 100).toString());
+      if (filters?.minScore) params.append('minScore', filters.minScore.toString());
       if (filters?.industry) params.append('industry', filters.industry);
       if (filters?.status) params.append('status', filters.status);
       
-      const res = await fetch(`${API_BASE}/api/companies/leads?${params}`);
+      console.log('Fetching companies from API:', `${API_BASE}/api/companies?${params}`);
+      
+      const res = await fetch(`${API_BASE}/api/companies?${params}`);
+      console.log('API Response status:', res.status);
+      console.log('API Response headers:', res.headers.get('content-type'));
+      
       if (!res.ok) {
-        console.warn('API call failed, falling back to mock data');
-        return mockCompanies.filter(company => {
-          if (filters?.status && company.status !== filters.status) return false;
-          if (filters?.industry && company.industry !== filters.industry) return false;
-          if (filters?.minScore && company.score < filters.minScore) return false;
-          return true;
-        });
+        console.error(`API call failed with status ${res.status}: ${res.statusText}`);
+        const errorText = await res.text();
+        console.error('Error response body:', errorText);
+        throw new Error(`API call failed: ${res.status} ${res.statusText}`);
       }
-      return await res.json();
+      
+      const text = await res.text();
+      console.log('API Response text (first 200 chars):', text.substring(0, 200));
+      
+      // Check if response looks like HTML instead of JSON
+      if (text.trim().startsWith('<')) {
+        console.error('API returned HTML instead of JSON - likely a server error');
+        console.log('Full HTML response:', text);
+        throw new Error('API returned HTML instead of JSON');
+      }
+      
+      try {
+        const data = JSON.parse(text);
+        console.log('Parsed JSON data:', data);
+        
+        if (data.success && Array.isArray(data.companies)) {
+          console.log(`Found ${data.companies.length} companies from API`);
+          return data.companies.filter((company: Company) => {
+            if (filters?.status && company.status !== filters.status) return false;
+            if (filters?.industry && company.industry !== filters.industry) return false;
+            if (filters?.minScore && company.score && company.score < filters.minScore) return false;
+            return true;
+          });
+        }
+        
+        console.warn('API response format unexpected:', data);
+        return [];
+      } catch (parseError) {
+        console.error('Failed to parse JSON response:', parseError, text);        throw new Error(`Failed to parse API response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
+      }
     } catch (error) {
       console.error('Failed to fetch companies:', error);
-      return mockCompanies;
+      throw error; // Re-throw instead of falling back
     }
   },
 
@@ -296,12 +263,12 @@ export const leadsApi = {  // Get all companies with filtering and enrichment
     await new Promise(resolve => setTimeout(resolve, 300));
     
     try {
-      const enrichedData = await dataEnrichmentService.enrichCompanies(mockCompanies);
+      const enrichedData = await dataEnrichmentService.enrichCompanies(fallbackCompanies);
       return dataEnrichmentService.getEnrichmentSummary(enrichedData);
     } catch (error) {
       console.error('Failed to get enrichment summary:', error);
       return {
-        totalCompanies: mockCompanies.length,
+        totalCompanies: fallbackCompanies.length,
         enrichedCompanies: 0,
         platformCoverage: {} as Record<PlatformType, number>,
         averageScore: 0
@@ -310,23 +277,44 @@ export const leadsApi = {  // Get all companies with filtering and enrichment
   },  // Get recent visitors with enrichment
   getRecentVisitors: async (limit: number = 10): Promise<Company[]> => {
     try {
-      const res = await fetch(`${API_BASE}/api/visitors/companies/recent?limit=${limit}`);
+      const res = await fetch(`${API_BASE}/api/companies`);
+      
       if (!res.ok) {
-        console.warn('Recent visitors API failed, falling back to mock data');
-        throw new Error('API call failed');
+        console.warn(`Companies API failed with status ${res.status}`);
+        return [];
       }
-        // Parse the response
+      
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.warn('Companies API returned non-JSON response');
+        return [];
+      }
+      
+      // Parse the response
       const data = await res.json();
       
-      // Convert date strings to Date objects
-      return data.map((company: Omit<Company, 'lastVisit'> & { lastVisit: string | Date }) => ({
-        ...company,
-        lastVisit: new Date(company.lastVisit)
-      }));
+      if (!data.success || !data.companies || !Array.isArray(data.companies)) {
+        console.warn('Companies API returned invalid data structure');
+        return [];
+      }
+      
+      // Sort by lastVisit and take the most recent
+      const sortedCompanies = data.companies
+        .map((company: Company) => ({
+          ...company,
+          lastVisit: new Date(company.lastVisit || Date.now())
+        }))
+        .sort((a: Company, b: Company) => {
+          const aTime = a.lastVisit ? a.lastVisit.getTime() : 0;
+          const bTime = b.lastVisit ? b.lastVisit.getTime() : 0;
+          return bTime - aTime;
+        })
+        .slice(0, limit);
+      
+      return sortedCompanies;
     } catch (error) {
       console.error('Failed to fetch recent visitors:', error);
-      // Return mock recent visitors
-      return mockCompanies.slice(0, limit);
+      return [];
     }
   },
   // Get hot leads with enrichment
@@ -349,23 +337,25 @@ export const leadsApi = {  // Get all companies with filtering and enrichment
     } catch (error) {
       console.error('Failed to fetch hot leads:', error);
       // Return mock hot leads
-      return mockCompanies.filter(c => c.status === 'hot');
+      return fallbackCompanies.filter((c: Company) => c.status === 'hot');
     }
   },
-
-  // Exportera data
+  // Export data
   exportCompanies: async (format: 'csv' | 'excel' = 'csv'): Promise<Blob> => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    // Get current companies data
+    const companies = await leadsApi.getCompanies();
+    
     const headers = ['Company Name', 'Domain', 'Industry', 'Location', 'Score', 'Status', 'Last Visit'];
-    const rows = mockCompanies.map(c => [
-      c.name,
-      c.domain,
-      c.industry,
-      `${c.location.city}, ${c.location.country}`,
-      c.score.toString(),
-      c.status,
-      c.lastVisit.toLocaleDateString('sv-SE')
+    const rows = companies.map(c => [
+      c.name || 'Unknown',
+      c.domain || 'Unknown',
+      c.industry || 'Unknown',
+      c.location ? `${c.location.city || 'Unknown'}, ${c.location.country || 'Unknown'}` : 'Unknown',
+      (c.score || 0).toString(),
+      c.status || 'Unknown',
+      c.lastVisit ? new Date(c.lastVisit).toLocaleDateString('sv-SE') : 'Unknown'
     ]);
     
     const csvContent = [headers, ...rows]
@@ -382,56 +372,10 @@ export const leadsApi = {  // Get all companies with filtering and enrichment
         console.warn('Real-time visitors API failed, falling back to mock data');
         throw new Error('API call failed');
       }
-      return await res.json();
-    } catch (error) {
+      return await res.json();    } catch (error) {
       console.error('Failed to get real-time visitors:', error);
-        // Return mock real-time visitors
-      return [
-        {
-          sessionId: 'session_1',
-          ip: '192.168.1.100',
-          currentPage: '/pricing',
-          startTime: new Date(Date.now() - 300000), // 5 minutes ago
-          lastActivity: new Date(Date.now() - 30000), // 30 seconds ago
-          pageViews: 3,
-          isActive: true,
-          companyInfo: {
-            name: 'TechCorp Solutions',
-            domain: 'techcorp.com',
-            industry: 'Technology',
-            size: '51-200',
-            location: { city: 'Stockholm', country: 'Sweden' },
-            confidence: 0.85,
-            enrichedAt: new Date(),
-            enrichmentSource: ['ip'],
-            phone: '+46 8 123 45 67',
-            email: 'contact@techcorp.com',
-            website: 'www.techcorp.com'
-          }
-        },
-        {
-          sessionId: 'session_2',
-          ip: '10.0.0.50',
-          currentPage: '/features',
-          startTime: new Date(Date.now() - 120000), // 2 minutes ago
-          lastActivity: new Date(Date.now() - 10000), // 10 seconds ago
-          pageViews: 2,
-          isActive: true,
-          companyInfo: {
-            name: 'Digital Marketing Pro',
-            domain: 'digitalmarketing.se',
-            industry: 'Marketing',
-            size: '11-50',
-            location: { city: 'Malmö', country: 'Sweden' },
-            email: 'info@digitalmarketing.se',
-            confidence: 0.92,
-            enrichedAt: new Date(),
-            enrichmentSource: ['domain', 'email'],
-            phone: '+46 40 987 65 43',
-            website: 'www.digitalmarketing.se'
-          }
-        }
-      ];
+      // Return empty array instead of mock data
+      return [];
     }
   },
 
@@ -494,7 +438,7 @@ export const leadsApi = {  // Get all companies with filtering and enrichment
     } catch (error) {
       console.error('Failed to fetch filtered companies:', error);
       // Return filtered mock data
-      let filteredCompanies = [...mockCompanies];
+      let filteredCompanies = [...fallbackCompanies];
       
       if (filters?.status && filters.status !== 'all') {
         filteredCompanies = filteredCompanies.filter(c => c.status === filters.status);
@@ -503,27 +447,29 @@ export const leadsApi = {  // Get all companies with filtering and enrichment
       if (filters?.industry && filters.industry !== 'all') {
         filteredCompanies = filteredCompanies.filter(c => c.industry === filters.industry);
       }
-      
-      if (filters?.search) {
+        if (filters?.search) {
         const searchLower = filters.search.toLowerCase();
         filteredCompanies = filteredCompanies.filter(c => 
-          c.name.toLowerCase().includes(searchLower) || 
-          c.domain.toLowerCase().includes(searchLower) || 
+          (c.name && c.name.toLowerCase().includes(searchLower)) || 
+          (c.domain && c.domain.toLowerCase().includes(searchLower)) || 
           (c.email && c.email.toLowerCase().includes(searchLower)) || 
           (c.website && c.website.toLowerCase().includes(searchLower))
         );
       }
-      
-      switch (filters?.sortBy) {
+        switch (filters?.sortBy) {
         case 'score':
-          filteredCompanies.sort((a, b) => b.score - a.score);
+          filteredCompanies.sort((a, b) => (b.score || 0) - (a.score || 0));
           break;
         case 'totalVisits':
-          filteredCompanies.sort((a, b) => b.totalVisits - a.totalVisits);
+          filteredCompanies.sort((a, b) => (b.totalVisits || 0) - (a.totalVisits || 0));
           break;
         case 'lastVisit':
         default:
-          filteredCompanies.sort((a, b) => b.lastVisit.getTime() - a.lastVisit.getTime());
+          filteredCompanies.sort((a, b) => {
+            const bDate = b.lastVisit ? new Date(b.lastVisit).getTime() : 0;
+            const aDate = a.lastVisit ? new Date(a.lastVisit).getTime() : 0;
+            return bDate - aDate;
+          });
       }
       
       if (filters?.limit) {
@@ -539,26 +485,13 @@ export const leadsApi = {  // Get all companies with filtering and enrichment
 export const subscribeToLiveUpdates = (callback: (company: Company) => void) => {
   const interval = setInterval(async () => {
     // Simulate new visitor or platform sync update
-    const randomCompany = mockCompanies[Math.floor(Math.random() * mockCompanies.length)];
-    
-    try {
-      // Try to get enriched data for the update
-      const enrichedData = await dataEnrichmentService.enrichCompany(randomCompany);
-      const updatedCompany = {
-        ...enrichedData.company,
-        lastVisit: new Date(), // Always use a fresh Date object
-        totalVisits: enrichedData.company.totalVisits + 1
-      };
-      callback(updatedCompany);
-    } catch (error) {
-      // Fallback to regular update if enrichment fails
-      const updatedCompany = {
-        ...randomCompany,
-        lastVisit: new Date(), // Always use a fresh Date object
-        totalVisits: randomCompany.totalVisits + 1
-      };
-      callback(updatedCompany);
-    }
+    const randomCompany = fallbackCompanies[Math.floor(Math.random() * fallbackCompanies.length)];    // Update company with new visit data
+    const updatedCompany = {
+      ...randomCompany,
+      lastVisit: new Date(), // Always use a fresh Date object
+      totalVisits: (randomCompany.totalVisits || 0) + 1
+    };
+    callback(updatedCompany);
   }, 10000); // New update every 10 seconds
 
   return () => clearInterval(interval);

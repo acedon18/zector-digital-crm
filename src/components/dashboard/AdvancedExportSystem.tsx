@@ -60,46 +60,9 @@ const availableFields = [
   { id: 'referralSource', label: 'Hänvisningskälla', required: false }
 ];
 
-const mockIntegrations: CRMIntegration[] = [
-  {
-    id: 'hubspot',
-    name: 'HubSpot',
-    logo: '🧡',
-    isConnected: true,
-    lastSync: new Date('2025-06-09T08:30:00'),
-    totalExported: 247,
-    status: 'connected'
-  },
-  {
-    id: 'salesforce',
-    name: 'Salesforce',
-    logo: '⭐',
-    isConnected: false,
-    totalExported: 0,
-    status: 'disconnected'
-  },
-  {
-    id: 'pipedrive',
-    name: 'Pipedrive',
-    logo: '🚀',
-    isConnected: true,
-    lastSync: new Date('2025-06-09T07:15:00'),
-    totalExported: 156,
-    status: 'connected'
-  },
-  {
-    id: 'mailchimp',
-    name: 'MailChimp',
-    logo: '🐵',
-    isConnected: false,
-    totalExported: 0,
-    status: 'disconnected'
-  }
-];
-
 export const AdvancedExportSystem = () => {
   const { t } = useTranslation();
-  const [integrations, setIntegrations] = useState<CRMIntegration[]>(mockIntegrations);
+  const [integrations, setIntegrations] = useState<CRMIntegration[]>([]);
   const [exportConfig, setExportConfig] = useState<ExportConfig>({
     format: 'csv',
     fields: ['name', 'domain', 'industry', 'score', 'status'],

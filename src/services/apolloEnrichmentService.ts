@@ -1,10 +1,6 @@
 // Apollo.io Company Enrichment Service
-// This service enriches leads with company data from Apollo.io using domain or email
-
-import axios from 'axios';
-
-const APOLLO_API_KEY = import.meta.env.VITE_APOLLO_API_KEY || '';
-const APOLLO_API_URL = 'https://api.apollo.io/v1/mixed/company/enrich';
+// This service enriches leads with company data using our backend API endpoint
+// which prevents CORS issues when calling external APIs
 
 export interface ApolloCompanyData {
   name?: string;
@@ -21,27 +17,35 @@ export interface ApolloCompanyData {
   founded_year?: number;
   description?: string;
   location?: string;
+  confidence?: number;
 }
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 export async function enrichCompanyWithApollo(domainOrEmail: string): Promise<ApolloCompanyData | null> {
-  if (!APOLLO_API_KEY) {
-    throw new Error('Apollo API key is not set in environment variables.');
-  }
   try {
-    const response = await axios.post(
-      APOLLO_API_URL,
-      { domain: domainOrEmail },
-      {
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Content-Type': 'application/json',
-          'Api-Key': APOLLO_API_KEY,
-        },
-      }
-    );
-    if (response.data && response.data.company) {
-      return response.data.company;
+    const response = await fetch(`${API_BASE}/api/enrich`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        domain: domainOrEmail.includes('@') ? undefined : domainOrEmail,
+        email: domainOrEmail.includes('@') ? domainOrEmail : undefined,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`Enrichment API error: ${response.status} ${response.statusText}`);
+      return null;
     }
+
+    const result = await response.json();
+    
+    if (result.success && result.data) {
+      return result.data;
+    }
+    
     return null;
   } catch (error) {
     console.error('Apollo enrichment error:', error);

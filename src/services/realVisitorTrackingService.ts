@@ -1,7 +1,95 @@
 // Real Visitor Tracking Service - Collect actual visitor data
 import { Company } from '../types/leads';
 
-// Define enrichment data interfaces
+// API Data interfaces
+export interface VisitorApiData {
+  id: string;
+  sessionId?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  domain?: string;
+  customerId?: string;
+  startTime: string;
+  lastActivity?: string;
+  totalPages?: number;
+  events?: EventApiData[];
+}
+
+export interface EventApiData {
+  eventType: string;
+  timestamp: string;
+  data?: {
+    title?: string;
+    path?: string;
+    [key: string]: unknown;
+  };
+}
+
+export interface CompanyApiData {
+  id?: string;
+  name?: string;
+  domain?: string;
+  industry?: string;
+  size?: string;
+  location?: {
+    city?: string;
+    country?: string;
+    region?: string;
+  };
+  lastVisit?: string;
+  totalVisits?: number;
+  score?: number;
+  status?: 'hot' | 'warm' | 'cold';
+  tags?: string[];
+  website?: string;
+  email?: string;
+  phone?: string;
+}
+
+// Define interfaces for API responses
+export interface VisitorApiData {
+  id: string;
+  sessionId?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  startTime: string;
+  lastActivity?: string;
+  totalPages?: number;
+  customerId?: string;
+  domain?: string;
+  events?: EventApiData[];
+}
+
+export interface EventApiData {
+  eventType: string;
+  timestamp: string;
+  data?: {
+    title?: string;
+    path?: string;
+  };
+}
+
+export interface CompanyApiData {
+  id?: string;
+  name?: string;
+  domain?: string;
+  industry?: string;
+  size?: string;
+  location?: {
+    city?: string;
+    country?: string;
+    region?: string;
+  };
+  lastVisit?: string;
+  totalVisits?: number;
+  score?: number;
+  status?: 'hot' | 'warm' | 'cold';
+  tags?: string[];
+  website?: string;
+  email?: string;
+  phone?: string;
+}
+
 export interface EnrichmentData {
   name?: string;
   domain?: string;
@@ -31,6 +119,11 @@ export interface TrackingEventData {
   domain?: string;     // Added for tracking data
   event?: string;      // Added for tracking data
   ip?: string;         // Added for tracking data
+  data?: {
+    title?: string;
+    path?: string;
+    [key: string]: unknown;
+  };
 }
 
 export interface VisitorData {
@@ -83,31 +176,46 @@ export interface RealTimeVisitor {
 export async function trackVisitorEvent(visitorId: string, eventData: Partial<TrackingEventData>): Promise<VisitorData> {
   try {
     console.log("Tracking event for visitor " + visitorId + ":", eventData);
-    
-    // In a production environment, this would send data to a tracking backend
-    // For development, use mock data
-    
+      // Send tracking data to backend API
     const event: TrackingEventData = {
       timestamp: Date.now(),
       ...eventData
     };
     
-    // Get existing visitor data or create new
+    // Send to tracking API
+    try {
+      const response = await fetch('/api/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          event: eventData.eventType || 'page_view',
+          data: eventData,
+          timestamp: event.timestamp,
+          url: eventData.path || window.location.href,
+          referrer: eventData.referrer || document.referrer,
+          userAgent: navigator.userAgent
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Tracking API error: ${response.status}`);
+      }
+      
+      console.log('Tracking event sent successfully');
+    } catch (error) {
+      console.error('Failed to send tracking data:', error);
+    }
+    
+    // Get updated visitor data
     const visitorData = await getVisitorData(visitorId) || createNewVisitor(visitorId);
     
-    // Update visitor data with this event
-    const updatedVisitorData: VisitorData = {
+    return {
       ...visitorData,
       lastSeen: Date.now(),
-      totalPageviews: visitorData.totalPageviews + 1,
       events: [...visitorData.events, event]
     };
-    
-    // In production, save this to a database
-    // For development, just log it
-    console.log('Updated visitor data:', updatedVisitorData);
-    
-    return updatedVisitorData;
   } catch (error) {
     console.error('Error tracking visitor event:', error);
     throw new Error("Failed to track visitor event: " + (error instanceof Error ? error.message : 'Unknown error'));
@@ -121,55 +229,41 @@ export async function trackVisitorEvent(visitorId: string, eventData: Partial<Tr
  */
 export async function getVisitorData(visitorId: string): Promise<VisitorData | null> {
   try {
-    // In production, fetch from database
-    // For development, return mock data
+    // Get real visitor data from API
+    const response = await fetch('/api/visitors');
+    if (!response.ok) {
+      throw new Error('Failed to fetch visitor data');
+    }
+      const data = await response.json();
+    const visitor = data.visitors?.find((v: VisitorApiData) => v.id === visitorId || v.sessionId === visitorId);
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    // Randomly decide if we have data for this visitor
-    const visitorExists = Math.random() > 0.3;
-    
-    if (!visitorExists) {
+    if (!visitor) {
       return null;
     }
-    
-    const mockVisitor: VisitorData = {
-      id: visitorId,
-      ipAddress: '192.168.1.1',
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-      firstSeen: Date.now() - 7 * 24 * 60 * 60 * 1000, // 7 days ago
-      lastSeen: Date.now() - 30 * 60 * 1000, // 30 minutes ago
-      totalVisits: 5,
-      totalPageviews: 18,
-      averageTimeOnSite: 157, // seconds
-      events: [
-        {
-          title: 'Home',
-          path: '/',
-          eventType: 'pageview',
-          timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000
-        },
-        {
-          title: 'Products',
-          path: '/products',
-          eventType: 'pageview',
-          timestamp: Date.now() - 5 * 24 * 60 * 60 * 1000
-        },
-        {
-          title: 'Contact',
-          path: '/contact',
-          eventType: 'pageview',
-          timestamp: Date.now() - 30 * 60 * 1000
-        }
-      ],
-      company: createMockCompany('Acme Inc', 'acme.com', 'Technology', '50-200', 'San Francisco', 'USA', 'hot'),
-      enrichmentStatus: 'complete'
+
+    // Transform API data to VisitorData format
+    return {
+      id: visitor.id,
+      ipAddress: visitor.ipAddress || 'Unknown',
+      userAgent: visitor.userAgent || 'Unknown',
+      firstSeen: new Date(visitor.startTime).getTime(),
+      lastSeen: new Date(visitor.lastActivity || visitor.startTime).getTime(),
+      totalVisits: 1,
+      totalPageviews: visitor.totalPages || 0,
+      averageTimeOnSite: undefined,
+      events: visitor.events?.map((event: EventApiData) => ({
+        title: event.data?.title,
+        eventType: event.eventType,
+        timestamp: new Date(event.timestamp).getTime(),
+        customerId: visitor.customerId,
+        domain: visitor.domain
+      })) || [],
+      company: null, // Will be enriched separately
+      enrichmentStatus: 'pending'
     };
     
-    return mockVisitor;
   } catch (error) {
-    console.error('Error getting visitor data:', error);
+    console.error('Error fetching visitor data:', error);
     return null;
   }
 }
@@ -192,7 +286,7 @@ function createNewVisitor(visitorId: string): VisitorData {
 }
 
 /**
- * Identify visitor's company based on IP or other signals
+ * Identify visitor's company using real API data
  * @param visitorId Visitor identifier
  * @param ipAddress Visitor IP address
  * @returns Promise with company information or null
@@ -201,29 +295,35 @@ export async function identifyVisitorCompany(visitorId: string, ipAddress?: stri
   try {
     console.log("Identifying company for visitor " + visitorId + " with IP: " + (ipAddress || 'unknown'));
     
-    // In production, call an IP-to-company service
-    // For development, return mock data
+    // Get companies from real API
+    const response = await fetch('/api/companies');
+    if (!response.ok) {
+      throw new Error('Failed to fetch companies data');
+    }
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 700));
+    const data = await response.json();
     
-    // Randomly decide if we can identify the company
-    const identified = Math.random() > 0.4;
-    
-    if (!identified) {
+    if (!data.companies || !Array.isArray(data.companies) || data.companies.length === 0) {
       return null;
     }
     
-    // Mock company data
-    const companies = [
-      createMockCompany('TechCorp', 'techcorp.com', 'Technology', '50-200', 'San Francisco', 'USA', 'hot'),
-      createMockCompany('Finance Group', 'finance-group.com', 'Finance', '500-1000', 'New York', 'USA', 'warm'),
-      createMockCompany('Healthcare Plus', 'healthcare-plus.co', 'Healthcare', '200-500', 'Chicago', 'USA', 'cold')
-    ];
+    // Find company matching visitor data or return first available
+    const company = data.companies[0]; // For now, return first company if available
     
-    // Return a random company from our list
-    const randomIndex = Math.floor(Math.random() * companies.length);
-    return companies[randomIndex];
+    return {
+      id: company.id || `company-${Date.now()}`,
+      name: company.name || 'Unknown Company',
+      domain: company.domain || '',
+      industry: company.industry || 'Unknown',
+      size: company.size || 'Unknown',
+      location: company.location || { city: 'Unknown', country: 'Unknown' },
+      lastVisit: new Date(company.lastVisit || Date.now()),
+      totalVisits: company.totalVisits || 1,
+      score: company.score || 50,
+      status: company.status || 'warm',
+      tags: company.tags || [],
+      website: company.website || `https://${company.domain}`
+    };
   } catch (error) {
     console.error('Error identifying visitor company:', error);
     return null;
@@ -240,87 +340,47 @@ export async function getVisitorsInTimeRange(startTime: number, endTime: number)
   try {
     console.log("Getting visitors between " + new Date(startTime).toISOString() + " and " + new Date(endTime).toISOString());
     
-    // In production, query from database
-    // For development, return mock data
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Generate 1-10 random visitors
-    const visitorCount = Math.floor(Math.random() * 10) + 1;
-    const visitors: VisitorData[] = [];
-    
-    for (let i = 0; i < visitorCount; i++) {
-      const firstSeen = startTime + Math.floor(Math.random() * (endTime - startTime));
-      const lastSeen = firstSeen + Math.floor(Math.random() * (endTime - firstSeen));
-      const totalVisits = Math.floor(Math.random() * 10) + 1;
-      const totalPageviews = totalVisits * (Math.floor(Math.random() * 6) + 1);
-      
-      const industries = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Manufacturing'];
-      const sizes = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'];
-      const cities = ['San Francisco', 'New York', 'Chicago', 'Austin', 'Seattle'];
-      const statuses = ['hot', 'warm', 'cold'] as ('hot' | 'warm' | 'cold')[];
-      
-      visitors.push({
-        id: "visitor-" + Date.now() + "-" + i,
-        ipAddress: "192.168.1." + (i + 1),
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        firstSeen,
-        lastSeen,
-        totalVisits,
-        totalPageviews,
-        averageTimeOnSite: Math.floor(Math.random() * 300) + 30, // 30-330 seconds
-        events: [],
-        company: Math.random() > 0.3 ? 
-          createMockCompany(
-            "Company " + (i + 1),
-            "company" + (i + 1) + ".com",
-            industries[Math.floor(Math.random() * industries.length)],
-            sizes[Math.floor(Math.random() * sizes.length)],
-            cities[Math.floor(Math.random() * cities.length)],
-            'USA',
-            statuses[Math.floor(Math.random() * statuses.length)]
-          ) : null,
-        enrichmentStatus: Math.random() > 0.7 ? 'complete' : Math.random() > 0.5 ? 'pending' : 'failed'
-      });
+    // Get real visitor data from API
+    const response = await fetch('/api/visitors');
+    if (!response.ok) {
+      throw new Error('Failed to fetch visitors data');
     }
+    
+    const data = await response.json();
+    
+    if (!data.visitors || !Array.isArray(data.visitors)) {
+      return [];
+    }
+      // Filter visitors by time range and transform data
+    const visitors: VisitorData[] = data.visitors
+      .filter((visitor: VisitorApiData) => {
+        const visitorTime = new Date(visitor.startTime).getTime();
+        return visitorTime >= startTime && visitorTime <= endTime;
+      })
+      .map((visitor: VisitorApiData) => ({
+        id: visitor.id,
+        ipAddress: visitor.ipAddress || 'Unknown',
+        userAgent: visitor.userAgent || 'Unknown',
+        firstSeen: new Date(visitor.startTime).getTime(),
+        lastSeen: new Date(visitor.lastActivity || visitor.startTime).getTime(),
+        totalVisits: 1,
+        totalPageviews: visitor.totalPages || 0,
+        averageTimeOnSite: undefined,
+        events: visitor.events?.map((event: EventApiData) => ({
+          title: event.data?.title,
+          eventType: event.eventType,
+          timestamp: new Date(event.timestamp).getTime(),
+          customerId: visitor.customerId,
+          domain: visitor.domain
+        })) || [],
+        company: null,
+        enrichmentStatus: 'pending' as const
+      }));
     
     return visitors;
   } catch (error) {
-    console.error('Error getting visitors in time range:', error);
-    return [];
+    console.error('Error getting visitors in time range:', error);    return []; // Return empty array instead of mock data
   }
-}
-
-/**
- * Helper to create properly typed mock company data
- */
-function createMockCompany(
-  name: string, 
-  domain: string, 
-  industry: string, 
-  size: string, 
-  city: string, 
-  country: string, 
-  status: 'hot' | 'warm' | 'cold'
-): Company {
-  return {
-    id: "company-" + Date.now() + "-" + name.replace(/\s+/g, '-').toLowerCase(),
-    name,
-    domain,
-    industry,
-    size,
-    location: {
-      city,
-      country,
-    },
-    lastVisit: new Date(),
-    totalVisits: Math.floor(Math.random() * 20) + 1,
-    score: Math.floor(Math.random() * 40) + 60, // 60-100
-    status,
-    tags: [industry.toLowerCase(), size.toLowerCase()],
-    website: "https://" + domain,
-  };
 }
 
 /**
@@ -399,6 +459,11 @@ export async function getRealTimeVisitors(): Promise<RealTimeVisitor[]> {
  * @param filters Optional filters to apply
  * @returns Promise with company data
  */
+/**
+ * Gets company leads from real API data
+ * @param filters Optional filters for status, industry, and search
+ * @returns Promise with list of companies
+ */
 export async function getCompanyLeads(filters?: {
   status?: string;
   industry?: string;
@@ -407,43 +472,49 @@ export async function getCompanyLeads(filters?: {
   try {
     console.log("Getting company leads with filters:", filters);
     
-    // Generate mock company data
-    const companyCount = 20; // Simulate having 20 leads
-    const companies: Company[] = [];
-    
-    const industries = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Manufacturing', 'Education', 'Media'];
-    const sizes = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'];
-    const cities = ['San Francisco', 'New York', 'Chicago', 'Austin', 'Seattle', 'Boston', 'Denver'];
-    const countries = ['USA', 'Canada', 'UK', 'Germany', 'France', 'Australia', 'Japan'];
-    const statuses = ['hot', 'warm', 'cold'];
-    
-    for (let i = 0; i < companyCount; i++) {
-      const industry = industries[Math.floor(Math.random() * industries.length)];
-      const size = sizes[Math.floor(Math.random() * sizes.length)];
-      const city = cities[Math.floor(Math.random() * cities.length)];
-      const country = countries[Math.floor(Math.random() * countries.length)];
-      const status = statuses[Math.floor(Math.random() * statuses.length)];
-      const name = `${industry} Solutions ${i + 1}`;
-      const domain = `${name.toLowerCase().replace(/\s+/g, '-')}.com`;
-      
-      companies.push(createMockCompany(name, domain, industry, size, city, country, status as 'hot' | 'warm' | 'cold'));
+    // Get real companies from API
+    const response = await fetch('/api/companies');
+    if (!response.ok) {
+      throw new Error('Failed to fetch companies data');
     }
     
-    // Apply filters if provided
-    let filteredCompanies = [...companies];
+    const data = await response.json();
     
+    if (!data.companies || !Array.isArray(data.companies)) {
+      return [];
+    }
+    
+    // Transform API data to Company format
+    let companies: Company[] = data.companies.map((company: CompanyApiData) => ({
+      id: company.id || `company-${Date.now()}-${Math.random()}`,
+      name: company.name || 'Unknown Company',
+      domain: company.domain || '',
+      industry: company.industry || 'Unknown',
+      size: company.size || 'Unknown',
+      location: company.location || { city: 'Unknown', country: 'Unknown' },
+      lastVisit: new Date(company.lastVisit || Date.now()),
+      totalVisits: company.totalVisits || 1,
+      score: company.score || 50,
+      status: company.status || 'warm',
+      tags: company.tags || [],
+      website: company.website || `https://${company.domain}`,
+      email: company.email,
+      phone: company.phone
+    }));
+    
+    // Apply filters if provided
     if (filters) {
       if (filters.status && filters.status !== 'all') {
-        filteredCompanies = filteredCompanies.filter(c => c.status === filters.status);
+        companies = companies.filter(c => c.status === filters.status);
       }
       
       if (filters.industry && filters.industry !== 'all') {
-        filteredCompanies = filteredCompanies.filter(c => c.industry === filters.industry);
+        companies = companies.filter(c => c.industry === filters.industry);
       }
       
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        filteredCompanies = filteredCompanies.filter(c => 
+        companies = companies.filter(c => 
           (c.name && c.name.toLowerCase().includes(searchLower)) || 
           (c.domain && c.domain.toLowerCase().includes(searchLower)) || 
           (c.email && c.email.toLowerCase().includes(searchLower)) || 
@@ -452,7 +523,7 @@ export async function getCompanyLeads(filters?: {
       }
     }
     
-    return filteredCompanies;
+    return companies;
   } catch (error) {
     console.error("Error getting company leads:", error);
     return [];
