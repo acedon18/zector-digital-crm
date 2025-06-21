@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Enhanced Tracking Script</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #e8f4fd; color: #0c5460; border: 1px solid #b8daff; }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+        .button:hover { background: #0056b3; }
+        .console-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Enhanced Tracking Script Test</h1>
+        
+        <div class="info">
+            <h3>Enhanced Features</h3>
+            <ul>
+                <li>✅ Retry logic with 3 attempts</li>
+                <li>✅ Fallback to sendBeacon API</li>
+                <li>✅ Image pixel tracking as final fallback</li>
+                <li>✅ Enhanced CORS headers</li>
+                <li>✅ Connection testing</li>
+                <li>✅ Detailed console logging</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>Manual Test Actions</h3>
+            <button class="button" onclick="testPageView()">Test Page View</button>
+            <button class="button" onclick="testButtonClick()">Test Button Click</button>
+            <button class="button" onclick="testFormSubmission()">Test Form Submit</button>
+            <button class="button" onclick="testDownload()">Test Download Track</button>
+            <button class="button" onclick="testConnection()">Test Connection</button>
+        </div>
+
+        <div class="test-section">
+            <h3>Console Output</h3>
+            <div id="console-output" class="console-output">
+                Console messages will appear here...
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test Form</h3>
+            <form id="test-form" onsubmit="return false;">
+                <input type="text" placeholder="Test input" style="padding: 8px; margin: 5px;">
+                <button type="submit" class="button">Submit Test Form</button>
+            </form>
+        </div>
+
+        <div class="test-section">
+            <h3>Test Download Link</h3>
+            <a href="test-document.pdf" download>Download Test PDF</a>
+        </div>
+    </div>
+
+    <!-- Enhanced Tracking Script -->
+    <script type="text/javascript">
+    (function() {
+      var zld = {
+        customerId: 'TEST_ENHANCED_123',
+        domain: 'zectordigital.es',
+        scriptId: 'zld_TEST_ENHANCED_123_' + Date.now(),
+        config: {
+          gdprCompliant: true,
+          anonymizeIp: true,
+          trackScrollDepth: false, // Disable for test
+          trackDownloads: true,
+          trackFormSubmissions: true,
+          retryAttempts: 3,
+          retryDelay: 1000
+        }
+      };
+
+      // Enhanced tracking function with retry logic and fallback
+      zld.track = function(event, data) {
+        var payload = {
+          event: event,
+          data: data || {},
+          timestamp: new Date().toISOString(),
+          url: window.location.href,
+          referrer: document.referrer,
+          userAgent: navigator.userAgent,
+          customerId: zld.customerId,
+          domain: zld.domain
+        };
+
+        if (zld.config.anonymizeIp) {
+          payload.anonymizeIp = true;
+        }
+
+        // Retry function
+        function attemptTrack(attempt) {
+          attempt = attempt || 1;
+          
+          logToConsole('🔄 Zector tracking attempt ' + attempt + ' for event: ' + event);
+          
+          // Primary tracking endpoint
+          fetch('https://zector-digital-crm-leads.vercel.app/api/track', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            mode: 'cors',
+            credentials: 'omit',
+            body: JSON.stringify(payload)
+          }).then(function(response) {
+            if (!response.ok) {
+              throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+            }
+            return response.json();
+          }).then(function(data) {
+            logToConsole('✅ Zector tracking successful for event: ' + event + ' - ' + JSON.stringify(data));
+          }).catch(function(error) {
+            logToConsole('❌ Zector tracking attempt ' + attempt + ' failed: ' + error.message);
+            
+            // Retry logic
+            if (attempt < zld.config.retryAttempts) {
+              setTimeout(function() {
+                attemptTrack(attempt + 1);
+              }, zld.config.retryDelay * attempt);
+            } else {
+              // Final fallback - try with image beacon
+              logToConsole('🔄 Trying fallback beacon method for event: ' + event);
+              zld.trackWithBeacon(event, payload);
+            }
+          });
+        }
+
+        // Start tracking attempt
+        attemptTrack();
+      };
+
+      // Fallback beacon tracking method
+      zld.trackWithBeacon = function(event, payload) {
+        try {
+          // Use navigator.sendBeacon if available
+          if (navigator.sendBeacon) {
+            var success = navigator.sendBeacon(
+              'https://zector-digital-crm-leads.vercel.app/api/track',
+              JSON.stringify(payload)
+            );
+            if (success) {
+              logToConsole('✅ Zector beacon tracking successful for event: ' + event);
+              return;
+            }
+          }
+          
+          // Fallback to image pixel tracking
+          var img = new Image();
+          var params = new URLSearchParams();
+          params.append('data', JSON.stringify(payload));
+          
+          img.onload = function() {
+            logToConsole('✅ Zector image tracking successful for event: ' + event);
+          };
+          
+          img.onerror = function() {
+            logToConsole('❌ All tracking methods failed for event: ' + event);
+          };
+          
+          img.src = 'https://zector-digital-crm-leads.vercel.app/api/track?' + params.toString();
+          
+        } catch (e) {
+          logToConsole('❌ Fallback tracking failed: ' + e.message);
+        }
+      };
+
+      // Enhanced connection test
+      zld.testConnection = function() {
+        logToConsole('🧪 Testing connection to tracking endpoint...');
+        
+        fetch('https://zector-digital-crm-leads.vercel.app/api/health', {
+          method: 'GET',
+          mode: 'cors',
+          credentials: 'omit'
+        }).then(function(response) {
+          if (response.ok) {
+            logToConsole('✅ Connection test successful - API is reachable');
+            return response.json();
+          } else {
+            throw new Error('HTTP ' + response.status);
+          }
+        }).then(function(data) {
+          logToConsole('📊 API health check: ' + JSON.stringify(data));
+        }).catch(function(error) {
+          logToConsole('❌ Connection test failed: ' + error.message);
+        });
+      };
+
+      // Custom logging function for the test page
+      function logToConsole(message) {
+        console.log(message);
+        var consoleDiv = document.getElementById('console-output');
+        if (consoleDiv) {
+          var timestamp = new Date().toLocaleTimeString();
+          consoleDiv.innerHTML += '[' + timestamp + '] ' + message + '\n';
+          consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+      }
+
+      // Test connection first
+      zld.testConnection();
+
+      // Initial page view tracking with delay
+      setTimeout(function() {
+        zld.track('page_view', {
+          title: document.title,
+          path: window.location.pathname,
+          test: true
+        });
+      }, 500);
+
+      // Download tracking
+      if (zld.config.trackDownloads) {
+        document.addEventListener('click', function(e) {
+          var link = e.target.closest('a');
+          if (link && link.href) {
+            var url = link.href;
+            var isDownload = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|zip|rar|mp3|mp4|avi)$/i.test(url);
+            if (isDownload) {
+              zld.track('download', {
+                url: url,
+                fileName: url.split('/').pop()
+              });
+            }
+          }
+        });
+      }
+
+      // Form submission tracking
+      if (zld.config.trackFormSubmissions) {
+        document.addEventListener('submit', function(e) {
+          var form = e.target;
+          if (form.tagName === 'FORM') {
+            zld.track('form_submission', {
+              formId: form.id || 'unknown',
+              formAction: form.action || window.location.href
+            });
+          }
+        });
+      }
+
+      // Make zld globally available
+      window.ZectorLeadDigital = zld;
+
+      logToConsole('🚀 Enhanced Zector Digital Lead Tracking initialized');
+    })();
+
+    // Test functions
+    function testPageView() {
+      window.ZectorLeadDigital.track('page_view_manual', {
+        test: true,
+        trigger: 'manual_button'
+      });
+    }
+
+    function testButtonClick() {
+      window.ZectorLeadDigital.track('button_click', {
+        button: 'test_button',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    function testFormSubmission() {
+      window.ZectorLeadDigital.track('form_submission_manual', {
+        formId: 'test-form-manual',
+        test: true
+      });
+    }
+
+    function testDownload() {
+      window.ZectorLeadDigital.track('download', {
+        url: 'test-document.pdf',
+        fileName: 'test-document.pdf',
+        manual: true
+      });
+    }
+
+    function testConnection() {
+      window.ZectorLeadDigital.testConnection();
+    }
+    </script>
+
+    <!-- GDPR Notice -->
+    <script type="text/javascript">
+    if (!localStorage.getItem('zld_consent_TEST_ENHANCED_123')) {
+      console.log('📋 GDPR consent required for lead tracking');
+    }
+    </script>
+</body>
+</html>
