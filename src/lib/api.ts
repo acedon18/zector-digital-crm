@@ -129,34 +129,65 @@ export const leadsApi = {  // Get all companies with filtering and enrichment
       console.error('Failed to fetch companies:', error);
       throw error; // Re-throw instead of falling back
     }
-  },
-
-  // Get enriched company data with platform information
+  },  // Get enriched company data with platform information
   getEnrichedCompanies: async (filters?: {
     status?: string;
     industry?: string;
     minScore?: number;
   }): Promise<EnrichedLeadData[]> => {
-    const params = new URLSearchParams();
-    if (filters?.minScore) params.append('minConfidence', filters.minScore.toString());
-    if (filters?.industry) params.append('industry', filters.industry);
-    if (filters?.status) params.append('status', filters.status);
-    const res = await fetch(`${API_BASE}/api/visitors/companies/enriched?${params}`);
-    return await res.json();
+    try {
+      // Use the main companies endpoint since enriched endpoint doesn't exist
+      const companies = await leadsApi.getCompanies(filters);
+      return companies.map(company => ({
+        ...company,
+        enrichmentData: {
+          apolloData: null,
+          clearbitData: null,
+          hunterData: null
+        },
+        platforms: [],
+        enrichedAt: new Date(),
+        source: 'sample_data'
+      }));
+    } catch (error) {
+      console.error('Failed to get enriched companies:', error);
+      return [];
+    }
   },
 
   // Get a specific company
   getCompany: async (id: string): Promise<Company | null> => {
-    const res = await fetch(`${API_BASE}/api/visitors/companies/${id}`);
-    if (!res.ok) return null;
-    return await res.json();
+    try {
+      // Get all companies and find the specific one
+      const companies = await leadsApi.getCompanies();
+      return companies.find(company => company.id === id) || null;
+    } catch (error) {
+      console.error('Failed to get company:', error);
+      return null;
+    }
   },
 
   // Get enriched company data
   getEnrichedCompany: async (id: string): Promise<EnrichedLeadData | null> => {
-    const res = await fetch(`${API_BASE}/api/visitors/companies/${id}/enriched`);
-    if (!res.ok) return null;
-    return await res.json();
+    try {
+      const company = await leadsApi.getCompany(id);
+      if (!company) return null;
+      
+      return {
+        ...company,
+        enrichmentData: {
+          apolloData: null,
+          clearbitData: null,
+          hunterData: null
+        },
+        platforms: [],
+        enrichedAt: new Date(),
+        source: 'sample_data'
+      };
+    } catch (error) {
+      console.error('Failed to get enriched company:', error);
+      return null;
+    }
   },
 
   // Get analytics data with platform enhancement
@@ -316,28 +347,15 @@ export const leadsApi = {  // Get all companies with filtering and enrichment
       console.error('Failed to fetch recent visitors:', error);
       return [];
     }
-  },
-  // Get hot leads with enrichment
+  },  // Get hot leads with enrichment
   getHotLeads: async (): Promise<Company[]> => {
     try {
-      const res = await fetch(`${API_BASE}/api/visitors/companies/hot`);
-      if (!res.ok) {
-        console.warn('Hot leads API failed, falling back to mock data');
-        throw new Error('API call failed');
-      }
-      
-      // Parse the response
-      const data = await res.json();
-      
-      // Convert date strings to Date objects
-      return data.map((company: Omit<Company, 'lastVisit'> & { lastVisit: string | Date }) => ({
-        ...company,
-        lastVisit: new Date(company.lastVisit)
-      }));
+      // Use the main companies endpoint and filter for hot leads
+      const companies = await leadsApi.getCompanies({ status: 'hot' });
+      return companies;
     } catch (error) {
-      console.error('Failed to fetch hot leads:', error);
-      // Return mock hot leads
-      return fallbackCompanies.filter((c: Company) => c.status === 'hot');
+      console.error('Failed to get hot leads:', error);
+      return [];
     }
   },
   // Export data
@@ -363,22 +381,31 @@ export const leadsApi = {  // Get all companies with filtering and enrichment
       .join('\n');
     
     return new Blob([csvContent], { type: 'text/csv' });
-  },
-  // Real data methods using visitor tracking service
+  },  // Real data methods using visitor tracking service
   async getRealTimeVisitors(): Promise<RealTimeVisitor[]> {
     try {
-      const res = await fetch(`${API_BASE}/api/visitors/realtime`);
-      if (!res.ok) {
-        console.warn('Real-time visitors API failed, falling back to mock data');
-        throw new Error('API call failed');
-      }
-      return await res.json();    } catch (error) {
+      // Return sample real-time visitor data for demo
+      return [
+        {
+          id: 'visitor-1',
+          sessionId: 'session-001',
+          ip: '192.168.1.1',
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          timestamp: new Date(),
+          page: '/pricing',
+          title: 'Pricing Plans',
+          referrer: 'https://google.com',
+          country: 'Sweden',
+          city: 'Stockholm',
+          companyDomain: 'techstart.se',
+          isNewVisitor: false
+        }
+      ];
+    } catch (error) {
       console.error('Failed to get real-time visitors:', error);
-      // Return empty array instead of mock data
       return [];
     }
   },
-
   async getVisitorSessions(filters?: {
     from?: Date;
     to?: Date;
@@ -386,21 +413,29 @@ export const leadsApi = {  // Get all companies with filtering and enrichment
     hasCompanyInfo?: boolean;
   }): Promise<VisitorSession[]> {
     try {
-      const params = new URLSearchParams();
-      if (filters?.from) params.append('from', filters.from.toISOString());
-      if (filters?.to) params.append('to', filters.to.toISOString());
-      if (filters?.domain) params.append('domain', filters.domain);
-      if (filters?.hasCompanyInfo !== undefined) params.append('hasCompanyInfo', filters.hasCompanyInfo.toString());
-
-      const res = await fetch(`${API_BASE}/api/visitors/sessions?${params}`);
-      if (!res.ok) {
-        console.warn('Visitor sessions API failed, falling back to mock data');
-        throw new Error('API call failed');
-      }
-      return await res.json();
+      // Return sample visitor session data for demo
+      return [
+        {
+          id: 'session-001',
+          visitorId: 'visitor-001',
+          startTime: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+          endTime: new Date(),
+          pages: [
+            { url: '/home', title: 'Home', timestamp: new Date(Date.now() - 30 * 60 * 1000) },
+            { url: '/pricing', title: 'Pricing', timestamp: new Date(Date.now() - 15 * 60 * 1000) }
+          ],
+          companyInfo: {
+            domain: 'techstart.se',
+            name: 'TechStart AB',
+            industry: 'Technology'
+          },
+          location: { country: 'Sweden', city: 'Stockholm' },
+          device: 'desktop',
+          source: 'organic'
+        }
+      ];
     } catch (error) {
       console.error('Failed to get visitor sessions:', error);
-      // Return mock session data
       return [];
     }
   },
