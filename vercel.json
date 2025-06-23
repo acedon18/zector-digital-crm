@@ -49,9 +49,7 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "env": {
-    "VITE_USE_REAL_DATA": "true",
-    "MONGO_URI": "mongodb+srv://zector:b9yyEkABZVUjJucO@zectorleadcrm.27lnmjh.mongodb.net/zector-digital-crm"
+  ],  "env": {
+    "VITE_USE_REAL_DATA": "true"
   }
 }
