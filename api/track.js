@@ -13,8 +13,18 @@ async function connectToDatabase() {
   if (!MONGO_URI) {
     throw new Error('MongoDB URI not found in environment variables');
   }
-
-  const client = new MongoClient(MONGO_URI);
+  const client = new MongoClient(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+    maxPoolSize: 10,
+    retryWrites: true,
+    w: 'majority',
+    ssl: true,
+    sslValidate: false,
+    authSource: 'admin'
+  });
   await client.connect();
   const db = client.db();
 

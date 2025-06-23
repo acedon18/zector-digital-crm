@@ -13,13 +13,17 @@ async function connectToDatabase() {
   if (!MONGO_URI) {
     throw new Error('MongoDB URI not found in environment variables');
   }
-
   const client = new MongoClient(MONGO_URI, {
-    tls: true,
-    tlsAllowInvalidCertificates: false,
-    tlsAllowInvalidHostnames: false,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+    maxPoolSize: 10,
     retryWrites: true,
-    w: 'majority'
+    w: 'majority',
+    ssl: true,
+    sslValidate: false,
+    authSource: 'admin'
   });
   
   await client.connect();
@@ -218,18 +222,33 @@ export default async function handler(req, res) {
       timestamp: new Date().toISOString(),
       source: 'real_data',
       note: 'Data from MongoDB visits collection'
-    });
-      } catch (error) {
+    });      } catch (error) {
     console.error('Companies API error:', error);
     
-    // Return error as JSON instead of HTML
+    // Return comprehensive error information for debugging
     return res.status(500).json({
       success: false,
       error: 'Database connection failed',
       details: error.message,
       companies: [],
       total: 0,
-      fallback: true
+      fallback: true,
+      timestamp: new Date().toISOString(),
+      source: 'error_fallback',
+      note: 'MongoDB connection failed. Check environment variables and network connectivity.',
+      troubleshooting: {
+        mongoUri: process.env.MONGO_URI ? 'SET (length: ' + process.env.MONGO_URI.length + ')' : 'NOT SET',
+        mongodbUri: process.env.MONGODB_URI ? 'SET (length: ' + process.env.MONGODB_URI.length + ')' : 'NOT SET',
+        error_type: error.message.includes('SSL') || error.message.includes('TLS') ? 'SSL_ERROR' : 
+                   error.message.includes('Authentication') ? 'AUTH_ERROR' :
+                   error.message.includes('timeout') ? 'TIMEOUT_ERROR' : 
+                   error.message.includes('ENOTFOUND') ? 'DNS_ERROR' : 'UNKNOWN_ERROR',
+        suggested_fix: error.message.includes('SSL') || error.message.includes('TLS') ? 
+                      'Update MongoDB connection with SSL parameters' :
+                      error.message.includes('Authentication') ? 
+                      'Check MongoDB username/password' : 
+                      'Check MongoDB URI format and network connectivity'
+      }
     });
   }
 }

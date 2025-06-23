@@ -37,10 +37,20 @@ export default async function handler(req, res) {
     // Test MongoDB connection if available
     let mongoStatus = 'NOT TESTED';
     if (process.env.MONGO_URI || process.env.MONGODB_URI) {
-      try {
-        const { MongoClient } = await import('mongodb');
+      try {        const { MongoClient } = await import('mongodb');
         const uri = process.env.MONGO_URI || process.env.MONGODB_URI;
-        const client = new MongoClient(uri);
+        const client = new MongoClient(uri, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+          serverSelectionTimeoutMS: 5000,
+          socketTimeoutMS: 45000,
+          maxPoolSize: 10,
+          retryWrites: true,
+          w: 'majority',
+          ssl: true,
+          sslValidate: false,
+          authSource: 'admin'
+        });
         
         await client.connect();
         const db = client.db();
