@@ -5,23 +5,29 @@ let cachedClient = null;
 let cachedDb = null;
 
 async function connectToDatabase() {
-  if (cachedClient && cachedDb) {
-    return { client: cachedClient, db: cachedDb };
+  try {
+    if (cachedClient && cachedDb) {
+      return { client: cachedClient, db: cachedDb };
+    }
+
+    const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
+    if (!MONGO_URI) {
+      console.error('[TRACK API] MongoDB URI not found in environment variables');
+      throw new Error('MongoDB URI not found in environment variables');
+    }
+
+    const client = new MongoClient(MONGO_URI);
+    await client.connect();
+    const db = client.db();
+
+    cachedClient = client;
+    cachedDb = db;
+
+    return { client, db };
+  } catch (err) {
+    console.error('[TRACK API] Error connecting to MongoDB:', err);
+    throw err;
   }
-
-  const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
-  if (!MONGO_URI) {
-    throw new Error('MongoDB URI not found in environment variables');
-  }
-
-  const client = new MongoClient(MONGO_URI);
-  await client.connect();
-  const db = client.db();
-
-  cachedClient = client;
-  cachedDb = db;
-
-  return { client, db };
 }
 
 export default async function handler(req, res) {
@@ -65,26 +71,21 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const trackingData = req.body;
-      
       if (trackingData && trackingData.event) {
         console.log('Tracking data received via POST:', trackingData.event, trackingData.customerId);
-        
-        // Store the tracking data in MongoDB
         await storeTrackingData(trackingData);
       }
-      
       return res.status(200).json({
         success: true,
         message: 'Tracking data received and stored',
         event: trackingData?.event || 'unknown',
         timestamp: new Date().toISOString()
       });
-      
     } catch (error) {
-      console.error('Error processing POST tracking request:', error);
-      return res.status(500).json({ 
+      console.error('[TRACK API] Error processing POST tracking request:', error);
+      return res.status(500).json({
         error: 'Error storing tracking data',
-        details: error.message 
+        details: error.message
       });
     }
   }
@@ -181,7 +182,7 @@ async function storeTrackingData(trackingData) {
     console.log('Stored tracking event:', event, 'for session:', sessionId);
     
   } catch (error) {
-    console.error('Error storing tracking data:', error);
+    console.error('[TRACK API] Error storing tracking data:', error);
     throw error;
   }
 }

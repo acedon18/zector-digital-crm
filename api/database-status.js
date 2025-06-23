@@ -5,23 +5,29 @@ let cachedClient = null;
 let cachedDb = null;
 
 async function connectToDatabase() {
-  if (cachedClient && cachedDb) {
-    return { client: cachedClient, db: cachedDb };
+  try {
+    if (cachedClient && cachedDb) {
+      return { client: cachedClient, db: cachedDb };
+    }
+
+    const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
+    if (!MONGO_URI) {
+      console.error('[DB STATUS] MongoDB URI not found in environment variables');
+      throw new Error('MongoDB URI not found in environment variables');
+    }
+
+    const client = new MongoClient(MONGO_URI);
+    await client.connect();
+    const db = client.db();
+
+    cachedClient = client;
+    cachedDb = db;
+
+    return { client, db };
+  } catch (err) {
+    console.error('[DB STATUS] Error connecting to MongoDB:', err);
+    throw err;
   }
-
-  const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
-  if (!MONGO_URI) {
-    throw new Error('MongoDB URI not found in environment variables');
-  }
-
-  const client = new MongoClient(MONGO_URI);
-  await client.connect();
-  const db = client.db();
-
-  cachedClient = client;
-  cachedDb = db;
-
-  return { client, db };
 }
 
 export default async function handler(req, res) {
@@ -98,14 +104,19 @@ export default async function handler(req, res) {
     };
     
     return res.status(200).json(status);
-    
   } catch (error) {
-    console.error('Database status check error:', error);
+    console.error('[DB STATUS] Handler error:', error);
     return res.status(500).json({
       status: 'error',
       error: 'Database connection failed',
       details: error.message,
-      timestamp: new Date().toISOString()
+      stack: error.stack,
+      timestamp: new Date().toISOString(),
+      environment: {
+        nodeEnv: process.env.NODE_ENV || 'development',
+        hasMongoUri: !!process.env.MONGO_URI,
+        hasMongodbUri: !!process.env.MONGODB_URI
+      }
     });
   }
 }
