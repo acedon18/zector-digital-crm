@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zector Digital CRM - Website Installation Guide</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        .code-block { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; margin: 10px 0; }
+        .step { background: #e8f5e8; padding: 15px; margin: 15px 0; border-left: 4px solid #4CAF50; }
+        .warning { background: #fff3cd; padding: 15px; margin: 15px 0; border-left: 4px solid #ffc107; }
+        h1 { color: #2c3e50; }
+        h2 { color: #34495e; border-bottom: 2px solid #3498db; padding-bottom: 5px; }
+        code { background: #f8f9fa; padding: 2px 5px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Zector Digital CRM - Website Installation Guide</h1>
+    
+    <div class="warning">
+        <strong>⚠️ Important:</strong> This tracking script will send visitor data to your Zector Digital CRM dashboard. Make sure you comply with GDPR and privacy regulations in your region.
+    </div>
+
+    <h2>📋 Step 1: Copy the Tracking Script</h2>
+    <div class="step">
+        <p>Copy this script and paste it in the <code>&lt;head&gt;</code> section of your website, just before the closing <code>&lt;/head&gt;</code> tag:</p>
+    </div>
+
+    <div class="code-block">
+<pre><code>&lt;!-- Zector Digital CRM Tracking Script --&gt;
+&lt;script&gt;
+(function() {
+    // Configuration
+    const TRACKING_ENDPOINT = 'https://zector-digital-crm-leads.vercel.app/api/track';
+    const SESSION_DURATION = 30 * 60 * 1000; // 30 minutes
+    
+    // Generate session ID
+    function generateSessionId() {
+        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+    
+    // Get or create session ID
+    function getSessionId() {
+        let sessionId = sessionStorage.getItem('zector_session_id');
+        const lastActivity = sessionStorage.getItem('zector_last_activity');
+        const now = Date.now();
+        
+        if (!sessionId || !lastActivity || (now - parseInt(lastActivity)) > SESSION_DURATION) {
+            sessionId = generateSessionId();
+            sessionStorage.setItem('zector_session_id', sessionId);
+        }
+        
+        sessionStorage.setItem('zector_last_activity', now.toString());
+        return sessionId;
+    }
+    
+    // Get visitor info
+    function getVisitorInfo() {
+        return {
+            sessionId: getSessionId(),
+            timestamp: new Date().toISOString(),
+            url: window.location.href,
+            referrer: document.referrer || 'direct',
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            screenResolution: screen.width + 'x' + screen.height,
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            domain: window.location.hostname
+        };
+    }
+    
+    // Send tracking data
+    function sendTrackingData(eventType = 'pageview', additionalData = {}) {
+        const data = {
+            ...getVisitorInfo(),
+            eventType,
+            ...additionalData
+        };
+        
+        // Send data using fetch with fallback to image pixel
+        if (typeof fetch !== 'undefined') {
+            fetch(TRACKING_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+                mode: 'cors'
+            }).catch(function(error) {
+                console.log('Zector tracking: Fetch failed, using image fallback');
+                // Fallback to image pixel method
+                const img = new Image();
+                img.src = TRACKING_ENDPOINT + '?data=' + encodeURIComponent(JSON.stringify(data));
+            });
+        } else {
+            // Fallback for older browsers
+            const img = new Image();
+            img.src = TRACKING_ENDPOINT + '?data=' + encodeURIComponent(JSON.stringify(data));
+        }
+    }
+    
+    // Track page view on load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            sendTrackingData('pageview');
+        });
+    } else {
+        sendTrackingData('pageview');
+    }
+    
+    // Track page visibility changes
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') {
+            sendTrackingData('page_hidden');
+        } else if (document.visibilityState === 'visible') {
+            sendTrackingData('page_visible');
+        }
+    });
+    
+    // Track time on page before unload
+    let startTime = Date.now();
+    window.addEventListener('beforeunload', function() {
+        const timeOnPage = Math.round((Date.now() - startTime) / 1000);
+        sendTrackingData('page_unload', { timeOnPage });
+    });
+    
+    // Expose function for manual event tracking
+    window.zectorTrack = function(eventType, data) {
+        sendTrackingData(eventType, data);
+    };
+    
+})();
+&lt;/script&gt;
+&lt;!-- End Zector Digital CRM Tracking Script --&gt;</code></pre>
+    </div>
+
+    <h2>📱 Step 2: Test the Installation</h2>
+    <div class="step">
+        <p>After installing the script on your website:</p>
+        <ol>
+            <li>Visit your website in a new browser tab</li>
+            <li>Navigate to a few pages</li>
+            <li>Open your CRM dashboard at: <a href="https://zector-digital-crm-leads.vercel.app" target="_blank">https://zector-digital-crm-leads.vercel.app</a></li>
+            <li>Check if your website visits appear in the companies list</li>
+        </ol>
+    </div>
+
+    <h2>🎯 Step 3: Advanced Tracking (Optional)</h2>
+    <div class="step">
+        <p>You can manually track custom events using the global function:</p>
+    </div>
+
+    <div class="code-block">
+<pre><code>&lt;!-- Track form submissions --&gt;
+&lt;script&gt;
+document.getElementById('contact-form').addEventListener('submit', function(e) {
+    window.zectorTrack('form_submit', {
+        formName: 'contact',
+        email: document.getElementById('email').value
+    });
+});
+&lt;/script&gt;
+
+&lt;!-- Track button clicks --&gt;
+&lt;script&gt;
+document.getElementById('cta-button').addEventListener('click', function() {
+    window.zectorTrack('button_click', {
+        buttonName: 'main-cta',
+        buttonText: this.textContent
+    });
+});
+&lt;/script&gt;</code></pre>
+    </div>
+
+    <h2>📊 Step 4: Access Your CRM Dashboard</h2>
+    <div class="step">
+        <p>Once the tracking is active, you can access your CRM dashboard to view:</p>
+        <ul>
+            <li><strong>Companies:</strong> Organizations visiting your website</li>
+            <li><strong>Visitor Analytics:</strong> Page views, session duration, referrers</li>
+            <li><strong>Enriched Data:</strong> Company information, industry, size, location</li>
+            <li><strong>Lead Scoring:</strong> Automatic scoring based on visitor behavior</li>
+        </ul>
+        <p><strong>Dashboard URL:</strong> <a href="https://zector-digital-crm-leads.vercel.app" target="_blank">https://zector-digital-crm-leads.vercel.app</a></p>
+    </div>
+
+    <h2>🔧 Troubleshooting</h2>
+    <div class="step">
+        <p><strong>If tracking isn't working:</strong></p>
+        <ol>
+            <li>Check browser console for JavaScript errors</li>
+            <li>Verify the script is in the <code>&lt;head&gt;</code> section</li>
+            <li>Make sure your website allows external API calls</li>
+            <li>Test the tracking endpoint: <a href="https://zector-digital-crm-leads.vercel.app/api/health" target="_blank">API Health Check</a></li>
+        </ol>
+    </div>
+
+    <div class="warning">
+        <strong>🔒 Privacy Note:</strong> This tracking system collects anonymous visitor data to help you understand your website traffic. No personal information is collected unless explicitly provided by the visitor (e.g., through forms).
+    </div>
+
+    <footer style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666;">
+        <p>© 2025 Zector Digital Group SL - Advanced CRM Platform</p>
+        <p>Need help? Contact: <a href="mailto:support@zectordigital.es">support@zectordigital.es</a></p>
+    </footer>
+</body>
+</html>

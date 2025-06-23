@@ -1,9 +1,8 @@
 <!-- Zector Digital Lead Tracking Script - Production Ready -->
 <script type="text/javascript">
-(function() {
-  var zld = {
-    customerId: 'CLIENTE_DEMO', // Replace with actual customer ID
-    domain: 'example.com', // Replace with actual customer domain
+(function() {  var zld = {
+    customerId: 'ZECTOR_DIGITAL_ES', // Zector Digital ES customer ID
+    domain: 'zectordigital.es', // Zector Digital customer domain
     scriptId: 'zld_' + Date.now(),
     config: {
       gdprCompliant: true,
@@ -30,10 +29,8 @@
     if (zld.config.anonymizeIp) {
       // IP anonymization handled server-side
       payload.anonymizeIp = true;
-    }
-    
-    // Send to tracking endpoint (production)
-    fetch('https://zector-digital-crm.vercel.app/api/track', {
+    }      // Send to tracking endpoint (production)
+    fetch('https://zector-digital-crm-leads.vercel.app/api/track', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
