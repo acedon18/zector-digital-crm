@@ -48,64 +48,37 @@ export default async function handler(req, res) {
     // Get database name
     const dbName = db.databaseName;
     
-    // Get all collections
-    const collections = await db.listCollections().toArray();
-    const collectionNames = collections.map(c => c.name);
+    // Get all collections - simplified
+    let collections = [];
+    let collectionNames = [];
+    try {
+      collections = await db.listCollections().toArray();
+      collectionNames = collections.map(c => c.name);
+    } catch (error) {
+      console.log('Could not list collections:', error.message);
+    }
     
-    // Inspect visits collection
+    // Basic visits collection stats
     const visitsCollection = db.collection('visits');
-    const visitsStats = {
-      total: await visitsCollection.countDocuments(),
-      recent: await visitsCollection.countDocuments({
-        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } // Last 24 hours
-      }),
-      domains: await visitsCollection.distinct('domain'),
-      recentVisits: await visitsCollection
-        .find({})
-        .sort({ createdAt: -1 })
-        .limit(5)
-        .toArray()
-    };
+    const visitsTotal = await visitsCollection.countDocuments();
     
-    // Inspect events collection
+    // Basic events collection stats
     const eventsCollection = db.collection('events');
-    const eventsStats = {
-      total: await eventsCollection.countDocuments(),
-      recent: await eventsCollection.countDocuments({
-        storedAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } // Last 24 hours
-      }),
-      eventTypes: await eventsCollection.distinct('event'),
-      recentEvents: await eventsCollection
-        .find({})
-        .sort({ storedAt: -1 })
-        .limit(5)
-        .toArray()
-    };
+    const eventsTotal = await eventsCollection.countDocuments();
     
-    // Get unique customer IDs and domains
-    const uniqueCustomers = await visitsCollection.distinct('customerId');
-    const uniqueDomains = await visitsCollection.distinct('domain');
-    
-    // Sample tracking data from the last 24 hours
-    const recentTrackingData = await eventsCollection
-      .find({
-        storedAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-      })
-      .sort({ storedAt: -1 })
-      .limit(10)
+    // Recent visits (limit to 3 for simplicity)
+    const recentVisits = await visitsCollection
+      .find({})
+      .sort({ createdAt: -1 })
+      .limit(3)
       .toArray();
     
-    // Get session statistics
-    const sessionStats = await visitsCollection.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalSessions: { $sum: 1 },
-          avgEventsPerSession: { $avg: { $size: '$events' } },
-          avgPagesPerSession: { $avg: { $size: '$pages' } }
-        }
-      }
-    ]).toArray();
+    // Recent events (limit to 3 for simplicity)
+    const recentEvents = await eventsCollection
+      .find({})
+      .sort({ storedAt: -1 })
+      .limit(3)
+      .toArray();
     
     const status = {
       status: 'connected',
@@ -116,54 +89,30 @@ export default async function handler(req, res) {
         totalCollections: collections.length
       },
       visits: {
-        ...visitsStats,
-        sampleData: visitsStats.recentVisits.map(visit => ({
+        total: visitsTotal,
+        sampleData: recentVisits.map(visit => ({
           sessionId: visit.sessionId,
           customerId: visit.customerId,
           domain: visit.domain,
           startTime: visit.startTime,
-          eventCount: visit.events?.length || 0,
-          pageCount: visit.pages?.length || 0,
-          lastActivity: visit.lastActivity
+          eventCount: visit.events?.length || 0
         }))
       },
       events: {
-        ...eventsStats,
-        sampleData: eventsStats.recentEvents.map(event => ({
+        total: eventsTotal,
+        sampleData: recentEvents.map(event => ({
           event: event.event,
           domain: event.domain,
-          url: event.url,
+          url: event.url ? event.url.substring(0, 50) + '...' : 'unknown',
           timestamp: event.timestamp,
-          storedAt: event.storedAt,
-          sessionId: event.sessionId
-        }))
-      },
-      analytics: {
-        uniqueCustomers: uniqueCustomers.length,
-        uniqueDomains: uniqueDomains.length,
-        domains: uniqueDomains,
-        sessions: sessionStats.length > 0 ? sessionStats[0] : {
-          totalSessions: 0,
-          avgEventsPerSession: 0,
-          avgPagesPerSession: 0
-        }
-      },
-      recentActivity: {
-        trackingData: recentTrackingData.map(data => ({
-          event: data.event,
-          domain: data.domain,
-          url: data.url,
-          timestamp: data.timestamp,
-          userAgent: data.userAgent ? data.userAgent.substring(0, 50) + '...' : 'unknown',
-          customerId: data.customerId
+          customerId: event.customerId
         }))
       },
       environment: {
         nodeEnv: process.env.NODE_ENV || 'development',
         hasMongoUri: !!process.env.MONGO_URI,
         hasMongodbUri: !!process.env.MONGODB_URI,
-        hasApolloKey: !!process.env.APOLLO_API_KEY,
-        hasHunterKey: !!process.env.HUNTER_API_KEY
+        hasApolloKey: !!process.env.APOLLO_API_KEY
       }
     };
     
