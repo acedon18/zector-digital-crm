@@ -7,6 +7,13 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: '0.0.0.0',
     port: 5176,
+    proxy: {
+      '/api': {
+        target: 'https://zector-digital-crm-leads-git-master-zector-digitals-projects.vercel.app',
+        changeOrigin: true,
+        secure: true
+      }
+    }
   },
   plugins: [react()],
   resolve: {

@@ -1,121 +1,35 @@
-// Companies API endpoint - Returns sample company data to demonstrate working interface
-// This endpoint will return sample companies until MongoDB issues are resolved
+// Companies API endpoint - Get real company data from MongoDB
+import { MongoClient } from 'mongodb';
 
-// Sample companies to demonstrate working interface
-const sampleCompanies = [
-  {
-    id: 'comp-001',
-    name: 'TechStart AB',
-    domain: 'techstart.se',
-    industry: 'Technology',
-    size: '11-50',
-    location: { city: 'Stockholm', country: 'Sweden' },
-    lastVisit: new Date('2024-12-21T10:30:00Z'),
-    totalVisits: 12,
-    score: 85,
-    status: 'hot',
-    tags: ['High Engagement', 'Returning Visitor'],
-    phone: '+46 8 555 1234',
-    email: 'contact@techstart.se',
-    website: 'https://techstart.se'
-  },
-  {
-    id: 'comp-002',
-    name: 'Nordic Solutions',
-    domain: 'nordicsolutions.com',
-    industry: 'Consulting',
-    size: '51-200',
-    location: { city: 'Oslo', country: 'Norway' },
-    lastVisit: new Date('2024-12-21T09:15:00Z'),
-    totalVisits: 8,
-    score: 70,
-    status: 'warm',
-    tags: ['Website Visitor', 'Multiple Pages'],
-    phone: '+47 22 12 34 56',
-    email: 'hello@nordicsolutions.com',
-    website: 'https://nordicsolutions.com'
-  },
-  {
-    id: 'comp-003',
-    name: 'Danish Innovations',
-    domain: 'danishinnovations.dk',
-    industry: 'Manufacturing',
-    size: '201-500',
-    location: { city: 'Copenhagen', country: 'Denmark' },
-    lastVisit: new Date('2024-12-21T08:45:00Z'),
-    totalVisits: 3,
-    score: 45,
-    status: 'cold',
-    tags: ['New Visitor'],
-    phone: '+45 33 12 34 56',
-    email: 'info@danishinnovations.dk',
-    website: 'https://danishinnovations.dk'
-  },
-  {
-    id: 'comp-004',
-    name: 'Finnish Design Co',
-    domain: 'finnishdesign.fi',
-    industry: 'Design',
-    size: '1-10',
-    location: { city: 'Helsinki', country: 'Finland' },
-    lastVisit: new Date('2024-12-21T07:20:00Z'),
-    totalVisits: 15,
-    score: 92,
-    status: 'hot',
-    tags: ['Frequent Visitor', 'High Value'],
-    phone: '+358 9 123 4567',
-    email: 'studio@finnishdesign.fi',
-    website: 'https://finnishdesign.fi'
-  },
-  {
-    id: 'comp-005',
-    name: 'European Logistics',
-    domain: 'eurolog.eu',
-    industry: 'Logistics',
-    size: '501-1000',
-    location: { city: 'Amsterdam', country: 'Netherlands' },
-    lastVisit: new Date('2024-12-21T06:10:00Z'),
-    totalVisits: 6,
-    score: 60,
-    status: 'warm',
-    tags: ['B2B Prospect'],
-    phone: '+31 20 123 4567',
-    email: 'contact@eurolog.eu',
-    website: 'https://eurolog.eu'
-  },
-  {
-    id: 'comp-006',
-    name: 'Swiss Precision Ltd',
-    domain: 'swissprecision.ch',
-    industry: 'Manufacturing',
-    size: '101-250',
-    location: { city: 'Zurich', country: 'Switzerland' },
-    lastVisit: new Date('2024-12-21T05:45:00Z'),
-    totalVisits: 4,
-    score: 55,
-    status: 'cold',
-    tags: ['Website Visitor'],
-    phone: '+41 44 123 4567',
-    email: 'info@swissprecision.ch',
-    website: 'https://swissprecision.ch'
-  },
-  {
-    id: 'comp-007',
-    name: 'Berlin Software GmbH',
-    domain: 'berlinsoftware.de',
-    industry: 'Software',
-    size: '11-50',
-    location: { city: 'Berlin', country: 'Germany' },
-    lastVisit: new Date('2024-12-21T04:30:00Z'),
-    totalVisits: 9,
-    score: 75,
-    status: 'warm',
-    tags: ['Tech Company', 'Repeat Visitor'],
-    phone: '+49 30 123 4567',
-    email: 'kontakt@berlinsoftware.de',
-    website: 'https://berlinsoftware.de'
+let cachedClient = null;
+let cachedDb = null;
+
+async function connectToDatabase() {
+  if (cachedClient && cachedDb) {
+    return { client: cachedClient, db: cachedDb };
   }
-];
+
+  const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
+  if (!MONGO_URI) {
+    throw new Error('MongoDB URI not found in environment variables');
+  }
+
+  const client = new MongoClient(MONGO_URI, {
+    tls: true,
+    tlsAllowInvalidCertificates: false,
+    tlsAllowInvalidHostnames: false,
+    retryWrites: true,
+    w: 'majority'
+  });
+  
+  await client.connect();
+  const db = client.db();
+
+  cachedClient = client;
+  cachedDb = db;
+
+  return { client, db };
+}
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -127,34 +41,195 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
-  
-  // Apply filters if provided
-  const { status, industry, minScore } = req.query;
-  
-  let filteredCompanies = sampleCompanies;
-  
-  if (status) {
-    filteredCompanies = filteredCompanies.filter(company => company.status === status);
+    try {
+    const { db } = await connectToDatabase();
+    
+    // Get companies directly from companies collection
+    const companiesCollection = db.collection('companies');
+    const companiesData = await companiesCollection
+      .find({})
+      .sort({ lastVisit: -1 })
+      .limit(100)
+      .toArray();
+    
+    // Convert MongoDB documents to the expected format
+    const companies = companiesData.map(company => ({
+      id: company._id.toString(),
+      name: company.name,
+      domain: company.domain,
+      industry: company.industry || 'Unknown',
+      size: company.size || 'Unknown',
+      location: company.location || { city: 'Unknown', country: 'Unknown' },
+      lastVisit: company.lastVisit,
+      totalVisits: company.totalVisits || 0,
+      score: company.score || 50,
+      status: company.status || 'new',
+      tags: company.tags || [],
+      phone: company.phone || '',
+      email: company.email || '',
+      website: company.website || `https://${company.domain}`
+    }));
+    
+    // If we have real data, return it
+    if (companies.length > 0) {
+      console.log(`Returning ${companies.length} real companies from MongoDB`);
+      return res.status(200).json({
+        success: true,
+        companies: companies,
+        total: companies.length,
+        timestamp: new Date().toISOString(),
+        source: 'real_data',
+        note: `Found ${companies.length} companies in database`
+      });
+    }
+    
+    // If no real data, return sample data for demonstration
+    if (companies.length === 0) {
+      console.log('No visits found in database, returning sample data');
+      const sampleCompanies = [
+        {
+          id: 'comp-001',
+          name: 'TechStart AB',
+          domain: 'techstart.se',
+          industry: 'Technology',
+          size: '11-50',
+          location: { city: 'Stockholm', country: 'Sweden' },
+          lastVisit: new Date('2024-12-21T10:30:00.000Z'),
+          totalVisits: 12,
+          score: 85,
+          status: 'hot',
+          tags: ['Website Visitor', 'High Engagement'],
+          phone: '+46 8 555 1234',
+          email: 'contact@techstart.se',
+          website: 'https://techstart.se'
+        },
+        {
+          id: 'comp-002',
+          name: 'Nordic Solutions',
+          domain: 'nordicsolutions.com',
+          industry: 'Consulting',
+          size: '51-200',
+          location: { city: 'Oslo', country: 'Norway' },
+          lastVisit: new Date('2024-12-21T09:15:00.000Z'),
+          totalVisits: 8,
+          score: 70,
+          status: 'warm',
+          tags: ['Website Visitor', 'Potential Client'],
+          phone: '+47 22 12 34 56',
+          email: 'hello@nordicsolutions.com',
+          website: 'https://nordicsolutions.com'
+        },
+        {
+          id: 'comp-003',
+          name: 'Danish Innovations',
+          domain: 'danishinnovations.dk',
+          industry: 'Manufacturing',
+          size: '201-500',
+          location: { city: 'Copenhagen', country: 'Denmark' },
+          lastVisit: new Date('2024-12-21T08:45:00.000Z'),
+          totalVisits: 3,
+          score: 45,
+          status: 'cold',
+          tags: ['Website Visitor'],
+          phone: '+45 33 12 34 56',
+          email: 'info@danishinnovations.dk',
+          website: 'https://danishinnovations.dk'
+        },
+        {
+          id: 'comp-004',
+          name: 'Finnish Design Co',
+          domain: 'finnishdesign.fi',
+          industry: 'Design',
+          size: '1-10',
+          location: { city: 'Helsinki', country: 'Finland' },
+          lastVisit: new Date('2024-12-21T07:20:00.000Z'),
+          totalVisits: 15,
+          score: 92,
+          status: 'hot',
+          tags: ['Website Visitor', 'Design Partner'],
+          phone: '+358 9 123 4567',
+          email: 'studio@finnishdesign.fi',
+          website: 'https://finnishdesign.fi'
+        },
+        {
+          id: 'comp-005',
+          name: 'Zector Digital',
+          domain: 'zector.se',
+          industry: 'Technology',
+          size: '11-50',
+          location: { city: 'Stockholm', country: 'Sweden' },
+          lastVisit: new Date(),
+          totalVisits: 25,
+          score: 95,
+          status: 'hot',
+          tags: ['Website Visitor', 'CRM Provider'],
+          phone: '+46 8 123 4567',
+          email: 'contact@zector.se',
+          website: 'https://zector.se'
+        },
+        {
+          id: 'comp-006',
+          name: 'Baltic Ventures',
+          domain: 'balticventures.com',
+          industry: 'Investment',
+          size: '51-200',
+          location: { city: 'Riga', country: 'Latvia' },
+          lastVisit: new Date('2024-12-20T16:30:00.000Z'),
+          totalVisits: 6,
+          score: 65,
+          status: 'warm',
+          tags: ['Website Visitor', 'Investor'],
+          phone: '+371 67 123 456',
+          email: 'info@balticventures.com',
+          website: 'https://balticventures.com'
+        },
+        {
+          id: 'comp-007',
+          name: 'Green Energy Solutions',
+          domain: 'greenenergy.no',
+          industry: 'Energy',
+          size: '101-500',
+          location: { city: 'Bergen', country: 'Norway' },
+          lastVisit: new Date('2024-12-20T14:15:00.000Z'),
+          totalVisits: 4,
+          score: 55,
+          status: 'cold',
+          tags: ['Website Visitor', 'Sustainability'],
+          phone: '+47 55 123 456',
+          email: 'contact@greenenergy.no',
+          website: 'https://greenenergy.no'
+        }
+      ];
+      
+      return res.status(200).json({
+        success: true,
+        companies: sampleCompanies,
+        total: sampleCompanies.length,
+        timestamp: new Date().toISOString(),
+        source: 'sample_data',
+        note: 'Showing sample companies for demonstration'
+      });
+    }
+    
+    return res.status(200).json({
+      success: true,
+      companies: companies,
+      total: companies.length,
+      timestamp: new Date().toISOString(),
+      source: 'real_data',
+      note: 'Data from MongoDB visits collection'
+    });
+      } catch (error) {
+    console.error('Companies API error:', error);
+    
+    // Return error as JSON instead of HTML
+    return res.status(500).json({
+      success: false,
+      error: 'Database connection failed',
+      details: error.message,
+      companies: [],
+      total: 0,
+      fallback: true
+    });
   }
-  
-  if (industry) {
-    filteredCompanies = filteredCompanies.filter(company => 
-      company.industry.toLowerCase().includes(industry.toLowerCase())
-    );
-  }
-  
-  if (minScore) {
-    const minScoreNum = parseFloat(minScore);
-    filteredCompanies = filteredCompanies.filter(company => company.score >= minScoreNum);
-  }
-  
-  // Return sample companies data with proper JSON structure
-  return res.status(200).json({
-    success: true,
-    companies: filteredCompanies,
-    total: filteredCompanies.length,
-    timestamp: new Date().toISOString(),
-    source: 'sample_data',
-    note: 'Showing sample companies for demonstration'
-  });
 }

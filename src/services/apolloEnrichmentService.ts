@@ -1,6 +1,11 @@
 // Apollo.io Company Enrichment Service
-// This service enriches leads with company data using our backend API endpoint
-// which prevents CORS issues when calling external APIs
+// This service enriches leads with company data via our backend API to avoid CORS
+
+import axios from 'axios';
+
+// Use the backend API endpoint instead of calling Apollo directly
+const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT || 'https://zector-digital-crm-leads.vercel.app';
+const ENRICH_API_URL = `${API_ENDPOINT}/api/enrich`;
 
 export interface ApolloCompanyData {
   name?: string;
@@ -20,32 +25,30 @@ export interface ApolloCompanyData {
   confidence?: number;
 }
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
-
 export async function enrichCompanyWithApollo(domainOrEmail: string): Promise<ApolloCompanyData | null> {
   try {
-    const response = await fetch(`${API_BASE}/api/enrich`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    console.log(`🔍 Enriching company data for: ${domainOrEmail}`);
+    
+    const response = await axios.post(
+      ENRICH_API_URL,
+      { 
+        domain: domainOrEmail.includes('@') ? domainOrEmail.split('@')[1] : domainOrEmail,
+        email: domainOrEmail.includes('@') ? domainOrEmail : undefined
       },
-      body: JSON.stringify({
-        domain: domainOrEmail.includes('@') ? undefined : domainOrEmail,
-        email: domainOrEmail.includes('@') ? domainOrEmail : undefined,
-      }),
-    });
-
-    if (!response.ok) {
-      console.error(`Enrichment API error: ${response.status} ${response.statusText}`);
-      return null;
-    }
-
-    const result = await response.json();
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        timeout: 10000 // 10 second timeout
+      }
+    );
     
-    if (result.success && result.data) {
-      return result.data;
+    if (response.data && response.data.success && response.data.data) {
+      console.log(`✅ Enrichment successful for ${domainOrEmail}:`, response.data.data);
+      return response.data.data;
     }
     
+    console.log(`⚠️ No enrichment data found for ${domainOrEmail}`);
     return null;
   } catch (error) {
     console.error('Apollo enrichment error:', error);

@@ -1,28 +1,18 @@
-{  "compilerOptions": {
+{
+  "compilerOptions": {
     "target": "ES2020",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "lib": ["ES2020"],
+    "skipLibCheck": true,
+    "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "baseUrl": ".",    "strict": true,
-    "noImplicitAny": false, // Temporarily disable to allow Express routes to work
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "moduleResolution": "node",
     "resolveJsonModule": true,
-    "sourceMap": true,
-    "declaration": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "typeRoots": [
-      "./node_modules/@types",
-      "./src/types"
-    ]
+    "isolatedModules": true,
+    "noEmit": true
   },
-  "include": ["src/backend/**/*.ts", "src/services/**/*.ts", "src/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["api/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
