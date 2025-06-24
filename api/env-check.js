@@ -39,14 +39,7 @@ export default async function handler(req, res) {
     if (process.env.MONGO_URI || process.env.MONGODB_URI) {
       try {        const { MongoClient } = await import('mongodb');
         const uri = process.env.MONGO_URI || process.env.MONGODB_URI;        const client = new MongoClient(uri, {
-          maxPoolSize: 10,
-          serverSelectionTimeoutMS: 5000,
-          socketTimeoutMS: 45000,
-          connectTimeoutMS: 10000,
-          maxIdleTimeMS: 30000,
-          tls: true,
-          tlsAllowInvalidCertificates: false,
-          tlsAllowInvalidHostnames: false
+          serverSelectionTimeoutMS: 5000
         });
         
         await client.connect();
