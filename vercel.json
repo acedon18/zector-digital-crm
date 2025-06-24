@@ -23,24 +23,24 @@
       "dest": "/api/companies.js"
     },
     {
-      "src": "/api/discover-leads",
-      "dest": "/api/discover-leads.js"
+      "src": "/api/env-check",
+      "dest": "/api/env-check.js"
     },
     {
-      "src": "/api/visitors",
-      "dest": "/api/visitors.js"
+      "src": "/api/database-status",
+      "dest": "/api/database-status.js"
+    },
+    {
+      "src": "/api/enrich",
+      "dest": "/api/enrich.js"
     },
     {
       "src": "/api/health",
       "dest": "/api/health.js"
     },
     {
-      "src": "/api/test",
-      "dest": "/api/test.js"
-    },
-    {
-      "src": "/api/test-es",
-      "dest": "/api/test-es.js"
+      "src": "/api/hello",
+      "dest": "/api/hello.js"
     },
     {
       "handle": "filesystem"
@@ -49,7 +49,8 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],  "env": {
+  ],
+  "env": {
     "VITE_USE_REAL_DATA": "true"
   }
 }
