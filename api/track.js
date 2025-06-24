@@ -17,7 +17,10 @@ async function connectToDatabase() {
     serverSelectionTimeoutMS: 5000,
     socketTimeoutMS: 45000,
     connectTimeoutMS: 10000,
-    maxIdleTimeMS: 30000
+    maxIdleTimeMS: 30000,
+    tls: true,
+    tlsAllowInvalidCertificates: false,
+    tlsAllowInvalidHostnames: false
   });
   await client.connect();
   const db = client.db();

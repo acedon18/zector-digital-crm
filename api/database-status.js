@@ -16,7 +16,16 @@ async function connectToDatabase() {
       throw new Error('MongoDB URI not found in environment variables');
     }
 
-    const client = new MongoClient(MONGO_URI);
+    const client = new MongoClient(MONGO_URI, {
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 10000,
+      maxIdleTimeMS: 30000,
+      tls: true,
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false
+    });
     await client.connect();
     const db = client.db();
 
