@@ -28,6 +28,30 @@ import { EnrichedLeadData } from '@/services/dataEnrichmentService';
 import { PlatformType } from '@/types/integrations';
 import { leadsApi } from '@/lib/api';
 import { toast } from '@/components/ui/use-toast';
+
+// Type for enriched company data from the API
+interface EnrichedCompanyResponse {
+  company: Company;
+  enrichmentScore: number;
+  confidence: number;
+  lastEnriched: string;
+  platformData: {
+    linkedin: {
+      verified: boolean;
+      employees: number;
+      lastSync: string;
+    };
+    apollo: {
+      contactsFound: number;
+      lastSync: string;
+    };
+  };
+  additionalData: {
+    description: string;
+    websiteTraffic: number;
+    techStack: string[];
+  };
+}
 import { format } from 'date-fns';
 
 interface EnhancedLeadTrackingProps {
@@ -36,15 +60,15 @@ interface EnhancedLeadTrackingProps {
 
 export const EnhancedLeadTracking: React.FC<EnhancedLeadTrackingProps> = ({ 
   useEnrichedData = true 
-}) => {
-  const { t } = useTranslation();
+}) => {  const { t } = useTranslation();
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [enrichedCompanies, setEnrichedCompanies] = useState<EnrichedLeadData[]>([]);
+  const [enrichedCompanies, setEnrichedCompanies] = useState<EnrichedCompanyResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');  const [industryFilter, setIndustryFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [industryFilter, setIndustryFilter] = useState<string>('all');
   const [scoreFilter, setScoreFilter] = useState<number>(0);
-  const [selectedCompany, setSelectedCompany] = useState<Company | EnrichedLeadData | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<Company | EnrichedCompanyResponse | null>(null);
   const [viewMode, setViewMode] = useState<'standard' | 'enriched'>('enriched');
 
   const loadCompanies = useCallback(async () => {
@@ -113,33 +137,35 @@ export const EnhancedLeadTracking: React.FC<EnhancedLeadTrackingProps> = ({
     } finally {
       setLoading(false);
     }
-  };
-
-  const getDisplayData = () => {
+  };  const getDisplayData = () => {
     const data = viewMode === 'enriched' ? enrichedCompanies : companies;
     
     return data.filter(item => {
       const company = 'company' in item ? item.company : item;
-      const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          company.domain.toLowerCase().includes(searchTerm.toLowerCase());
+      const companyName = company?.name || '';
+      const companyDomain = company?.domain || '';
+      const searchLower = searchTerm.toLowerCase();
+      
+      const matchesSearch = companyName.toLowerCase().includes(searchLower) ||
+                          companyDomain.toLowerCase().includes(searchLower);
       return matchesSearch;
     });
   };
 
-  const getCompanyFromItem = (item: Company | EnrichedLeadData): Company => {
+  const getCompanyFromItem = (item: Company | EnrichedCompanyResponse): Company => {
     return 'company' in item ? item.company : item;
   };
 
-  const getEnrichmentData = (item: Company | EnrichedLeadData) => {
-    return 'platformData' in item ? item : null;
+  const getEnrichmentData = (item: Company | EnrichedCompanyResponse): EnrichedCompanyResponse | null => {
+    return 'company' in item ? item : null;
   };
 
-  const getPlatformBadges = (enrichmentData: EnrichedLeadData | null) => {
+  const getPlatformBadges = (enrichmentData: EnrichedCompanyResponse | null) => {
     if (!enrichmentData?.platformData) return [];
     
     return Object.keys(enrichmentData.platformData).map(platform => ({
       platform: platform as PlatformType,
-      lastSync: enrichmentData.platformData[platform as PlatformType]?.lastSync
+      lastSync: enrichmentData.platformData[platform as keyof typeof enrichmentData.platformData]?.lastSync
     }));
   };
 
@@ -285,10 +311,9 @@ export const EnhancedLeadTracking: React.FC<EnhancedLeadTrackingProps> = ({
             <CardTitle className="text-sm font-medium">Average Score</CardTitle>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent>            <div className="text-2xl font-bold">
               {displayData.length > 0 
-                ? Math.round(displayData.reduce((sum, item) => sum + getCompanyFromItem(item).score, 0) / displayData.length)
+                ? Math.round(displayData.reduce((sum, item) => sum + (getCompanyFromItem(item).score || 0), 0) / displayData.length)
                 : 0
               }
             </div>
@@ -345,15 +370,18 @@ export const EnhancedLeadTracking: React.FC<EnhancedLeadTrackingProps> = ({
                     key={company.id}
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
+                    <div className="flex-1">                      <div className="flex items-center gap-3 mb-2">
                         <h3 className="font-semibold">{company.name}</h3>
-                        <Badge className={getStatusColor(company.status)}>
-                          {company.status}
-                        </Badge>
-                        <Badge variant="outline" className={getScoreColor(company.score)}>
-                          Score: {company.score}
-                        </Badge>
+                        {company.status && (
+                          <Badge className={getStatusColor(company.status)}>
+                            {company.status}
+                          </Badge>
+                        )}
+                        {company.score && (
+                          <Badge variant="outline" className={getScoreColor(company.score)}>
+                            Score: {company.score}
+                          </Badge>
+                        )}
                         {enrichmentData && (
                           <Badge variant="secondary">
                             Enrichment: {enrichmentData.enrichmentScore.toFixed(1)}
@@ -369,10 +397,9 @@ export const EnhancedLeadTracking: React.FC<EnhancedLeadTrackingProps> = ({
                         <span className="flex items-center gap-1">
                           <Building2 className="h-4 w-4" />
                           {company.industry}
-                        </span>
-                        <span className="flex items-center gap-1">
+                        </span>                        <span className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          Last visit: {format(new Date(company.lastVisit), 'MMM d, yyyy')}
+                          Last visit: {company.lastVisit ? format(new Date(company.lastVisit), 'MMM d, yyyy') : 'Unknown'}
                         </span>
                         <span className="flex items-center gap-1">
                           <Eye className="h-4 w-4" />
@@ -420,7 +447,7 @@ export const EnhancedLeadTracking: React.FC<EnhancedLeadTrackingProps> = ({
                           <DialogHeader>
                             <DialogTitle>{company.name} - Detailed View</DialogTitle>
                           </DialogHeader>
-                          <CompanyDetailView company={company} enrichmentData={enrichmentData} />
+                          <CompanyDetailView company={company} enrichmentData={enrichmentData as any} />
                         </DialogContent>
                       </Dialog>
                     </div>
@@ -457,21 +484,19 @@ const CompanyDetailView: React.FC<{
             </div>
             <div>
               <span className="font-medium">Company Size:</span> {company.size}
-            </div>
-            <div>
-              <span className="font-medium">Location:</span> {company.location.city}, {company.location.country}
+            </div>            <div>
+              <span className="font-medium">Location:</span> {company.location?.city}, {company.location?.country}
             </div>
             <div>
               <span className="font-medium">Total Visits:</span> {company.totalVisits}
             </div>
             <div>
               <span className="font-medium">Lead Score:</span> {company.score}
+            </div>            <div>
+              <span className="font-medium">E-post:</span> {company.email || '—'}
             </div>
             <div>
-              <span className="font-medium">E-post:</span> {company.contactInfo?.email || '—'}
-            </div>
-            <div>
-              <span className="font-medium">Telefon:</span> {company.contactInfo?.phone || '—'}
+              <span className="font-medium">Telefon:</span> {company.phone || '—'}
             </div>
           </CardContent>
         </Card>
@@ -544,13 +569,12 @@ const CompanyDetailView: React.FC<{
         <CardHeader>
           <CardTitle>Tags</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {company.tags.map((tag, index) => (
+        <CardContent>          <div className="flex flex-wrap gap-2">
+            {company.tags?.map((tag, index) => (
               <Badge key={index} variant="outline">
                 {tag}
               </Badge>
-            ))}
+            )) || <span className="text-muted-foreground">No tags</span>}
           </div>
         </CardContent>
       </Card>

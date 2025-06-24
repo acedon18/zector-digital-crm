@@ -51,6 +51,10 @@
       "dest": "/api/test-connections.js"
     },
     {
+      "src": "/api/visitors",
+      "dest": "/api/visitors.js"
+    },
+    {
       "handle": "filesystem"
     },
     {
