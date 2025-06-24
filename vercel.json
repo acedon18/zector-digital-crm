@@ -47,6 +47,10 @@
       "dest": "/api/debug-uri.js"
     },
     {
+      "src": "/api/test-connections",
+      "dest": "/api/test-connections.js"
+    },
+    {
       "handle": "filesystem"
     },
     {
