@@ -43,6 +43,10 @@
       "dest": "/api/hello.js"
     },
     {
+      "src": "/api/debug-uri",
+      "dest": "/api/debug-uri.js"
+    },
+    {
       "handle": "filesystem"
     },
     {
