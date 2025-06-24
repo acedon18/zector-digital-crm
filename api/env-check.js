@@ -38,18 +38,12 @@ export default async function handler(req, res) {
     let mongoStatus = 'NOT TESTED';
     if (process.env.MONGO_URI || process.env.MONGODB_URI) {
       try {        const { MongoClient } = await import('mongodb');
-        const uri = process.env.MONGO_URI || process.env.MONGODB_URI;
-        const client = new MongoClient(uri, {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
+        const uri = process.env.MONGO_URI || process.env.MONGODB_URI;        const client = new MongoClient(uri, {
+          maxPoolSize: 10,
           serverSelectionTimeoutMS: 5000,
           socketTimeoutMS: 45000,
-          maxPoolSize: 10,
-          retryWrites: true,
-          w: 'majority',
-          ssl: true,
-          sslValidate: false,
-          authSource: 'admin'
+          connectTimeoutMS: 10000,
+          maxIdleTimeMS: 30000
         });
         
         await client.connect();
