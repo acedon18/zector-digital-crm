@@ -20,7 +20,8 @@ type FilterIndustry = 'all' | string;
 type SortOption = 'lastVisit' | 'score' | 'totalVisits';
 
 export const LiveVisitors = () => {
-  // Cache-busting fix for undefined substring error - 2025-06-25
+  // CRITICAL SUBSTRING FIX DEPLOYED - 2025-06-25 17:18:00 - COMPREHENSIVE SAFETY
+  console.log('🛡️ LiveVisitors: Comprehensive substring safety loaded');
   const { t } = useTranslation();
   const [recentVisitors, setRecentVisitors] = useState<Company[]>([]);
   const [filteredVisitors, setFilteredVisitors] = useState<Company[]>([]);
@@ -35,9 +36,13 @@ export const LiveVisitors = () => {
   
   // Industry list for filtering
   const [industries, setIndustries] = useState<string[]>([]);
-
-  // Helper function to safely get avatar initials
+  // Helper function to safely get avatar initials with enhanced null safety
   const getAvatarInitials = (company: Company): string => {
+    // Safety check for company object
+    if (!company || typeof company !== 'object') {
+      return 'UN';
+    }
+    
     const name = company?.name;
     const domain = company?.domain;
     
@@ -49,14 +54,15 @@ export const LiveVisitors = () => {
     }
     return 'UN';
   };
-
   const loadRecentVisitors = async () => {
     try {
       console.log('Loading recent visitors from API...');
       const visitors = await leadsApi.getRecentVisitors(15); // Increased limit for more filter options
       console.log('Received visitors:', visitors);
-        // Convert lastVisit string to Date object if needed
-      const processedVisitors = visitors.map((visitor: any) => ({
+        // Filter out invalid visitors and convert lastVisit string to Date object if needed
+      const processedVisitors = (visitors || [])
+        .filter((visitor: any) => visitor && typeof visitor === 'object' && (visitor.id || visitor.name || visitor.domain))
+        .map((visitor: any) => ({
         ...visitor,
         lastVisit: visitor.lastVisit instanceof Date ? 
                   visitor.lastVisit : 
@@ -173,9 +179,14 @@ export const LiveVisitors = () => {
 
   useEffect(() => {
     loadRecentVisitors();
-    
-    // Subscribe to live updates
+      // Subscribe to live updates
     const unsubscribe = subscribeToLiveUpdates((updatedCompany) => {
+      // Safety check for updatedCompany
+      if (!updatedCompany || typeof updatedCompany !== 'object') {
+        console.warn('Invalid company data received in live update:', updatedCompany);
+        return;
+      }
+      
       // Ensure lastVisit is a Date object
       const processedCompany = {
         ...updatedCompany,
@@ -185,11 +196,11 @@ export const LiveVisitors = () => {
       };
       
       setRecentVisitors(prev => {
-        const filtered = prev.filter(c => c.id !== processedCompany.id);
+        const filtered = prev.filter(c => c && c.id !== processedCompany.id);
         const updated = [processedCompany, ...filtered].slice(0, 8);
         
-        // Extract unique industries for filters
-        const uniqueIndustries = [...new Set(updated.map(c => c.industry))].filter(Boolean);
+        // Extract unique industries for filters with safety checks
+        const uniqueIndustries = [...new Set(updated.filter(c => c && c.industry).map(c => c.industry))].filter(Boolean);
         setIndustries(uniqueIndustries);
         
         return updated;
@@ -435,10 +446,11 @@ export const LiveVisitors = () => {
               : t('liveVisitors.recentVisitors')}
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3 max-h-64 overflow-y-auto">
-            {filteredVisitors.length > 0 ? filteredVisitors.map((company) => (
-              <div key={`${company.id}-${company.lastVisit?.getTime() || Date.now()}`} className="flex flex-col p-2 rounded-lg hover:bg-muted/50">
+        <CardContent>          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {filteredVisitors?.length > 0 ? filteredVisitors
+              .filter(company => company && typeof company === 'object' && (company.id || company.name || company.domain))
+              .map((company) => (
+              <div key={`${company.id || 'unknown'}-${company.lastVisit?.getTime() || Date.now()}-${Math.random()}`} className="flex flex-col p-2 rounded-lg hover:bg-muted/50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="relative">                      <Avatar className="h-8 w-8">
@@ -446,8 +458,8 @@ export const LiveVisitors = () => {
                           {getAvatarInitials(company)}
                         </AvatarFallback>
                       </Avatar>
-                      <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${getStatusColor(company.status || 'cold')}`}></div>
-                    </div>                    <div className="min-w-0 flex-1">                      <div className="font-medium text-sm truncate">{company?.name || company?.domain || 'Unknown'}</div>
+                      <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${getStatusColor(company?.status || 'cold')}`}></div>
+                    </div><div className="min-w-0 flex-1">                      <div className="font-medium text-sm truncate">{company?.name || company?.domain || 'Unknown'}</div>
                       <div className="text-xs text-muted-foreground">{company?.industry || 'Unknown'}</div>
                     </div>
                   </div>
