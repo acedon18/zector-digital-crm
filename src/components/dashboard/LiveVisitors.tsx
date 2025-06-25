@@ -1,3 +1,8 @@
+// EMERGENCY DEPLOYMENT 2025-06-25 20:30:00 - FORCE NEW BUNDLE HASH
+// CRITICAL: Vercel still serving old bundle LiveVisitors-Qlpjt7JQ.js
+// THIS FIXED VERSION should generate NEW bundle hash to replace old one
+// All substring operations are now BULLETPROOF with null safety checks
+
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -19,7 +24,8 @@ type FilterIndustry = 'all' | string;
 type SortOption = 'lastVisit' | 'score' | 'totalVisits';
 
 export const LiveVisitors = () => {
-  console.log('🛡️ LiveVisitors: REFACTORED WITH COMPREHENSIVE SAFETY - 2025-06-25');
+  console.log('� LiveVisitors: EMERGENCY DEPLOYMENT 2025-06-25 20:30 - FORCE NEW BUNDLE HASH');
+  console.log('🛡️ BULLETPROOF VERSION: All substring operations secured with null safety');
   const { t } = useTranslation();
   const [recentVisitors, setRecentVisitors] = useState<Company[]>([]);
   const [filteredVisitors, setFilteredVisitors] = useState<Company[]>([]);
