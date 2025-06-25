@@ -1,8 +1,7 @@
-import React from 'react';
 import { useCustomerSettings } from '@/contexts/CustomerContext';
 import { useTranslation } from 'react-i18next';
 
-export const DashboardFooter: React.FC = () => {
+export const DashboardFooter = () => {
   const { branding, isAgencyMode } = useCustomerSettings();
   const { t } = useTranslation();
 
