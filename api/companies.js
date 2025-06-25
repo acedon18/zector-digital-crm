@@ -36,19 +36,23 @@ export default async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Tenant-ID');
   
   // Handle preflight OPTIONS request
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
-  }
-    try {
+  }  try {
     const { db } = await connectToDatabase();
     
-    // Get companies directly from companies collection
+    // Get tenantId from header or query parameter
+    const tenantId = req.headers['x-tenant-id'] || req.query.tenantId || 'default-tenant';
+    
+    // Get companies filtered by tenant
     const companiesCollection = db.collection('companies');
+    const query = { tenantId: tenantId };
+    
     const companiesData = await companiesCollection
-      .find({})
+      .find(query)
       .sort({ lastVisit: -1 })
       .limit(100)
       .toArray();
@@ -68,16 +72,18 @@ export default async function handler(req, res) {
       tags: company.tags || [],
       phone: company.phone || '',
       email: company.email || '',
-      website: company.website || `https://${company.domain}`
+      website: company.website || `https://${company.domain}`,
+      tenantId: company.tenantId
     }));
     
     // If we have real data, return it
     if (companies.length > 0) {
-      console.log(`Returning ${companies.length} real companies from MongoDB`);
+      console.log(`Returning ${companies.length} real companies for tenant ${tenantId} from MongoDB`);
       return res.status(200).json({
         success: true,
         companies: companies,
         total: companies.length,
+        tenantId: tenantId,
         timestamp: new Date().toISOString(),
         source: 'real_data',
         note: `Found ${companies.length} companies in database`

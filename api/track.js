@@ -31,11 +31,28 @@ async function connectToDatabase() {
   return { client, db };
 }
 
+// Helper function to get tenant by domain
+async function getTenantByDomain(db, domain) {
+  if (!domain) return null;
+  
+  const tenantsCollection = db.collection('tenants');
+  const tenant = await tenantsCollection.findOne({
+    $or: [
+      { domain: domain },
+      { 'settings.trackingDomains': domain },
+      { subdomain: domain.split('.')[0] }
+    ],
+    isActive: true
+  });
+  
+  return tenant;
+}
+
 export default async function handler(req, res) {
   // Enable CORS first
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, X-Tenant-ID');
   res.setHeader('Access-Control-Max-Age', '86400'); // Cache preflight for 24 hours
   
   // Handle preflight OPTIONS request
@@ -113,20 +130,48 @@ async function storeTrackingData(trackingData) {
       referrer,
       userAgent,
       customerId,
-      domain
+      domain,
+      tenantId: providedTenantId
     } = trackingData;
+
+    // Get tenant information based on domain or provided tenantId
+    let tenant = null;
+    let tenantId = providedTenantId;
+
+    if (tenantId) {
+      // Use provided tenant ID
+      const tenantsCollection = db.collection('tenants');
+      tenant = await tenantsCollection.findOne({ 
+        tenantId: tenantId, 
+        isActive: true 
+      });
+    } else if (domain) {
+      // Try to find tenant by domain
+      tenant = await getTenantByDomain(db, domain);
+      tenantId = tenant?.tenantId;
+    }
+
+    // If no tenant found, use a default tenant or create one
+    if (!tenant && domain) {
+      console.log(`No tenant found for domain: ${domain}, using default tenant`);
+      tenantId = 'default-tenant'; // Fallback for existing data
+    }
 
     // Generate session ID based on user agent + IP + date
     const sessionId = generateSessionId(userAgent, timestamp);
     
     // First, check if we have an existing visit for this session
     const visitsCollection = db.collection('visits');
-    let visit = await visitsCollection.findOne({ sessionId });
+    let visit = await visitsCollection.findOne({ 
+      sessionId,
+      tenantId // Filter by tenant
+    });
     
     if (!visit) {
-      // Create new visit
+      // Create new visit with tenant information
       visit = {
         sessionId,
+        tenantId, // Add tenant ID to visit
         customerId,
         domain,
         userAgent,
@@ -134,12 +179,12 @@ async function storeTrackingData(trackingData) {
         referrer,
         pages: [],
         events: [],
-        gdprCompliant: trackingData.anonymizeIp || true,
+        gdprCompliant: trackingData.anonymizeIp || tenant?.settings?.gdpr?.enabled || true,
         createdAt: new Date()
       };
       
       await visitsCollection.insertOne(visit);
-      console.log('Created new visit:', sessionId);
+      console.log('Created new visit:', sessionId, 'for tenant:', tenantId);
     }
     
     // Add the event to the visit
@@ -152,7 +197,7 @@ async function storeTrackingData(trackingData) {
     
     // Update the visit with the new event
     const updateResult = await visitsCollection.updateOne(
-      { sessionId },
+      { sessionId, tenantId }, // Filter by both session and tenant
       {
         $push: { events: eventRecord },
         $set: { 
@@ -160,11 +205,10 @@ async function storeTrackingData(trackingData) {
         }
       }
     );
-    
-    // If it's a page view, also add to pages array
+      // If it's a page view, also add to pages array
     if (event === 'page_view') {
       await visitsCollection.updateOne(
-        { sessionId },
+        { sessionId, tenantId }, // Filter by both session and tenant
         {
           $push: {
             pages: {
@@ -177,15 +221,15 @@ async function storeTrackingData(trackingData) {
       );
     }
     
-    // Also store in a raw events collection for backup
-    const eventsCollection = db.collection('events');
+    // Also store in a raw events collection for backup    const eventsCollection = db.collection('events');
     await eventsCollection.insertOne({
       ...trackingData,
+      tenantId, // Add tenant ID to raw events
       sessionId,
-      storedAt: new Date()
+      processedAt: new Date()
     });
     
-    console.log('Stored tracking event:', event, 'for session:', sessionId);
+    console.log('Stored tracking event:', event, 'for session:', sessionId, 'tenant:', tenantId);
     
   } catch (error) {
     console.error('Error storing tracking data:', error);

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import TranslatedErrorBoundary from '@/components/ErrorBoundary';
 import { CustomerProvider } from '@/contexts/CustomerContext';
+import { TenantProvider } from '@/contexts/TenantContext';
 import { BrandingProvider } from '@/components/layout/BrandingProvider';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -36,17 +37,18 @@ const App = () => (
   <TranslatedErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <CustomerProvider>
-          <BrandingProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter
-                future={{
-                  v7_startTransition: true,
-                  v7_relativeSplatPath: true
-                }}
-              >
+        <TenantProvider>
+          <CustomerProvider>
+            <BrandingProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter
+                  future={{
+                    v7_startTransition: true,
+                    v7_relativeSplatPath: true
+                  }}
+                >
                 <Suspense fallback={<LoadingSpinner size="lg" text="Loading..." />}>
                   <Routes>
                     <Route path="/" element={<Index />} />
@@ -72,9 +74,10 @@ const App = () => (
             </TooltipProvider>
           </BrandingProvider>
         </CustomerProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
-  </TranslatedErrorBoundary>
+      </TenantProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
+</TranslatedErrorBoundary>
 );
 
 // export default withTranslation()(App); // Wrap App with withTranslation

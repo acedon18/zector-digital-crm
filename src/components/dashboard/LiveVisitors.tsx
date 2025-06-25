@@ -72,30 +72,37 @@ export const LiveVisitors = () => {
     const industryFiltered = industryFilter === 'all' 
       ? statusFiltered 
       : statusFiltered.filter(company => company.industry === industryFilter);
-    
-    // Search term filtering
+      // Search term filtering
     const searchFiltered = !searchTerm
       ? industryFiltered
       : industryFiltered.filter(company => {
           const term = searchTerm.toLowerCase();
-          return company.name.toLowerCase().includes(term) ||
-            company.domain.toLowerCase().includes(term) ||
-            (company.email && company.email.toLowerCase().includes(term)) ||
-            (company.website && company.website.toLowerCase().includes(term));
+          const companyName = company.name || '';
+          const companyDomain = company.domain || '';
+          const companyEmail = company.email || '';
+          const companyWebsite = company.website || '';
+          
+          return companyName.toLowerCase().includes(term) ||
+            companyDomain.toLowerCase().includes(term) ||
+            companyEmail.toLowerCase().includes(term) ||
+            companyWebsite.toLowerCase().includes(term);
         });
-    
-    // Sort results
+      // Sort results
     const sortedResults = [...searchFiltered];
     switch (sortBy) {
       case 'score':
-        sortedResults.sort((a, b) => b.score - a.score);
+        sortedResults.sort((a, b) => (b.score || 0) - (a.score || 0));
         break;
       case 'totalVisits':
-        sortedResults.sort((a, b) => b.totalVisits - a.totalVisits);
+        sortedResults.sort((a, b) => (b.totalVisits || 0) - (a.totalVisits || 0));
         break;
       case 'lastVisit':
       default:
-        sortedResults.sort((a, b) => b.lastVisit.getTime() - a.lastVisit.getTime());
+        sortedResults.sort((a, b) => {
+          const aTime = a.lastVisit ? a.lastVisit.getTime() : 0;
+          const bTime = b.lastVisit ? b.lastVisit.getTime() : 0;
+          return bTime - aTime;
+        });
     }
     
     // Update filtered state
@@ -125,18 +132,21 @@ export const LiveVisitors = () => {
         setFilteredVisitors(filteredCompanies);
         return;
       }
-      
-      // If no filters applied, just sort the recent visitors
+        // If no filters applied, just sort the recent visitors
       const sorted = [...recentVisitors];
       switch (sortBy) {
         case 'score':
-          sorted.sort((a, b) => b.score - a.score);
+          sorted.sort((a, b) => (b.score || 0) - (a.score || 0));
           break;
         case 'totalVisits':
-          sorted.sort((a, b) => b.totalVisits - a.totalVisits);
+          sorted.sort((a, b) => (b.totalVisits || 0) - (a.totalVisits || 0));
           break;
         default:
-          sorted.sort((a, b) => b.lastVisit.getTime() - a.lastVisit.getTime());
+          sorted.sort((a, b) => {
+            const aTime = a.lastVisit ? a.lastVisit.getTime() : 0;
+            const bTime = b.lastVisit ? b.lastVisit.getTime() : 0;
+            return bTime - aTime;
+          });
       }
       
       setFilteredVisitors(sorted);
@@ -414,26 +424,24 @@ export const LiveVisitors = () => {
         <CardContent>
           <div className="space-y-3 max-h-64 overflow-y-auto">
             {filteredVisitors.length > 0 ? filteredVisitors.map((company) => (
-              <div key={`${company.id}-${company.lastVisit.getTime()}`} className="flex flex-col p-2 rounded-lg hover:bg-muted/50">
+              <div key={`${company.id}-${company.lastVisit?.getTime() || Date.now()}`} className="flex flex-col p-2 rounded-lg hover:bg-muted/50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="text-xs">
-                          {company.name.substring(0, 2).toUpperCase()}
+                      <Avatar className="h-8 w-8">                        <AvatarFallback className="text-xs">
+                          {(company.name || company.domain || 'UN').substring(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${getStatusColor(company.status)}`}></div>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="font-medium text-sm truncate">{company.name}</div>
-                      <div className="text-xs text-muted-foreground">{company.industry}</div>
+                      <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${getStatusColor(company.status || 'cold')}`}></div>
+                    </div>                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-sm truncate">{company.name || company.domain || 'Unknown'}</div>
+                      <div className="text-xs text-muted-foreground">{company.industry || 'Unknown'}</div>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Clock className="h-3 w-3" />
-                      {format(company.lastVisit, 'HH:mm')}
+                      {company.lastVisit ? format(company.lastVisit, 'HH:mm') : 'Unknown'}
                     </div>
                     <Badge variant="outline" className="text-xs mt-1">
                       {company.totalVisits} {t('liveVisitors.visits')}

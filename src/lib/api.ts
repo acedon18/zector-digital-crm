@@ -1,4 +1,4 @@
-// New modular API system - replaces the old 493-line api.ts file
+// Multi-tenant API system with tenant context awareness
 // Export everything from the new modular API structure
 export * from './api/index';
 
@@ -7,8 +7,29 @@ export { leadsApi } from './api/index';
 export { companiesApi } from './api/companies';
 export { trackingApi } from './api/tracking';
 
-// Enhanced live updates with platform sync awareness
-export const subscribeToLiveUpdates = (callback: (company: any) => void) => {
+// Multi-tenant API utilities
+export const createTenantAwareRequest = (tenantId: string) => {
+  return async (url: string, options: RequestInit = {}) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Tenant-ID': tenantId,
+      ...options.headers
+    };
+
+    const authToken = localStorage.getItem('authToken');
+    if (authToken) {
+      (headers as any)['Authorization'] = `Bearer ${authToken}`;
+    }
+
+    return fetch(url, {
+      ...options,
+      headers
+    });
+  };
+};
+
+// Enhanced live updates with platform sync awareness and tenant filtering
+export const subscribeToLiveUpdates = (callback: (company: any) => void, tenantId?: string) => {
   const fallbackCompanies = [
     {
       id: '1',
@@ -24,7 +45,8 @@ export const subscribeToLiveUpdates = (callback: (company: any) => void) => {
       tags: ['Website Visitor', 'High Engagement'],
       phone: '+46 8 123 456',
       email: 'contact@example.com',
-      website: 'https://example.com'
+      website: 'https://example.com',
+      tenantId: tenantId || 'default-tenant'
     }
   ];
 
