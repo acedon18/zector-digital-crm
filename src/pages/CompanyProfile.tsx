@@ -183,9 +183,8 @@ export default function CompanyProfile() {
           <CardContent className="pt-6">
             <div className="flex items-start justify-between">
               <div className="flex items-start space-x-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarFallback className="text-lg font-bold bg-primary/10">
-                    {company.name.substring(0, 2).toUpperCase()}
+                <Avatar className="h-16 w-16">                  <AvatarFallback className="text-lg font-bold bg-primary/10">
+                    {(company?.name || 'UN').substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div>

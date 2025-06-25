@@ -274,9 +274,8 @@ const AdminPanel = () => {
                 <TableRow key={customer.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback>
-                          {customer.name.substring(0, 2).toUpperCase()}
+                      <Avatar className="h-8 w-8">                        <AvatarFallback>
+                          {(customer?.name || 'UN').substring(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div>
