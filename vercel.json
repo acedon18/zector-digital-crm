@@ -1,5 +1,5 @@
 {
-  "_comment": "Emergency rebuild 2025-06-25T16:22:43Z - LiveVisitors substring error",
+  "_comment": "CRITICAL DEPLOYMENT 2025-06-25T20:30:00Z - FORCE NEW BUILD - OLD BUNDLE STILL SERVED",
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
