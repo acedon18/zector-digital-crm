@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -6,7 +6,6 @@ import { Users, Eye, TrendingUp, Clock, Filter, X } from 'lucide-react';
 import { Company } from '@/types/leads';
 import { leadsApi, subscribeToLiveUpdates } from '@/lib/api';
 import { format } from 'date-fns';
-import { sv } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -20,8 +19,7 @@ type FilterIndustry = 'all' | string;
 type SortOption = 'lastVisit' | 'score' | 'totalVisits';
 
 export const LiveVisitors = () => {
-  // CRITICAL SUBSTRING FIX DEPLOYED - 2025-06-25 17:18:00 - COMPREHENSIVE SAFETY
-  console.log('🛡️ LiveVisitors: Comprehensive substring safety loaded');
+  console.log('🛡️ LiveVisitors: REFACTORED WITH COMPREHENSIVE SAFETY - 2025-06-25');
   const { t } = useTranslation();
   const [recentVisitors, setRecentVisitors] = useState<Company[]>([]);
   const [filteredVisitors, setFilteredVisitors] = useState<Company[]>([]);
@@ -36,102 +34,164 @@ export const LiveVisitors = () => {
   
   // Industry list for filtering
   const [industries, setIndustries] = useState<string[]>([]);
-  // Helper function to safely get avatar initials with enhanced null safety
-  const getAvatarInitials = (company: Company): string => {
-    // Safety check for company object
+
+  // BULLETPROOF avatar initials function - COMPLETELY SAFE
+  const getAvatarInitials = useCallback((company: any): string => {
     if (!company || typeof company !== 'object') {
       return 'UN';
     }
     
-    const name = company?.name;
-    const domain = company?.domain;
+    const name = company.name;
+    const domain = company.domain;
     
-    if (name && typeof name === 'string' && name.trim().length > 0) {
-      return name.substring(0, 2).toUpperCase();
+    // Try name first
+    if (name && typeof name === 'string' && name.length > 0) {
+      try {
+        const cleaned = name.trim();
+        if (cleaned.length >= 1) {
+          return cleaned.length >= 2 ? cleaned.substring(0, 2).toUpperCase() : cleaned.charAt(0).toUpperCase() + 'N';
+        }
+      } catch (error) {
+        console.warn('Error processing company name for initials:', error);
+      }
     }
-    if (domain && typeof domain === 'string' && domain.trim().length > 0) {
-      return domain.substring(0, 2).toUpperCase();
+    
+    // Try domain as fallback
+    if (domain && typeof domain === 'string' && domain.length > 0) {
+      try {
+        const cleaned = domain.trim();
+        if (cleaned.length >= 1) {
+          return cleaned.length >= 2 ? cleaned.substring(0, 2).toUpperCase() : cleaned.charAt(0).toUpperCase() + 'D';
+        }
+      } catch (error) {
+        console.warn('Error processing company domain for initials:', error);
+      }
     }
+    
     return 'UN';
-  };
-  const loadRecentVisitors = async () => {
+  }, []);
+
+  // BULLETPROOF string operations
+  const safeStringOp = useCallback((str: any, operation: 'toLowerCase' | 'includes' | 'substring', param?: any): any => {
+    if (!str || typeof str !== 'string') {
+      return operation === 'includes' ? false : '';
+    }
+    
+    try {
+      switch (operation) {
+        case 'toLowerCase':
+          return str.toLowerCase();
+        case 'includes':
+          return str.toLowerCase().includes((param || '').toLowerCase());
+        case 'substring':
+          return str.substring(param || 0, param + 2 || 2);
+        default:
+          return str;
+      }
+    } catch (error) {
+      console.warn(`Safe string operation ${operation} failed:`, error);
+      return operation === 'includes' ? false : '';
+    }
+  }, []);
+
+  const loadRecentVisitors = useCallback(async () => {
     try {
       console.log('Loading recent visitors from API...');
-      const visitors = await leadsApi.getRecentVisitors(15); // Increased limit for more filter options
+      const visitors = await leadsApi.getRecentVisitors(15);
       console.log('Received visitors:', visitors);
-        // Filter out invalid visitors and convert lastVisit string to Date object if needed
-      const processedVisitors = (visitors || [])
-        .filter((visitor: any) => visitor && typeof visitor === 'object' && (visitor.id || visitor.name || visitor.domain))
+      
+      // BULLETPROOF filtering and processing
+      const processedVisitors = (Array.isArray(visitors) ? visitors : [])
+        .filter((visitor: any) => {
+          return visitor && 
+                 typeof visitor === 'object' && 
+                 (visitor.id || visitor.name || visitor.domain) &&
+                 visitor !== null;
+        })
         .map((visitor: any) => ({
-        ...visitor,
-        lastVisit: visitor.lastVisit instanceof Date ? 
-                  visitor.lastVisit : 
-                  new Date(visitor.lastVisit)
-      }));
+          ...visitor,
+          lastVisit: visitor.lastVisit instanceof Date ? 
+                    visitor.lastVisit : 
+                    (visitor.lastVisit ? new Date(visitor.lastVisit) : new Date())
+        }));
       
       setRecentVisitors(processedVisitors);
       
-      // Extract unique industries for filters
-      const uniqueIndustries = [...new Set(processedVisitors.map((c: any) => c.industry))].filter(Boolean) as string[];
+      // Extract unique industries for filters with safety checks
+      const uniqueIndustries = [...new Set(
+        processedVisitors
+          .filter(c => c && c.industry && typeof c.industry === 'string')
+          .map(c => c.industry)
+      )].filter(Boolean) as string[];
+      
       setIndustries(uniqueIndustries);
     } catch (error) {
       console.error('Could not fetch recent visitors:', error);
+      setRecentVisitors([]);
     }
-  };
+  }, []);
 
-  // Apply filters locally if API fails
+  // Apply filters locally with BULLETPROOF safety
   const applyLocalFiltering = useCallback(() => {
-    const filtered = [...recentVisitors];
+    if (!Array.isArray(recentVisitors)) {
+      setFilteredVisitors([]);
+      return;
+    }
+
+    let filtered = [...recentVisitors];
     
     // Filter by status
-    const statusFiltered = statusFilter === 'all' 
-      ? filtered 
-      : filtered.filter(company => company.status === statusFilter);
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(company => company && company.status === statusFilter);
+    }
     
     // Filter by industry
-    const industryFiltered = industryFilter === 'all' 
-      ? statusFiltered 
-      : statusFiltered.filter(company => company.industry === industryFilter);
-      // Search term filtering
-    const searchFiltered = !searchTerm
-      ? industryFiltered
-      : industryFiltered.filter(company => {
-          const term = searchTerm.toLowerCase();
-          const companyName = company.name || '';
-          const companyDomain = company.domain || '';
-          const companyEmail = company.email || '';
-          const companyWebsite = company.website || '';
-          
-          return companyName.toLowerCase().includes(term) ||
-            companyDomain.toLowerCase().includes(term) ||
-            companyEmail.toLowerCase().includes(term) ||
-            companyWebsite.toLowerCase().includes(term);
-        });
-      // Sort results
-    const sortedResults = [...searchFiltered];
+    if (industryFilter !== 'all') {
+      filtered = filtered.filter(company => company && company.industry === industryFilter);
+    }
+    
+    // Search term filtering with BULLETPROOF string operations
+    if (searchTerm && searchTerm.trim()) {
+      const term = searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(company => {
+        if (!company) return false;
+        
+        const companyName = safeStringOp(company.name, 'toLowerCase');
+        const companyDomain = safeStringOp(company.domain, 'toLowerCase');
+        const companyEmail = safeStringOp(company.email, 'toLowerCase');
+        const companyWebsite = safeStringOp(company.website, 'toLowerCase');
+        
+        return safeStringOp(companyName, 'includes', term) ||
+               safeStringOp(companyDomain, 'includes', term) ||
+               safeStringOp(companyEmail, 'includes', term) ||
+               safeStringOp(companyWebsite, 'includes', term);
+      });
+    }
+    
+    // Sort results with safety checks
+    const sortedResults = [...filtered];
     switch (sortBy) {
       case 'score':
-        sortedResults.sort((a, b) => (b.score || 0) - (a.score || 0));
+        sortedResults.sort((a, b) => (b?.score || 0) - (a?.score || 0));
         break;
       case 'totalVisits':
-        sortedResults.sort((a, b) => (b.totalVisits || 0) - (a.totalVisits || 0));
+        sortedResults.sort((a, b) => (b?.totalVisits || 0) - (a?.totalVisits || 0));
         break;
       case 'lastVisit':
       default:
         sortedResults.sort((a, b) => {
-          const aTime = a.lastVisit ? a.lastVisit.getTime() : 0;
-          const bTime = b.lastVisit ? b.lastVisit.getTime() : 0;
+          const aTime = a?.lastVisit?.getTime ? a.lastVisit.getTime() : 0;
+          const bTime = b?.lastVisit?.getTime ? b.lastVisit.getTime() : 0;
           return bTime - aTime;
         });
     }
     
-    // Update filtered state
     setFilteredVisitors(sortedResults);
-  }, [recentVisitors, statusFilter, industryFilter, searchTerm, sortBy]);
+  }, [recentVisitors, statusFilter, industryFilter, searchTerm, sortBy, safeStringOp]);
 
-  // Function to fetch filtered companies from the API
+  // Function to fetch filtered companies from the API with fallback
   const fetchFilteredCompanies = useCallback(async () => {
-    if (!recentVisitors.length) {
+    if (!Array.isArray(recentVisitors) || recentVisitors.length === 0) {
       setFilteredVisitors([]);
       return;
     }
@@ -149,27 +209,23 @@ export const LiveVisitors = () => {
         
         console.log('Fetching filtered companies with filters:', filters);
         const filteredCompanies = await leadsApi.getFilteredCompanies(filters);
-        setFilteredVisitors(filteredCompanies);
+        
+        // BULLETPROOF processing of API response
+        const processedCompanies = (Array.isArray(filteredCompanies) ? filteredCompanies : [])
+          .filter(company => company && typeof company === 'object')
+          .map(company => ({
+            ...company,
+            lastVisit: company.lastVisit instanceof Date ? 
+                      company.lastVisit : 
+                      (company.lastVisit ? new Date(company.lastVisit) : new Date())
+          }));
+          
+        setFilteredVisitors(processedCompanies);
         return;
       }
-        // If no filters applied, just sort the recent visitors
-      const sorted = [...recentVisitors];
-      switch (sortBy) {
-        case 'score':
-          sorted.sort((a, b) => (b.score || 0) - (a.score || 0));
-          break;
-        case 'totalVisits':
-          sorted.sort((a, b) => (b.totalVisits || 0) - (a.totalVisits || 0));
-          break;
-        default:
-          sorted.sort((a, b) => {
-            const aTime = a.lastVisit ? a.lastVisit.getTime() : 0;
-            const bTime = b.lastVisit ? b.lastVisit.getTime() : 0;
-            return bTime - aTime;
-          });
-      }
       
-      setFilteredVisitors(sorted);
+      // If no filters applied, just sort the recent visitors
+      applyLocalFiltering();
     } catch (error) {
       console.error('Error fetching filtered companies:', error);
       // Fall back to client-side filtering
@@ -179,9 +235,10 @@ export const LiveVisitors = () => {
 
   useEffect(() => {
     loadRecentVisitors();
-      // Subscribe to live updates
+    
+    // Subscribe to live updates
     const unsubscribe = subscribeToLiveUpdates((updatedCompany) => {
-      // Safety check for updatedCompany
+      // BULLETPROOF safety check for updatedCompany
       if (!updatedCompany || typeof updatedCompany !== 'object') {
         console.warn('Invalid company data received in live update:', updatedCompany);
         return;
@@ -192,17 +249,23 @@ export const LiveVisitors = () => {
         ...updatedCompany,
         lastVisit: updatedCompany.lastVisit instanceof Date ? 
                   updatedCompany.lastVisit : 
-                  new Date(updatedCompany.lastVisit)
+                  (updatedCompany.lastVisit ? new Date(updatedCompany.lastVisit) : new Date())
       };
       
       setRecentVisitors(prev => {
+        if (!Array.isArray(prev)) return [processedCompany];
+        
         const filtered = prev.filter(c => c && c.id !== processedCompany.id);
         const updated = [processedCompany, ...filtered].slice(0, 8);
         
         // Extract unique industries for filters with safety checks
-        const uniqueIndustries = [...new Set(updated.filter(c => c && c.industry).map(c => c.industry))].filter(Boolean);
-        setIndustries(uniqueIndustries);
+        const uniqueIndustries = [...new Set(
+          updated
+            .filter(c => c && c.industry && typeof c.industry === 'string')
+            .map(c => c.industry)
+        )].filter(Boolean);
         
+        setIndustries(uniqueIndustries);
         return updated;
       });
       
@@ -214,38 +277,38 @@ export const LiveVisitors = () => {
     setOnlineCount(Math.floor(Math.random() * 20) + 5);
 
     return unsubscribe;
-  }, []);
+  }, [loadRecentVisitors]);
   
   // Apply filters whenever the filter state or original data changes
   useEffect(() => {
     fetchFilteredCompanies();
   }, [fetchFilteredCompanies]);
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = useCallback((status: string) => {
     switch (status) {
       case 'hot': return 'bg-red-500';
       case 'warm': return 'bg-yellow-500';
       case 'cold': return 'bg-blue-500';
       default: return 'bg-gray-500';
     }
-  };
+  }, []);
 
-  const getStatusName = (status: string) => {
+  const getStatusName = useCallback((status: string) => {
     switch (status) {
       case 'hot': return t('status.hot');
       case 'warm': return t('status.warm');
       case 'cold': return t('status.cold');
-      default: return status;
+      default: return status || 'Unknown';
     }
-  };
+  }, [t]);
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setStatusFilter('all');
     setIndustryFilter('all');
     setSearchTerm('');
     setSortBy('lastVisit');
     setShowFilters(false);
-  };
+  }, []);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -446,67 +509,97 @@ export const LiveVisitors = () => {
               : t('liveVisitors.recentVisitors')}
           </CardTitle>
         </CardHeader>
-        <CardContent>          <div className="space-y-3 max-h-64 overflow-y-auto">
-            {filteredVisitors?.length > 0 ? filteredVisitors
-              .filter(company => company && typeof company === 'object' && (company.id || company.name || company.domain))
-              .map((company) => (
-              <div key={`${company.id || 'unknown'}-${company.lastVisit?.getTime() || Date.now()}-${Math.random()}`} className="flex flex-col p-2 rounded-lg hover:bg-muted/50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="relative">                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="text-xs">
-                          {getAvatarInitials(company)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${getStatusColor(company?.status || 'cold')}`}></div>
-                    </div><div className="min-w-0 flex-1">                      <div className="font-medium text-sm truncate">{company?.name || company?.domain || 'Unknown'}</div>
-                      <div className="text-xs text-muted-foreground">{company?.industry || 'Unknown'}</div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      {company.lastVisit ? format(company.lastVisit, 'HH:mm') : 'Unknown'}
-                    </div>
-                    <Badge variant="outline" className="text-xs mt-1">
-                      {company.totalVisits} {t('liveVisitors.visits')}
-                    </Badge>
-                  </div>
-                </div>
-                
-                {/* Contact Information */}
-                <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-muted-foreground">                  {company.website && (
-                    <div className="flex items-center gap-1 overflow-hidden">
-                      <span className="font-medium">🌐</span>
-                      <a href={company.website && company.website.startsWith('http') ? company.website : `https://${company.website || ''}`} 
-                         target="_blank" 
-                         rel="noopener noreferrer"
-                         className="truncate hover:text-primary">
-                        {company.website}
-                      </a>
-                    </div>
-                  )}
-                  {company.email && (
-                    <div className="flex items-center gap-1 overflow-hidden">
-                      <span className="font-medium">📧</span>
-                      <a href={`mailto:${company.email}`} 
-                         className="truncate hover:text-primary">
-                        {company.email}
-                      </a>
-                    </div>
-                  )}
-                  {company.phone && (
-                    <div className="flex items-center gap-1 overflow-hidden">
-                      <span className="font-medium">📞</span>
-                      <a href={`tel:${company.phone}`} 
-                         className="truncate hover:text-primary">
-                        {company.phone}
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )) : (
+        <CardContent>
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {Array.isArray(filteredVisitors) && filteredVisitors.length > 0 ? (
+              filteredVisitors
+                .filter(company => {
+                  // BULLETPROOF filtering - eliminate ALL invalid entries
+                  return company && 
+                         typeof company === 'object' && 
+                         (company.id || company.name || company.domain) &&
+                         company !== null;
+                })
+                .map((company, index) => {
+                  // BULLETPROOF safety check inside map
+                  if (!company) return null;
+                  
+                  try {
+                    return (
+                      <div key={`visitor-${company.id || index}-${Date.now()}-${Math.random()}`} className="flex flex-col p-2 rounded-lg hover:bg-muted/50">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <Avatar className="h-8 w-8">
+                                <AvatarFallback className="text-xs">
+                                  {getAvatarInitials(company)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${getStatusColor(company?.status || 'cold')}`}></div>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="font-medium text-sm truncate">
+                                {company?.name || company?.domain || 'Unknown Company'}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {company?.industry || 'Unknown Industry'}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Clock className="h-3 w-3" />
+                              {company?.lastVisit ? format(company.lastVisit, 'HH:mm') : 'Unknown'}
+                            </div>
+                            <Badge variant="outline" className="text-xs mt-1">
+                              {company?.totalVisits || 0} {t('liveVisitors.visits')}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        {/* Contact Information */}
+                        <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-muted-foreground">
+                          {company?.website && (
+                            <div className="flex items-center gap-1 overflow-hidden">
+                              <span className="font-medium">🌐</span>
+                              <a 
+                                href={company.website && typeof company.website === 'string' && company.website.startsWith('http') 
+                                  ? company.website 
+                                  : `https://${company.website || ''}`} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="truncate hover:text-primary"
+                              >
+                                {company.website}
+                              </a>
+                            </div>
+                          )}
+                          {company?.email && (
+                            <div className="flex items-center gap-1 overflow-hidden">
+                              <span className="font-medium">📧</span>
+                              <a href={`mailto:${company.email}`} className="truncate hover:text-primary">
+                                {company.email}
+                              </a>
+                            </div>
+                          )}
+                          {company?.phone && (
+                            <div className="flex items-center gap-1 overflow-hidden">
+                              <span className="font-medium">📞</span>
+                              <a href={`tel:${company.phone}`} className="truncate hover:text-primary">
+                                {company.phone}
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  } catch (error) {
+                    console.error('Error rendering company:', error, company);
+                    return null;
+                  }
+                })
+                .filter(Boolean) // Remove any null entries
+            ) : (
               <div className="text-center text-muted-foreground py-8">
                 <Filter className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p>{t('liveVisitors.noFilterResults')}</p>
@@ -522,7 +615,7 @@ export const LiveVisitors = () => {
             )}
           </div>
           
-          {recentVisitors.length === 0 && (
+          {(!Array.isArray(recentVisitors) || recentVisitors.length === 0) && (
             <div className="text-center text-muted-foreground py-8">
               <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p>{t('liveVisitors.noVisitors')}</p>
@@ -533,3 +626,5 @@ export const LiveVisitors = () => {
     </div>
   );
 };
+
+export default LiveVisitors;

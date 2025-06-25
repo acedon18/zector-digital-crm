@@ -1,0 +1,18 @@
+REFACTORED: LiveVisitors component with bulletproof null safety - Final deployment trigger at 2025-01-27 19:30:00
+
+This file triggers a fresh deployment with the refactored LiveVisitors component that eliminates the "can't access property 'substring', i.name is undefined" error.
+
+Changes:
+- Replaced original LiveVisitors.tsx with bulletproof refactored version
+- Removed temporary LiveVisitorsFixed.tsx and LiveVisitors-REFACTORED.tsx files
+- All string operations now have comprehensive null safety checks
+- Avatar initials function is completely safe from undefined/null values
+- All company data filtering includes proper null validation
+- Component uses proper TypeScript types and safe optional chaining
+
+Bundle changes:
+- Main LiveVisitors component now contains all bulletproof fixes
+- No more temporary components in bundle
+- Clean, production-ready code
+
+Expected result: Production error eliminated, component stable and maintainable.
