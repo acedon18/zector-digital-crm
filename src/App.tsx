@@ -1,3 +1,4 @@
+// EMERGENCY REBUILD: 2025-06-25 16:22:43 - LiveVisitors substring fix deployment
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import TranslatedErrorBoundary from '@/components/ErrorBoundary';
