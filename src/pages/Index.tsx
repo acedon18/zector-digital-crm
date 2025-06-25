@@ -10,7 +10,7 @@ const SalesPipeline = lazy(() => import('@/components/dashboard/SalesPipeline').
 const ActivityFeed = lazy(() => import('@/components/dashboard/ActivityFeed').then(m => ({ default: m.ActivityFeed })));
 const TopAgents = lazy(() => import('@/components/dashboard/TopAgents').then(m => ({ default: m.TopAgents })));
 const RevenueChart = lazy(() => import('@/components/dashboard/RevenueChart').then(m => ({ default: m.RevenueChart })));
-const LiveVisitors = lazy(() => import('@/components/dashboard/LiveVisitors').then(m => ({ default: m.LiveVisitors })));
+const LiveVisitors = lazy(() => import('@/components/dashboard/LiveVisitorsFixed').then(m => ({ default: m.LiveVisitorsFixed })));
 const LeadScoring = lazy(() => import('@/components/dashboard/LeadScoring').then(m => ({ default: m.LeadScoring })));
 const AILeadQualification = lazy(() => import('@/components/dashboard/AILeadQualification').then(m => ({ default: m.AILeadQualification })));
 const EmailAlertSystem = lazy(() => import('@/components/dashboard/EmailAlertSystem').then(m => ({ default: m.EmailAlertSystem })));
