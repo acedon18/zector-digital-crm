@@ -35,14 +35,27 @@ export const LiveVisitors = () => {
   // Industry list for filtering
   const [industries, setIndustries] = useState<string[]>([]);
 
+  // Helper function to safely get avatar initials
+  const getAvatarInitials = (company: Company): string => {
+    const name = company?.name;
+    const domain = company?.domain;
+    
+    if (name && typeof name === 'string' && name.trim().length > 0) {
+      return name.substring(0, 2).toUpperCase();
+    }
+    if (domain && typeof domain === 'string' && domain.trim().length > 0) {
+      return domain.substring(0, 2).toUpperCase();
+    }
+    return 'UN';
+  };
+
   const loadRecentVisitors = async () => {
     try {
       console.log('Loading recent visitors from API...');
       const visitors = await leadsApi.getRecentVisitors(15); // Increased limit for more filter options
       console.log('Received visitors:', visitors);
-      
-      // Convert lastVisit string to Date object if needed
-      const processedVisitors = visitors.map(visitor => ({
+        // Convert lastVisit string to Date object if needed
+      const processedVisitors = visitors.map((visitor: any) => ({
         ...visitor,
         lastVisit: visitor.lastVisit instanceof Date ? 
                   visitor.lastVisit : 
@@ -52,7 +65,7 @@ export const LiveVisitors = () => {
       setRecentVisitors(processedVisitors);
       
       // Extract unique industries for filters
-      const uniqueIndustries = [...new Set(processedVisitors.map(c => c.industry))].filter(Boolean);
+      const uniqueIndustries = [...new Set(processedVisitors.map((c: any) => c.industry))].filter(Boolean) as string[];
       setIndustries(uniqueIndustries);
     } catch (error) {
       console.error('Could not fetch recent visitors:', error);
@@ -427,15 +440,14 @@ export const LiveVisitors = () => {
               <div key={`${company.id}-${company.lastVisit?.getTime() || Date.now()}`} className="flex flex-col p-2 rounded-lg hover:bg-muted/50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <Avatar className="h-8 w-8">                        <AvatarFallback className="text-xs">
-                          {(company.name || company.domain || 'UN').substring(0, 2).toUpperCase()}
+                    <div className="relative">                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="text-xs">
+                          {getAvatarInitials(company)}
                         </AvatarFallback>
                       </Avatar>
                       <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${getStatusColor(company.status || 'cold')}`}></div>
-                    </div>                    <div className="min-w-0 flex-1">
-                      <div className="font-medium text-sm truncate">{company.name || company.domain || 'Unknown'}</div>
-                      <div className="text-xs text-muted-foreground">{company.industry || 'Unknown'}</div>
+                    </div>                    <div className="min-w-0 flex-1">                      <div className="font-medium text-sm truncate">{company?.name || company?.domain || 'Unknown'}</div>
+                      <div className="text-xs text-muted-foreground">{company?.industry || 'Unknown'}</div>
                     </div>
                   </div>
                   <div className="text-right">
