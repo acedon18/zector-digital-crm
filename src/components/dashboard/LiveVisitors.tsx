@@ -20,6 +20,7 @@ type FilterIndustry = 'all' | string;
 type SortOption = 'lastVisit' | 'score' | 'totalVisits';
 
 export const LiveVisitors = () => {
+  // Cache-busting fix for undefined substring error - 2025-06-25
   const { t } = useTranslation();
   const [recentVisitors, setRecentVisitors] = useState<Company[]>([]);
   const [filteredVisitors, setFilteredVisitors] = useState<Company[]>([]);
