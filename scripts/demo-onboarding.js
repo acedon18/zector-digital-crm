@@ -7,7 +7,7 @@ import { MongoClient } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 
-const MONGO_URI = 'mongodb+srv://zector:b9yyEkABZVUjJucO@zectorleadcrm.27lnmjh.mongodb.net/zector_crm?retryWrites=true&w=majority';
+const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/zector_crm';
 
 console.log('🎯 DEMO: Admin Client Onboarding Process');
 console.log('=' * 50);

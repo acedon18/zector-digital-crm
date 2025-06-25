@@ -463,11 +463,10 @@ export const LiveVisitors = () => {
                 </div>
                 
                 {/* Contact Information */}
-                <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-muted-foreground">
-                  {company.website && (
+                <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-muted-foreground">                  {company.website && (
                     <div className="flex items-center gap-1 overflow-hidden">
                       <span className="font-medium">🌐</span>
-                      <a href={company.website.startsWith('http') ? company.website : `https://${company.website}`} 
+                      <a href={company.website && company.website.startsWith('http') ? company.website : `https://${company.website || ''}`} 
                          target="_blank" 
                          rel="noopener noreferrer"
                          className="truncate hover:text-primary">
