@@ -1,8 +1,12 @@
+// EMERGENCY DEPLOYMENT: 2025-06-25 20:40:00 - FORCE NEW BUILD
+// CRITICAL: Must deploy LiveVisitors-CEKabh3E.js to replace Qlpjt7JQ.js
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import './i18n'; // Initialize i18n
 import App from './App'; // Import the main App component
 
+console.log('🚨 EMERGENCY DEPLOYMENT: LiveVisitors substring error fix');
+console.log('🛡️ New bundle CEKabh3E.js should replace Qlpjt7JQ.js');
 console.log('🚀 Starting Zector Digital Leads CRM...');
 
 const rootElement = document.getElementById("root");
