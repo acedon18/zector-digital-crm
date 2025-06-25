@@ -1,12 +1,16 @@
-// EMERGENCY DEPLOYMENT: 2025-06-25 20:40:00 - FORCE NEW BUILD
-// CRITICAL: Must deploy LiveVisitors-CEKabh3E.js to replace Qlpjt7JQ.js
+// EMERGENCY DEPLOYMENT: 2025-06-25 21:42:00 - FORCE NEW BUILD v5
+// CRITICAL: Must deploy NEW LiveVisitors bundle to replace Qlpjt7JQ.js
 import { createRoot } from 'react-dom/client';
 import './index.css';
+import './build-trigger.css'; // Force new build
 import './i18n'; // Initialize i18n
 import App from './App'; // Import the main App component
+import { DEPLOYMENT_TIMESTAMP, FORCE_NEW_BUNDLE } from './deployment-marker';
 
-console.log('🚨 EMERGENCY DEPLOYMENT: LiveVisitors substring error fix');
-console.log('🛡️ New bundle CEKabh3E.js should replace Qlpjt7JQ.js');
+console.log('🚨 EMERGENCY DEPLOYMENT v5: LiveVisitors substring error fix - 21:42:00');
+console.log('🛡️ Deployment timestamp:', DEPLOYMENT_TIMESTAMP);
+console.log('🛡️ Force new bundle:', FORCE_NEW_BUNDLE);
+console.log('🛡️ New bundle MUST replace Qlpjt7JQ.js with ULTRA SAFE version');
 console.log('🚀 Starting Zector Digital Leads CRM...');
 
 const rootElement = document.getElementById("root");

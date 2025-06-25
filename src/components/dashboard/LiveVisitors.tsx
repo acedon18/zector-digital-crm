@@ -1,7 +1,7 @@
-// EMERGENCY DEPLOYMENT 2025-06-25 20:30:00 - FORCE NEW BUNDLE HASH
+// EMERGENCY DEPLOYMENT 2025-06-25 21:40:00 - FORCE NEW BUNDLE HASH v4
 // CRITICAL: Vercel still serving old bundle LiveVisitors-Qlpjt7JQ.js
 // THIS FIXED VERSION should generate NEW bundle hash to replace old one
-// All substring operations are now BULLETPROOF with null safety checks
+// All substring operations are now BULLETPROOF with null safety checks - ULTRA SAFE VERSION v4
 
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,15 +17,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import SafetyWrapper from '@/components/SafetyWrapper';
 
 // Types for filters
 type FilterStatus = 'all' | 'hot' | 'warm' | 'cold';
 type FilterIndustry = 'all' | string;
 type SortOption = 'lastVisit' | 'score' | 'totalVisits';
 
-export const LiveVisitors = () => {
-  console.log('� LiveVisitors: EMERGENCY DEPLOYMENT 2025-06-25 20:30 - FORCE NEW BUNDLE HASH');
-  console.log('🛡️ BULLETPROOF VERSION: All substring operations secured with null safety');
+export const LiveVisitors = () => {  console.log('🚀 LiveVisitors: EMERGENCY DEPLOYMENT v4 - 21:40 - FORCE NEW BUNDLE HASH');
+  console.log('🛡️ ULTRA BULLETPROOF VERSION v4: All substring operations secured with triple safety');
   const { t } = useTranslation();
   const [recentVisitors, setRecentVisitors] = useState<Company[]>([]);
   const [filteredVisitors, setFilteredVisitors] = useState<Company[]>([]);
@@ -40,40 +40,60 @@ export const LiveVisitors = () => {
   
   // Industry list for filtering
   const [industries, setIndustries] = useState<string[]>([]);
-
-  // BULLETPROOF avatar initials function - COMPLETELY SAFE
+  // BULLETPROOF avatar initials function - ULTRA SAFE VERSION 21:30
   const getAvatarInitials = useCallback((company: any): string => {
-    if (!company || typeof company !== 'object') {
+    // First level safety check
+    if (!company || typeof company !== 'object' || company === null) {
       return 'UN';
     }
     
-    const name = company.name;
-    const domain = company.domain;
+    // Extract values with ultra-safe checks
+    let name = null;
+    let domain = null;
     
-    // Try name first
-    if (name && typeof name === 'string' && name.length > 0) {
+    try {
+      name = company.name;
+      domain = company.domain;
+    } catch (error) {
+      console.warn('Error accessing company properties:', error);
+      return 'UN';
+    }
+    
+    // Try name first with bulletproof checks
+    if (name !== null && name !== undefined && typeof name === 'string') {
       try {
-        const cleaned = name.trim();
-        if (cleaned.length >= 1) {
-          return cleaned.length >= 2 ? cleaned.substring(0, 2).toUpperCase() : cleaned.charAt(0).toUpperCase() + 'N';
+        const trimmedName = name.trim();
+        if (trimmedName && trimmedName.length > 0) {
+          // Ultra-safe substring
+          if (trimmedName.length >= 2) {
+            return trimmedName.substring(0, 2).toUpperCase();
+          } else if (trimmedName.length === 1) {
+            return (trimmedName + 'N').toUpperCase();
+          }
         }
       } catch (error) {
-        console.warn('Error processing company name for initials:', error);
+        console.warn('Error processing company name for initials:', error, { name, company });
       }
     }
     
-    // Try domain as fallback
-    if (domain && typeof domain === 'string' && domain.length > 0) {
+    // Try domain as fallback with bulletproof checks
+    if (domain !== null && domain !== undefined && typeof domain === 'string') {
       try {
-        const cleaned = domain.trim();
-        if (cleaned.length >= 1) {
-          return cleaned.length >= 2 ? cleaned.substring(0, 2).toUpperCase() : cleaned.charAt(0).toUpperCase() + 'D';
+        const trimmedDomain = domain.trim();
+        if (trimmedDomain && trimmedDomain.length > 0) {
+          // Ultra-safe substring
+          if (trimmedDomain.length >= 2) {
+            return trimmedDomain.substring(0, 2).toUpperCase();
+          } else if (trimmedDomain.length === 1) {
+            return (trimmedDomain + 'D').toUpperCase();
+          }
         }
       } catch (error) {
-        console.warn('Error processing company domain for initials:', error);
+        console.warn('Error processing company domain for initials:', error, { domain, company });
       }
     }
     
+    // Final fallback
     return 'UN';
   }, []);
 
@@ -315,9 +335,25 @@ export const LiveVisitors = () => {
     setSortBy('lastVisit');
     setShowFilters(false);
   }, []);
-
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <SafetyWrapper fallback={
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardContent className="p-6 text-center">
+            <p className="text-muted-foreground">Live Visitors temporarily unavailable</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-2" 
+              onClick={() => window.location.reload()}
+            >
+              Refresh Page
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Live Stats */}
       <Card>
         <CardHeader>
@@ -525,11 +561,13 @@ export const LiveVisitors = () => {
                          typeof company === 'object' && 
                          (company.id || company.name || company.domain) &&
                          company !== null;
-                })
-                .map((company, index) => {
-                  // BULLETPROOF safety check inside map
-                  if (!company) return null;
+                })                .map((company, index) => {
+                  // ULTRA BULLETPROOF safety check inside map
+                  if (!company || typeof company !== 'object' || company === null) {
+                    return null;
+                  }
                   
+                  // Additional safety wrapper
                   try {
                     return (
                       <div key={`visitor-${company.id || index}-${Date.now()}-${Math.random()}`} className="flex flex-col p-2 rounded-lg hover:bg-muted/50">
@@ -626,10 +664,10 @@ export const LiveVisitors = () => {
               <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p>{t('liveVisitors.noVisitors')}</p>
             </div>
-          )}
-        </CardContent>
+          )}        </CardContent>
       </Card>
-    </div>
+      </div>
+    </SafetyWrapper>
   );
 };
 

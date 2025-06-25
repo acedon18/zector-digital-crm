@@ -1,3 +1,4 @@
+// EMERGENCY BUILD CONFIG - 2025-06-26 01:00:00 - FORCE NEW BUNDLE - FIXED DUPLICATE KEYS
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';

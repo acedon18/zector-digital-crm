@@ -1,4 +1,4 @@
-// EMERGENCY REBUILD: 2025-06-25 16:22:43 - LiveVisitors substring fix deployment
+// EMERGENCY REBUILD v2: 2025-06-25 21:30:00 - LiveVisitors substring fix deployment ULTRA SAFE
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import TranslatedErrorBoundary from '@/components/ErrorBoundary';

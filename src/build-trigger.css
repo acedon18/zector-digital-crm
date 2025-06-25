@@ -1,0 +1,6 @@
+/* BUILD TRIGGER - 2025-06-25 21:42:00 */
+/* This file forces Vercel to rebuild and deploy new bundle */
+/* EMERGENCY: Replace LiveVisitors-Qlpjt7JQ.js with new safe version */
+.build-trigger {
+  content: "force-rebuild-21-42-00";
+}

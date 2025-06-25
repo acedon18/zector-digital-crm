@@ -66,7 +66,6 @@ export const leadsApi = {
       return [];
     }
   },
-
   // Get enrichment summary
   getEnrichmentSummary: async () => {
     try {
@@ -79,14 +78,21 @@ export const leadsApi = {
       return {
         totalCompanies: companies.length,
         enrichedCompanies: enrichedCount,
-        averageScore: Math.round(averageScore * 10) / 10
+        averageScore: Math.round(averageScore * 10) / 10,
+        platformCoverage: {
+          'linkedin': Math.floor(Math.random() * companies.length),
+          'apollo': Math.floor(Math.random() * companies.length),
+          'hunter': Math.floor(Math.random() * companies.length),
+          'hubspot': Math.floor(Math.random() * companies.length)
+        }
       };
     } catch (error) {
       console.error('Failed to get enrichment summary:', error);
       return {
         totalCompanies: 0,
         enrichedCompanies: 0,
-        averageScore: 0
+        averageScore: 0,
+        platformCoverage: {}
       };
     }
   },
@@ -170,20 +176,43 @@ export const leadsApi = {
       return [];
     }
   },
-
   // Platform sync functions
   getPlatformSyncStatus: async () => {
     await new Promise(resolve => setTimeout(resolve, 300));
     return {
-      platforms: [
-        { name: 'LinkedIn', status: 'connected', lastSync: new Date().toISOString(), nextSync: new Date(Date.now() + 3600000).toISOString() },
-        { name: 'Apollo', status: 'connected', lastSync: new Date().toISOString(), nextSync: new Date(Date.now() + 3600000).toISOString() },
-        { name: 'Hunter', status: 'disconnected', lastSync: null, nextSync: null },
-        { name: 'HubSpot', status: 'connected', lastSync: new Date().toISOString(), nextSync: new Date(Date.now() + 7200000).toISOString() }
-      ],
-      overallStatus: 'active',
-      totalSynced: 156,
-      lastUpdate: new Date().toISOString()
+      totalPlatforms: 4,
+      activeSyncs: 2,
+      lastSyncTime: new Date(),
+      nextSyncTime: new Date(Date.now() + 3600000),
+      recentJobs: [
+        {
+          success: true,
+          jobId: 'job-001',
+          platformType: 'linkedin' as any,
+          startTime: new Date(Date.now() - 300000),
+          endTime: new Date(Date.now() - 240000),
+          recordsProcessed: 45,
+          status: 'completed'
+        },
+        {
+          success: true,
+          jobId: 'job-002',
+          platformType: 'apollo' as any,
+          startTime: new Date(Date.now() - 600000),
+          endTime: new Date(Date.now() - 480000),
+          recordsProcessed: 32,
+          status: 'completed'
+        },
+        {
+          success: false,
+          jobId: 'job-003',
+          platformType: 'hunter' as any,
+          startTime: new Date(Date.now() - 900000),
+          endTime: new Date(Date.now() - 870000),
+          recordsProcessed: 0,
+          status: 'failed'
+        }
+      ]
     };
   },
 

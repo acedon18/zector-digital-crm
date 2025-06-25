@@ -1,3 +1,6 @@
+// SAFETY FIXED: 2025-06-25 21:45:00 - LeadFilters component improvements v2
+// Added proper accessibility, error handling, and safety checks
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -27,6 +30,61 @@ export const LeadFiltersComponent: React.FC<LeadFiltersProps> = ({
   hasActiveFilters,
   loading = false
 }) => {
+  // Safety checks for props
+  if (!filters || typeof filters !== 'object') {
+    console.warn('LeadFiltersComponent: Invalid filters prop received');
+    return null;
+  }
+
+  if (typeof onFilterChange !== 'function') {
+    console.warn('LeadFiltersComponent: onFilterChange is not a function');
+    return null;
+  }
+
+  // Safe event handlers with error boundaries
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const value = e.target?.value || '';
+      onFilterChange('searchTerm', value);
+    } catch (error) {
+      console.error('Error in search filter:', error);
+    }
+  };
+
+  const handleStatusChange = (value: string) => {
+    try {
+      onFilterChange('status', value || 'all');
+    } catch (error) {
+      console.error('Error in status filter:', error);
+    }
+  };
+
+  const handleIndustryChange = (value: string) => {
+    try {
+      onFilterChange('industry', value || 'all');
+    } catch (error) {
+      console.error('Error in industry filter:', error);
+    }
+  };
+
+  const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const value = Number(e.target?.value) || 0;
+      onFilterChange('scoreFilter', value);
+    } catch (error) {
+      console.error('Error in score filter:', error);
+    }
+  };
+
+  const handleReset = () => {
+    try {
+      if (typeof onReset === 'function') {
+        onReset();
+      }
+    } catch (error) {
+      console.error('Error resetting filters:', error);
+    }
+  };
   return (
     <Card>
       <CardHeader>
@@ -41,31 +99,28 @@ export const LeadFiltersComponent: React.FC<LeadFiltersProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {/* Search */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">          {/* Search */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Search</label>
+            <label htmlFor="search-input" className="text-sm font-medium">Search</label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />              <Input
+                id="search-input"
                 placeholder="Search companies..."
-                value={filters.searchTerm}
-                onChange={(e) => onFilterChange('searchTerm', e.target.value)}
+                value={filters.searchTerm || ''}
+                onChange={handleSearchChange}
                 className="pl-10"
                 disabled={loading}
+                aria-label="Search companies by name or domain"
               />
             </div>
-          </div>
-
-          {/* Status Filter */}
+          </div>          {/* Status Filter */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Status</label>
-            <Select
-              value={filters.status}
-              onValueChange={(value) => onFilterChange('status', value)}
+            <label htmlFor="status-select" className="text-sm font-medium">Status</label>            <Select
+              value={filters.status || 'all'}
+              onValueChange={handleStatusChange}
               disabled={loading}
             >
-              <SelectTrigger>
+              <SelectTrigger id="status-select" aria-label="Filter by lead status">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
@@ -76,17 +131,14 @@ export const LeadFiltersComponent: React.FC<LeadFiltersProps> = ({
                 <SelectItem value="new">New</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          {/* Industry Filter */}
+          </div>          {/* Industry Filter */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Industry</label>
-            <Select
-              value={filters.industry}
-              onValueChange={(value) => onFilterChange('industry', value)}
+            <label htmlFor="industry-select" className="text-sm font-medium">Industry</label>            <Select
+              value={filters.industry || 'all'}
+              onValueChange={handleIndustryChange}
               disabled={loading}
             >
-              <SelectTrigger>
+              <SelectTrigger id="industry-select" aria-label="Filter by industry">
                 <SelectValue placeholder="All Industries" />
               </SelectTrigger>
               <SelectContent>
@@ -100,27 +152,28 @@ export const LeadFiltersComponent: React.FC<LeadFiltersProps> = ({
                 <SelectItem value="Design">Design</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          {/* Score Filter */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Min Score: {filters.scoreFilter}</label>
+          </div>          {/* Score Filter */}          <div className="space-y-2">
+            <label htmlFor="score-filter" className="text-sm font-medium">
+              Min Score: {filters.scoreFilter || 0}
+            </label>
             <div className="flex items-center gap-2">
               <input
+                id="score-filter"
                 type="range"
                 min="0"
                 max="100"
                 step="10"
-                value={filters.scoreFilter}
-                onChange={(e) => onFilterChange('scoreFilter', Number(e.target.value))}
+                value={filters.scoreFilter || 0}
+                onChange={handleScoreChange}
                 className="flex-1"
                 disabled={loading}
-              />
-              {hasActiveFilters && (
+                aria-label={`Minimum score filter: ${filters.scoreFilter || 0}`}
+                title={`Set minimum score to ${filters.scoreFilter || 0}`}
+              />              {hasActiveFilters && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={onReset}
+                  onClick={handleReset}
                   disabled={loading}
                   className="shrink-0"
                 >

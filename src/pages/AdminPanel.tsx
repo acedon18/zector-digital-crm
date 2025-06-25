@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,7 +53,7 @@ const mockCustomers: Customer[] = [
 const AdminPanel = () => {
   const { t } = useTranslation();
   const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  // Removed unused selectedCustomer state
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isScriptDialogOpen, setIsScriptDialogOpen] = useState(false);  const [newCustomer, setNewCustomer] = useState<{
     name: string;
@@ -273,9 +273,15 @@ const AdminPanel = () => {
               </TableHeader>              <TableBody>{customers.map((customer) => (
                 <TableRow key={customer.id}>
                   <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8">                        <AvatarFallback>
-                          {(customer?.name || 'UN').substring(0, 2).toUpperCase()}
+                    <div className="flex items-center gap-3">                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>
+                          {(() => {
+                            const name = customer?.name;
+                            if (name && typeof name === 'string' && name.trim().length > 0) {
+                              return name.trim().substring(0, 2).toUpperCase();
+                            }
+                            return 'UN';
+                          })()}
                         </AvatarFallback>
                       </Avatar>
                       <div>
@@ -313,11 +319,10 @@ const AdminPanel = () => {
                           onClick={() => toggleCustomerStatus(customer.id)}
                         >
                           {customer.isActive ? t('buttons.deactivate') : t('buttons.activate')}
-                        </Button>
-                        <Button
+                        </Button>                        <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setSelectedCustomer(customer)}
+                          onClick={() => console.log('Settings for customer:', customer.name)}
                         >
                           <Settings className="h-3 w-3" />
                         </Button>

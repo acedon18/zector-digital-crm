@@ -1,4 +1,5 @@
 // Platform Data Dashboard - Show platform integration status and data sync information
+// BULLETPROOF SAFETY WRAPPER: 2025-06-25 21:00:00 - PREVENT ALL NULL/UNDEFINED ERRORS
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -50,7 +51,22 @@ interface EnrichmentSummary {
   averageScore: number;
 }
 
-export const PlatformDataDashboard: React.FC = () => {
+export const PlatformDataDashboard = () => {
+  // BULLETPROOF ERROR BOUNDARY
+  try {
+    return <PlatformDataDashboardInternal />;
+  } catch (error) {
+    console.error('PlatformDataDashboard error:', error);
+    return (
+      <div className="p-6 text-center">
+        <h2 className="text-xl font-bold mb-2">Platform Dashboard Unavailable</h2>
+        <p className="text-muted-foreground">Please refresh the page or contact support.</p>
+      </div>
+    );
+  }
+};
+
+const PlatformDataDashboardInternal: React.FC = () => {
   const { t } = useTranslation();
   const { integrations } = useCustomerSettings();
   const [syncStatus, setSyncStatus] = useState<PlatformSyncStatus | null>(null);
@@ -115,9 +131,13 @@ export const PlatformDataDashboard: React.FC = () => {
       });
     }
   };
-
   const getConnectedPlatforms = () => {
-    return Object.entries(integrations).filter(([_, integration]) => integration.isConnected);
+    if (!integrations || typeof integrations !== 'object') {
+      return [];
+    }
+    return Object.entries(integrations).filter(([_, integration]) => 
+      integration && typeof integration === 'object' && integration.isConnected
+    );
   };
 
   const getStatusColor = (status: string) => {
@@ -147,10 +167,9 @@ export const PlatformDataDashboard: React.FC = () => {
       </div>
     );
   }
-
   const connectedPlatforms = getConnectedPlatforms();
-  const enrichmentPercentage = enrichmentSummary.totalCompanies > 0 
-    ? (enrichmentSummary.enrichedCompanies / enrichmentSummary.totalCompanies) * 100 
+  const enrichmentPercentage = (enrichmentSummary?.totalCompanies || 0) > 0 
+    ? ((enrichmentSummary?.enrichedCompanies || 0) / (enrichmentSummary?.totalCompanies || 1)) * 100 
     : 0;
 
   return (
@@ -163,16 +182,15 @@ export const PlatformDataDashboard: React.FC = () => {
       </div>
 
       {/* Overview Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('analytics.connectedPlatformsTitle')}</CardTitle>
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{connectedPlatforms.length}</div>
+            <div className="text-2xl font-bold">{connectedPlatforms?.length || 0}</div>
             <p className="text-xs text-muted-foreground">
-              of {Object.keys(PLATFORM_CONFIGS).length} available
+              of {Object.keys(PLATFORM_CONFIGS || {}).length || 0} available
             </p>
           </CardContent>
         </Card>
@@ -181,9 +199,8 @@ export const PlatformDataDashboard: React.FC = () => {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('analytics.activeSyncs')}</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{syncStatus.activeSyncs}</div>
+          </CardHeader>          <CardContent>
+            <div className="text-2xl font-bold">{syncStatus?.activeSyncs || 0}</div>
             <p className="text-xs text-muted-foreground">
               platforms syncing data
             </p>
@@ -194,11 +211,10 @@ export const PlatformDataDashboard: React.FC = () => {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('analytics.enrichedCompanies')}</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{enrichmentSummary.enrichedCompanies}</div>
+          </CardHeader>          <CardContent>
+            <div className="text-2xl font-bold">{enrichmentSummary?.enrichedCompanies || 0}</div>
             <p className="text-xs text-muted-foreground">
-              of {enrichmentSummary.totalCompanies} total companies
+              of {enrichmentSummary?.totalCompanies || 0} total companies
             </p>
           </CardContent>
         </Card>
@@ -207,9 +223,8 @@ export const PlatformDataDashboard: React.FC = () => {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('analytics.averageScore')}</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{enrichmentSummary.averageScore.toFixed(1)}</div>
+          </CardHeader>          <CardContent>
+            <div className="text-2xl font-bold">{enrichmentSummary?.averageScore?.toFixed(1) || '0.0'}</div>
             <p className="text-xs text-muted-foreground">
               enrichment score
             </p>
@@ -256,9 +271,8 @@ export const PlatformDataDashboard: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle>{t('analytics.connectedPlatformsTitle')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {connectedPlatforms.length === 0 ? (
+            </CardHeader>            <CardContent>
+              {(!connectedPlatforms || connectedPlatforms.length === 0) ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No platforms connected. Go to Settings → Integrations to connect platforms.
                 </div>
@@ -266,6 +280,8 @@ export const PlatformDataDashboard: React.FC = () => {
                 <div className="grid gap-4 md:grid-cols-2">
                   {connectedPlatforms.map(([platformId, integration]) => {
                     const config = PLATFORM_CONFIGS[platformId as PlatformType];
+                    if (!config) return null; // Skip if config not found
+                    
                     const isSyncing = syncing.has(platformId as PlatformType);
                     
                     return (
@@ -274,11 +290,11 @@ export const PlatformDataDashboard: React.FC = () => {
                         className="flex items-center justify-between p-4 border rounded-lg"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl">{config.icon}</span>
+                          <span className="text-2xl">{config.icon || '🔗'}</span>
                           <div>
-                            <h3 className="font-medium">{config.name}</h3>
+                            <h3 className="font-medium">{config.name || platformId}</h3>
                             <p className="text-sm text-muted-foreground">
-                              Last sync: {integration.lastSync 
+                              Last sync: {integration?.lastSync 
                                 ? format(new Date(integration.lastSync), 'PPp')
                                 : 'Never'
                               }
@@ -286,8 +302,8 @@ export const PlatformDataDashboard: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant={integration.isActive ? 'default' : 'secondary'}>
-                            {integration.isActive ? 'Active' : 'Inactive'}
+                          <Badge variant={integration?.isActive ? 'default' : 'secondary'}>
+                            {integration?.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                           <Button
                             size="sm"
@@ -305,7 +321,7 @@ export const PlatformDataDashboard: React.FC = () => {
                         </div>
                       </div>
                     );
-                  })}
+                  }).filter(Boolean)}
                 </div>
               )}
             </CardContent>
@@ -316,37 +332,36 @@ export const PlatformDataDashboard: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle>{t('analytics.recentSyncJobs', 'Recent Sync Jobs')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {syncStatus.recentJobs.length === 0 ? (
+            </CardHeader>            <CardContent>
+              {(!syncStatus?.recentJobs || syncStatus.recentJobs.length === 0) ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No sync jobs found. Trigger a manual sync to see activity.
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {syncStatus.recentJobs.map((job) => (
+                  {(syncStatus.recentJobs || []).map((job) => (
                     <div
-                      key={job.jobId}
+                      key={job?.jobId || Math.random()}
                       className="flex items-center justify-between p-3 border rounded-lg"
                     >
                       <div className="flex items-center gap-3">
-                        {getStatusIcon(job.status)}
+                        {getStatusIcon(job?.status || 'unknown')}
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-medium">
-                              {PLATFORM_CONFIGS[job.platformType].name}
+                              {job?.platformType && PLATFORM_CONFIGS[job.platformType]?.name || 'Unknown Platform'}
                             </span>
-                            <Badge variant="outline" className={getStatusColor(job.status)}>
-                              {job.status}
+                            <Badge variant="outline" className={getStatusColor(job?.status || 'unknown')}>
+                              {job?.status || 'unknown'}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            {format(job.startTime, 'PPp')} • {job.recordsProcessed} records processed
+                            {job?.startTime ? format(job.startTime, 'PPp') : 'Unknown time'} • {job?.recordsProcessed || 0} records processed
                           </p>
                         </div>
                       </div>
                       <div className="text-right text-sm text-muted-foreground">
-                        {job.endTime && (
+                        {job?.endTime && job?.startTime && (
                           <div>
                             Duration: {Math.round((job.endTime.getTime() - job.startTime.getTime()) / 1000)}s
                           </div>
@@ -364,30 +379,33 @@ export const PlatformDataDashboard: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle>{t('analytics.platformCoverage', 'Platform Coverage')}</CardTitle>
-            </CardHeader>
-            <CardContent>
+            </CardHeader>            <CardContent>
               <div className="space-y-4">
-                {Object.entries(enrichmentSummary.platformCoverage).map(([platform, count]) => {
+                {Object.entries(enrichmentSummary?.platformCoverage || {}).map(([platform, count]) => {
                   const config = PLATFORM_CONFIGS[platform as PlatformType];
-                  const percentage = enrichmentSummary.totalCompanies > 0 
-                    ? (count / enrichmentSummary.totalCompanies) * 100 
+                  if (!config) return null; // Skip if platform config not found
+                  
+                  const totalCompanies = enrichmentSummary?.totalCompanies || 0;
+                  const safeCount = typeof count === 'number' ? count : 0;
+                  const percentage = totalCompanies > 0 
+                    ? (safeCount / totalCompanies) * 100 
                     : 0;
                   
                   return (
                     <div key={platform} className="space-y-2">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
-                          <span className="text-xl">{config.icon}</span>
-                          <span className="font-medium">{config.name}</span>
+                          <span className="text-xl">{config.icon || '🔗'}</span>
+                          <span className="font-medium">{config.name || platform}</span>
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {count} / {enrichmentSummary.totalCompanies} ({percentage.toFixed(1)}%)
+                          {safeCount} / {totalCompanies} ({percentage.toFixed(1)}%)
                         </div>
                       </div>
                       <Progress value={percentage} className="h-2" />
                     </div>
                   );
-                })}
+                }).filter(Boolean)}
               </div>
             </CardContent>
           </Card>

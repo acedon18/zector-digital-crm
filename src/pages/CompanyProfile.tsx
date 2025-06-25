@@ -1,3 +1,5 @@
+// SAFETY FIXED: 2025-06-25 22:00:00 - CompanyProfile component improvements
+// Fixed type safety, null checks, and comprehensive error handling
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -5,10 +7,9 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { 
   ArrowLeft, 
   Building2, 
@@ -36,18 +37,55 @@ export default function CompanyProfile() {
   const [company, setCompany] = useState<Company | null>(null);
   const [visits, setVisits] = useState<Visit[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // SAFETY: Validate required hooks and params
+  if (!t || typeof t !== 'function') {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold mb-4">Translation Error</h2>
+          <p className="text-muted-foreground">Unable to load translations</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!id || typeof id !== 'string') {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold mb-4">Invalid Company ID</h2>
+          <Button onClick={() => navigate('/lead-tracking')}>
+            Back to Leads
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
   useEffect(() => {
     const loadCompanyData = async () => {
-      if (!id) return;
+      if (!id) {
+        setError('No company ID provided');
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true);
+        setError(null);
+        
         const companies = await leadsApi.getCompanies();
-        const foundCompany = companies.find(c => c.id === id);
+        if (!Array.isArray(companies)) {
+          throw new Error('Invalid company data received');
+        }
+        
+        const foundCompany = companies.find(c => c && c.id === id);
         
         if (foundCompany) {
-          setCompany(foundCompany);            // Mock visits data for demonstration
+          setCompany(foundCompany);
+          
+          // Mock visits data for demonstration - SAFE
           const mockVisits: Visit[] = [
             {
               id: '1',
@@ -60,7 +98,7 @@ export default function CompanyProfile() {
                 {
                   id: '1',
                   url: '/products',
-                  title: t('companyProfile.mockData.products'),
+                  title: 'Products Page',
                   timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
                   timeOnPage: 180,
                   scrollDepth: 75,
@@ -81,7 +119,7 @@ export default function CompanyProfile() {
                 {
                   id: '2',
                   url: '/pricing',
-                  title: t('companyProfile.mockData.pricing'),
+                  title: 'Pricing Page',
                   timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
                   timeOnPage: 420,
                   scrollDepth: 90,
@@ -102,7 +140,7 @@ export default function CompanyProfile() {
                 {
                   id: '3',
                   url: '/',
-                  title: t('companyProfile.mockData.home'),
+                  title: 'Home Page',
                   timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000),
                   timeOnPage: 90,
                   scrollDepth: 50,
@@ -114,14 +152,19 @@ export default function CompanyProfile() {
             }
           ];
           setVisits(mockVisits);
+        } else {
+          setError('Company not found');
         }
       } catch (error) {
         console.error('Failed to load company data:', error);
+        setError(error instanceof Error ? error.message : 'Failed to load company data');
       } finally {
         setLoading(false);
       }
-    };    loadCompanyData();
-  }, [id, t]);
+    };
+
+    loadCompanyData();
+  }, [id]);
 
   if (loading) {
     return (
@@ -132,10 +175,24 @@ export default function CompanyProfile() {
       </DashboardLayout>
     );
   }
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold mb-4">Error</h2>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={() => navigate('/lead-tracking')}>
+            {t('companyProfile.backToLeads')}
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (!company) {
     return (
-      <DashboardLayout>        <div className="text-center py-12">
+      <DashboardLayout>
+        <div className="text-center py-12">
           <h2 className="text-2xl font-bold mb-4">{t('companyProfile.companyNotFound')}</h2>
           <Button onClick={() => navigate('/lead-tracking')}>
             {t('companyProfile.backToLeads')}
@@ -181,10 +238,16 @@ export default function CompanyProfile() {
         {/* Company Overview */}
         <Card>
           <CardContent className="pt-6">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start space-x-4">
-                <Avatar className="h-16 w-16">                  <AvatarFallback className="text-lg font-bold bg-primary/10">
-                    {(company?.name || 'UN').substring(0, 2).toUpperCase()}
+            <div className="flex items-start justify-between">              <div className="flex items-start space-x-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarFallback className="text-lg font-bold bg-primary/10">
+                    {(() => {
+                      const name = company?.name;
+                      if (name && typeof name === 'string' && name.trim().length > 0) {
+                        return name.trim().substring(0, 2).toUpperCase();
+                      }
+                      return 'UN';
+                    })()}
                   </AvatarFallback>
                 </Avatar>
                 <div>
@@ -197,23 +260,26 @@ export default function CompanyProfile() {
                     <div className="flex items-center space-x-1">
                       <Building2 className="h-4 w-4" />
                       <span>{company.industry}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <MapPin className="h-4 w-4" />
-                      <span>{company.location.city}, {company.location.country}</span>
                     </div>                    <div className="flex items-center space-x-1">
+                      <MapPin className="h-4 w-4" />
+                      <span>
+                        {company.location?.city && company.location?.country 
+                          ? `${company.location.city}, ${company.location.country}`
+                          : 'Location not available'
+                        }
+                      </span>
+                    </div><div className="flex items-center space-x-1">
                       <Users className="h-4 w-4" />
                       <span>{company.size} {t('common.employees')}</span>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-2 mt-3">
-                    {company.tags.map((tag) => (
+                  </div>                  <div className="flex items-center space-x-2 mt-3">
+                    {company.tags && Array.isArray(company.tags) && company.tags.map((tag) => (
                       <Badge key={tag} variant="secondary">{tag}</Badge>
                     ))}
                   </div>
                 </div>
-              </div>
-              <div className="text-right">                <Badge className={getStatusColor(company.status)}>
+              </div>              <div className="text-right">
+                <Badge className={getStatusColor(company.status || 'cold')}>
                   {company.status === 'hot' ? t('status.hot') : company.status === 'warm' ? t('status.warm') : t('status.cold')}
                 </Badge>
                 <div className="flex items-center space-x-1 mt-2">
@@ -243,9 +309,11 @@ export default function CompanyProfile() {
             <CardContent className="pt-6">
               <div className="flex items-center space-x-2">
                 <Clock className="h-5 w-5 text-green-500" />                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t('companyProfile.lastVisit')}</p>
-                  <p className="text-2xl font-bold">
-                    {format(company.lastVisit, 'dd/MM', { locale: sv })}
+                  <p className="text-sm font-medium text-muted-foreground">{t('companyProfile.lastVisit')}</p>                  <p className="text-2xl font-bold">
+                    {company.lastVisit 
+                      ? format(company.lastVisit, 'dd/MM', { locale: sv })
+                      : 'N/A'
+                    }
                   </p>
                 </div>
               </div>
@@ -374,10 +442,14 @@ export default function CompanyProfile() {
                       <div className="flex items-center space-x-2">
                         <Globe className="h-4 w-4 text-muted-foreground" />
                         <span>{company.domain}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
+                      </div>                      <div className="flex items-center space-x-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span>{company.location.city}, {company.location.country}</span>
+                        <span>
+                          {company.location?.city && company.location?.country 
+                            ? `${company.location.city}, ${company.location.country}`
+                            : 'Location not available'
+                          }
+                        </span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Users className="h-4 w-4 text-muted-foreground" />
