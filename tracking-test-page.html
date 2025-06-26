@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Zector Digital Tracking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+        }
+        .test-button:hover {
+            background: #45a049;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #b8daff;
+        }
+        #log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Test Tracking de Zector Digital</h1>
+        <p>Esta página te ayuda a verificar que el tracking esté funcionando correctamente.</p>
+        
+        <div id="tracking-status" class="status info">
+            🔄 Verificando conexión con el tracking...
+        </div>
+        
+        <h3>Tests Disponibles:</h3>
+        
+        <button class="test-button" onclick="testPageView()">📄 Test Page View</button>
+        <button class="test-button" onclick="testCustomEvent()">🎯 Test Custom Event</button>
+        <button class="test-button" onclick="testFormSubmission()">📝 Test Form Submission</button>
+        <button class="test-button" onclick="testLeadIdentification()">👤 Test Lead Identification</button>
+        <button class="test-button" onclick="checkAPI()">🔌 Check API Connection</button>
+        
+        <h3>Test Contact Form:</h3>
+        <form id="test-form" onsubmit="handleFormSubmit(event)">
+            <input type="email" placeholder="Email de prueba" id="test-email" required>
+            <input type="text" placeholder="Nombre de prueba" id="test-name" required>
+            <br><br>
+            <button type="submit" class="test-button">📤 Enviar Formulario de Prueba</button>
+        </form>
+        
+        <h3>Log de Actividad:</h3>
+        <div id="log"></div>
+    </div>
+
+    <!-- AQUÍ VA EL SCRIPT DE TRACKING -->
+    <script type="text/javascript">
+    (function() {
+      var zld = {
+        customerId: 'zectordigital_main',
+        domain: 'zectordigital.es',
+        scriptId: 'zld_zectordigital_main_' + Date.now(),
+        config: {
+          gdprCompliant: true,
+          anonymizeIp: true,
+          trackScrollDepth: true,
+          trackDownloads: true,
+          trackFormSubmissions: true
+        }
+      };
+
+      // Tracking functions
+      zld.track = function(event, data) {
+        var payload = {
+          event: event,
+          data: data || {},
+          timestamp: new Date().toISOString(),
+          url: window.location.href,
+          referrer: document.referrer,
+          userAgent: navigator.userAgent,
+          customerId: zld.customerId,
+          domain: zld.domain
+        };
+
+        logActivity('📤 Enviando evento: ' + event, 'info');
+
+        if (zld.config.anonymizeIp) {
+          payload.anonymizeIp = true;
+        }
+
+        // Send to tracking endpoint
+        fetch('https://zector-digital-crm-leads.vercel.app/api/track', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        }).then(function(response) {
+          if (response.ok) {
+            logActivity('✅ Evento enviado correctamente: ' + event, 'success');
+          } else {
+            logActivity('❌ Error enviando evento: ' + response.status, 'error');
+          }
+        }).catch(function(error) {
+          logActivity('❌ Error de conexión: ' + error.message, 'error');
+        });
+      };
+
+      // Enhanced lead identification
+      zld.identifyLead = function(leadData) {
+        zld.track('lead_identified', leadData);
+      };
+
+      // Custom event tracking
+      zld.trackCustomEvent = function(eventName, eventData) {
+        zld.track('custom_event', {
+          customEventName: eventName,
+          customEventData: eventData
+        });
+      };
+
+      // Make zld globally available
+      window.ZectorLeadDigital = zld;
+
+      // Auto page view
+      zld.track('page_view', {
+        title: document.title,
+        path: window.location.pathname
+      });
+
+      logActivity('🚀 Zector Digital Lead Tracking inicializado', 'success');
+
+    })();
+    </script>
+
+    <!-- TEST FUNCTIONS -->
+    <script>
+        function logActivity(message, type) {
+            const log = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            const logEntry = `[${time}] ${message}\n`;
+            log.textContent += logEntry;
+            log.scrollTop = log.scrollHeight;
+            
+            console.log(message);
+        }
+
+        function testPageView() {
+            window.ZectorLeadDigital.track('page_view', {
+                title: 'Test Page View',
+                path: '/test-page-view'
+            });
+        }
+
+        function testCustomEvent() {
+            window.ZectorLeadDigital.trackCustomEvent('test_button_click', {
+                buttonName: 'Test Custom Event',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        function testFormSubmission() {
+            window.ZectorLeadDigital.track('form_submission', {
+                formId: 'test-form-simulation',
+                formType: 'contact'
+            });
+        }
+
+        function testLeadIdentification() {
+            window.ZectorLeadDigital.identifyLead({
+                email: 'test@zectordigital.es',
+                name: 'Usuario de Prueba',
+                company: 'Zector Digital',
+                source: 'manual_test'
+            });
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('test-email').value;
+            const name = document.getElementById('test-name').value;
+            
+            // Track form submission
+            window.ZectorLeadDigital.track('form_submission', {
+                formId: 'test-form',
+                formType: 'contact'
+            });
+            
+            // Identify lead
+            window.ZectorLeadDigital.identifyLead({
+                email: email,
+                name: name,
+                source: 'test_form'
+            });
+            
+            logActivity('📝 Formulario procesado para: ' + email, 'success');
+        }
+
+        function checkAPI() {
+            logActivity('🔌 Verificando conexión API...', 'info');
+            
+            fetch('https://zector-digital-crm-leads.vercel.app/api/health')
+                .then(response => response.json())
+                .then(data => {
+                    logActivity('✅ API está funcionando: ' + JSON.stringify(data), 'success');
+                })
+                .catch(error => {
+                    logActivity('❌ Error conectando con API: ' + error.message, 'error');
+                });
+        }
+
+        // Check if tracking is working on load
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (window.ZectorLeadDigital) {
+                    document.getElementById('tracking-status').className = 'status success';
+                    document.getElementById('tracking-status').innerHTML = '✅ Tracking inicializado correctamente';
+                } else {
+                    document.getElementById('tracking-status').className = 'status error';
+                    document.getElementById('tracking-status').innerHTML = '❌ Error: Tracking no se pudo inicializar';
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

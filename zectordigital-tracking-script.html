@@ -1,0 +1,150 @@
+<!-- Zector Digital Lead Tracking Script for zectordigital.es -->
+<script type="text/javascript">
+(function() {
+  var zld = {
+    customerId: 'zectordigital_main',
+    domain: 'zectordigital.es',
+    scriptId: 'zld_zectordigital_main_' + Date.now(),
+    config: {
+      gdprCompliant: true,
+      anonymizeIp: true,
+      trackScrollDepth: true,
+      trackDownloads: true,
+      trackFormSubmissions: true
+    }
+  };
+
+  // Tracking functions
+  zld.track = function(event, data) {
+    var payload = {
+      event: event,
+      data: data || {},
+      timestamp: new Date().toISOString(),
+      url: window.location.href,
+      referrer: document.referrer,
+      userAgent: navigator.userAgent,
+      customerId: zld.customerId,
+      domain: zld.domain
+    };
+
+    if (zld.config.anonymizeIp) {
+      payload.anonymizeIp = true;
+    }
+
+    // Send to tracking endpoint
+    fetch('https://zector-digital-crm-leads.vercel.app/api/track', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    }).then(function(response) {
+      if (!response.ok) {
+        console.warn('Zector tracking response error:', response.status);
+      }
+    }).catch(function(error) {
+      console.warn('Zector tracking error:', error);
+    });
+  };
+
+  // Page view tracking
+  zld.track('page_view', {
+    title: document.title,
+    path: window.location.pathname
+  });
+
+  // Scroll depth tracking
+  if (zld.config.trackScrollDepth) {
+    var maxScroll = 0;
+    window.addEventListener('scroll', function() {
+      var scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+      if (scrollPercent > maxScroll && scrollPercent % 25 === 0) {
+        maxScroll = scrollPercent;
+        zld.track('scroll_depth', { depth: scrollPercent });
+      }
+    });
+  }
+
+  // Download tracking
+  if (zld.config.trackDownloads) {
+    document.addEventListener('click', function(e) {
+      var link = e.target.closest('a');
+      if (link && link.href) {
+        var url = link.href;
+        var isDownload = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|zip|rar|mp3|mp4|avi)$/i.test(url);
+        if (isDownload) {
+          zld.track('download', {
+            url: url,
+            fileName: url.split('/').pop()
+          });
+        }
+      }
+    });
+  }
+
+  // Form submission tracking
+  if (zld.config.trackFormSubmissions) {
+    document.addEventListener('submit', function(e) {
+      var form = e.target;
+      if (form.tagName === 'FORM') {
+        zld.track('form_submission', {
+          formId: form.id || 'unknown',
+          formAction: form.action || window.location.href
+        });
+      }
+    });
+  }
+
+  // Session tracking
+  var sessionStart = Date.now();
+  window.addEventListener('beforeunload', function() {
+    var sessionDuration = Date.now() - sessionStart;
+    zld.track('session_end', {
+      duration: sessionDuration
+    });
+  });
+
+  // Enhanced lead identification
+  zld.identifyLead = function(leadData) {
+    zld.track('lead_identified', leadData);
+  };
+
+  // Custom event tracking
+  zld.trackCustomEvent = function(eventName, eventData) {
+    zld.track('custom_event', {
+      customEventName: eventName,
+      customEventData: eventData
+    });
+  };
+
+  // Make zld globally available
+  window.ZectorLeadDigital = zld;
+
+  console.log('Zector Digital Lead Tracking initialized for zectordigital.es');
+})();
+</script>
+
+<!-- GDPR Compliance Notice -->
+<script type="text/javascript">
+if (window.ZectorLeadDigital && window.ZectorLeadDigital.config.gdprCompliant) {
+  // Check for existing consent
+  var hasConsent = localStorage.getItem('zector_tracking_consent');
+  
+  if (!hasConsent) {
+    // Show consent banner (you can customize this)
+    var consentBanner = document.createElement('div');
+    consentBanner.id = 'zector-consent-banner';
+    consentBanner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#333;color:#fff;padding:15px;text-align:center;z-index:10000;font-family:Arial,sans-serif;';
+    consentBanner.innerHTML = 'Este sitio utiliza cookies para mejorar su experiencia. <button onclick="window.ZectorLeadDigital.grantConsent()" style="background:#4CAF50;color:white;border:none;padding:5px 10px;margin-left:10px;cursor:pointer;">Aceptar</button>';
+    
+    document.body.appendChild(consentBanner);
+    
+    // Add consent function
+    window.ZectorLeadDigital.grantConsent = function() {
+      localStorage.setItem('zector_tracking_consent', 'granted');
+      document.getElementById('zector-consent-banner').remove();
+      console.log('Zector tracking consent granted');
+    };
+  }
+}
+</script>

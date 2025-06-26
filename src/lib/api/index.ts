@@ -8,26 +8,6 @@ import { companiesApi } from './companies';
 import { trackingApi } from './tracking';
 import { apiRequest } from './base';
 
-// Mock data as fallback if API fails
-const fallbackCompanies = [
-  {
-    id: '1',
-    name: 'Example Company',
-    domain: 'example.com',
-    industry: 'Technology',
-    size: '11-50',
-    location: { city: 'Stockholm', country: 'Sweden' },
-    lastVisit: new Date(),
-    totalVisits: 15,
-    score: 85,
-    status: 'hot',
-    tags: ['Website Visitor', 'High Engagement'],
-    phone: '+46 8 123 456',
-    email: 'contact@example.com',
-    website: 'https://example.com'
-  }
-];
-
 // Enhanced API functions with enrichment (simplified)
 export const leadsApi = {
   getCompanies: companiesApi.getCompanies,
@@ -142,32 +122,13 @@ export const leadsApi = {
   getRecentVisitors: async (limit = 15) => {
     try {
       console.log(`Fetching recent visitors (limit: ${limit})...`);
-      
-      // Try the visitors endpoint first
-      try {
-        const response = await apiRequest(`/api/visitors?limit=${limit}`) as any;
-        if (response.success && response.visitors) {
-          console.log(`Successfully loaded ${response.visitors.length} visitors from visitors API`);
-          return response.visitors;
-        }
-      } catch (error) {
-        console.warn('Visitors API not available, falling back to companies API:', error);
-      }
-      
-      // Fallback to companies API and treat as recent visitors
-      const companiesResponse = await apiRequest('/api/companies') as any;
-      if (companiesResponse.success && companiesResponse.companies) {
-        console.log(`Successfully loaded ${companiesResponse.companies.length} companies as recent visitors`);
-        
-        // Sort by lastVisit date and limit results
-        const sortedCompanies = companiesResponse.companies
-          .filter((company: any) => company.lastVisit) // Only include companies with visit data
-          .sort((a: any, b: any) => new Date(b.lastVisit).getTime() - new Date(a.lastVisit).getTime())
-          .slice(0, limit);
-        
-        return sortedCompanies;
+      // Only use the visitors endpoint, do not fallback to companies API
+      const response = await apiRequest(`/api/visitors?limit=${limit}`) as any;
+      if (response.success && response.visitors) {
+        console.log(`Successfully loaded ${response.visitors.length} visitors from visitors API`);
+        return response.visitors;
       } else {
-        console.warn('Invalid companies response:', companiesResponse);
+        console.warn('Invalid visitors response:', response);
         return [];
       }
     } catch (error) {
@@ -230,5 +191,48 @@ export const leadsApi = {
   getFilteredCompanies: async (filters: any) => {
     const companies = await companiesApi.getCompanies(filters);
     return companies;
+  },
+
+  // Get visits for a specific company
+  getVisits: async (companyId?: string, filters?: any) => {
+    try {
+      const tenantId = localStorage.getItem('tenantId') || 'default-tenant';
+      const params = new URLSearchParams();
+      
+      if (companyId) {
+        params.append('companyId', companyId);
+      }
+      if (filters?.domain) {
+        params.append('domain', filters.domain);
+      }
+      if (filters?.startDate) {
+        params.append('startDate', filters.startDate);
+      }
+      if (filters?.endDate) {
+        params.append('endDate', filters.endDate);
+      }
+      if (filters?.limit) {
+        params.append('limit', filters.limit.toString());
+      }
+      if (filters?.skip) {
+        params.append('skip', filters.skip.toString());
+      }
+
+      const response = await apiRequest(`/api/visits?${params.toString()}`, {
+        headers: {
+          'X-Tenant-ID': tenantId
+        }
+      }) as any;
+      
+      if response?.success) {
+        return response.visits || [];
+      } else {
+        console.warn('Failed to fetch visits:', response?.error);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching visits:', error);
+      return [];
+    }
   }
 };

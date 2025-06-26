@@ -90,155 +90,30 @@ export default async function handler(req, res) {
       });
     }
     
-    // If no real data, return sample data for demonstration
-    if (companies.length === 0) {
-      console.log('No visits found in database, returning sample data');
-      const sampleCompanies = [
-        {
-          id: 'comp-001',
-          name: 'TechStart AB',
-          domain: 'techstart.se',
-          industry: 'Technology',
-          size: '11-50',
-          location: { city: 'Stockholm', country: 'Sweden' },
-          lastVisit: new Date('2024-12-21T10:30:00.000Z'),
-          totalVisits: 12,
-          score: 85,
-          status: 'hot',
-          tags: ['Website Visitor', 'High Engagement'],
-          phone: '+46 8 555 1234',
-          email: 'contact@techstart.se',
-          website: 'https://techstart.se'
-        },
-        {
-          id: 'comp-002',
-          name: 'Nordic Solutions',
-          domain: 'nordicsolutions.com',
-          industry: 'Consulting',
-          size: '51-200',
-          location: { city: 'Oslo', country: 'Norway' },
-          lastVisit: new Date('2024-12-21T09:15:00.000Z'),
-          totalVisits: 8,
-          score: 70,
-          status: 'warm',
-          tags: ['Website Visitor', 'Potential Client'],
-          phone: '+47 22 12 34 56',
-          email: 'hello@nordicsolutions.com',
-          website: 'https://nordicsolutions.com'
-        },
-        {
-          id: 'comp-003',
-          name: 'Danish Innovations',
-          domain: 'danishinnovations.dk',
-          industry: 'Manufacturing',
-          size: '201-500',
-          location: { city: 'Copenhagen', country: 'Denmark' },
-          lastVisit: new Date('2024-12-21T08:45:00.000Z'),
-          totalVisits: 3,
-          score: 45,
-          status: 'cold',
-          tags: ['Website Visitor'],
-          phone: '+45 33 12 34 56',
-          email: 'info@danishinnovations.dk',
-          website: 'https://danishinnovations.dk'
-        },
-        {
-          id: 'comp-004',
-          name: 'Finnish Design Co',
-          domain: 'finnishdesign.fi',
-          industry: 'Design',
-          size: '1-10',
-          location: { city: 'Helsinki', country: 'Finland' },
-          lastVisit: new Date('2024-12-21T07:20:00.000Z'),
-          totalVisits: 15,
-          score: 92,
-          status: 'hot',
-          tags: ['Website Visitor', 'Design Partner'],
-          phone: '+358 9 123 4567',
-          email: 'studio@finnishdesign.fi',
-          website: 'https://finnishdesign.fi'
-        },
-        {
-          id: 'comp-005',
-          name: 'Zector Digital',
-          domain: 'zector.se',
-          industry: 'Technology',
-          size: '11-50',
-          location: { city: 'Stockholm', country: 'Sweden' },
-          lastVisit: new Date(),
-          totalVisits: 25,
-          score: 95,
-          status: 'hot',
-          tags: ['Website Visitor', 'CRM Provider'],
-          phone: '+46 8 123 4567',
-          email: 'contact@zector.se',
-          website: 'https://zector.se'
-        },
-        {
-          id: 'comp-006',
-          name: 'Baltic Ventures',
-          domain: 'balticventures.com',
-          industry: 'Investment',
-          size: '51-200',
-          location: { city: 'Riga', country: 'Latvia' },
-          lastVisit: new Date('2024-12-20T16:30:00.000Z'),
-          totalVisits: 6,
-          score: 65,
-          status: 'warm',
-          tags: ['Website Visitor', 'Investor'],
-          phone: '+371 67 123 456',
-          email: 'info@balticventures.com',
-          website: 'https://balticventures.com'
-        },
-        {
-          id: 'comp-007',
-          name: 'Green Energy Solutions',
-          domain: 'greenenergy.no',
-          industry: 'Energy',
-          size: '101-500',
-          location: { city: 'Bergen', country: 'Norway' },
-          lastVisit: new Date('2024-12-20T14:15:00.000Z'),
-          totalVisits: 4,
-          score: 55,
-          status: 'cold',
-          tags: ['Website Visitor', 'Sustainability'],
-          phone: '+47 55 123 456',
-          email: 'contact@greenenergy.no',
-          website: 'https://greenenergy.no'
-        }
-      ];
-      
-      return res.status(200).json({
-        success: true,
-        companies: sampleCompanies,
-        total: sampleCompanies.length,
-        timestamp: new Date().toISOString(),
-        source: 'sample_data',
-        note: 'Showing sample companies for demonstration'
-      });
-    }
-    
+    // No mock data - return empty array when no real data exists
+    console.log('No companies found in database - returning empty array');
     return res.status(200).json({
       success: true,
-      companies: companies,
-      total: companies.length,
+      companies: [],
+      total: 0,
+      tenantId: tenantId,
       timestamp: new Date().toISOString(),
       source: 'real_data',
-      note: 'Data from MongoDB visits collection'
+      note: 'No companies found in database'
     });      } catch (error) {
     console.error('Companies API error:', error);
     
-    // Return comprehensive error information for debugging
+    // Return empty array on error - no fallback data
     return res.status(500).json({
       success: false,
       error: 'Database connection failed',
       details: error.message,
       companies: [],
       total: 0,
-      fallback: true,
+      fallback: false,
       timestamp: new Date().toISOString(),
-      source: 'error_fallback',
-      note: 'MongoDB connection failed. Check environment variables and network connectivity.',
+      source: 'error',
+      note: 'MongoDB connection failed. No fallback data provided.',
       troubleshooting: {
         mongoUri: process.env.MONGO_URI ? 'SET (length: ' + process.env.MONGO_URI.length + ')' : 'NOT SET',
         mongodbUri: process.env.MONGODB_URI ? 'SET (length: ' + process.env.MONGODB_URI.length + ')' : 'NOT SET',

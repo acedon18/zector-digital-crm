@@ -1,0 +1,1010 @@
+{
+  "timestamp": "2025-06-26T07-29-35-252Z",
+  "database": "test",
+  "collections": {
+    "companies": [
+      {
+        "_id": "684ec0dc50b6090ffb6f68af",
+        "name": "E-commerce Solutions",
+        "domain": "ecommerce.com",
+        "industry": "Retail",
+        "size": "201-500",
+        "location": {
+          "city": "London",
+          "country": "United Kingdom"
+        },
+        "phone": "+44 20 7946 0958",
+        "email": "sales@ecommerce.com",
+        "website": "www.ecommerce.com",
+        "lastVisit": "2025-06-15T12:45:23.687Z",
+        "totalVisits": 22,
+        "score": 90,
+        "status": "hot",
+        "tags": [
+          "Enterprise",
+          "High Value"
+        ],
+        "enrichmentSource": [],
+        "firstVisit": "2025-06-15T12:47:24.307Z",
+        "__v": 0
+      },
+      {
+        "_id": "684ec0dc50b6090ffb6f68ad",
+        "name": "Tech Solutions Inc",
+        "domain": "techsolutions.com",
+        "industry": "Technology",
+        "size": "51-200",
+        "location": {
+          "city": "San Francisco",
+          "country": "United States"
+        },
+        "phone": "+1 (415) 555-1234",
+        "email": "contact@techsolutions.com",
+        "website": "www.techsolutions.com",
+        "lastVisit": "2025-06-15T12:47:23.687Z",
+        "totalVisits": 15,
+        "score": 85,
+        "status": "hot",
+        "tags": [
+          "High Engagement",
+          "Has Email"
+        ],
+        "enrichmentSource": [],
+        "firstVisit": "2025-06-15T12:47:24.306Z",
+        "__v": 0
+      },
+      {
+        "_id": "684ec0dc50b6090ffb6f68ae",
+        "name": "Digital Marketing Pro",
+        "domain": "digitalmarketing.se",
+        "industry": "Marketing",
+        "size": "11-50",
+        "location": {
+          "city": "Stockholm",
+          "country": "Sweden"
+        },
+        "phone": "+46 8 123 456 78",
+        "email": "info@digitalmarketing.se",
+        "website": "www.digitalmarketing.se",
+        "lastVisit": "2025-06-15T12:46:23.687Z",
+        "totalVisits": 8,
+        "score": 72,
+        "status": "warm",
+        "tags": [
+          "Has Phone",
+          "Social Media"
+        ],
+        "enrichmentSource": [],
+        "firstVisit": "2025-06-15T12:47:24.306Z",
+        "__v": 0
+      },
+      {
+        "_id": "684ec0dc50b6090ffb6f68b0",
+        "name": "Finance Experts",
+        "domain": "financeexperts.co",
+        "industry": "Finance",
+        "size": "51-200",
+        "location": {
+          "city": "New York",
+          "country": "United States"
+        },
+        "phone": "+1 (212) 555-6789",
+        "email": "info@financeexperts.co",
+        "website": "www.financeexperts.co",
+        "lastVisit": "2025-06-15T12:44:23.687Z",
+        "totalVisits": 5,
+        "score": 60,
+        "status": "cold",
+        "tags": [
+          "New Lead"
+        ],
+        "enrichmentSource": [],
+        "firstVisit": "2025-06-15T12:47:24.307Z",
+        "__v": 0
+      },
+      {
+        "_id": "684ec0dc50b6090ffb6f68b1",
+        "name": "HealthTech Innovators",
+        "domain": "healthtech.io",
+        "industry": "Healthcare",
+        "size": "11-50",
+        "location": {
+          "city": "Boston",
+          "country": "United States"
+        },
+        "phone": "+1 (617) 555-4321",
+        "email": "contact@healthtech.io",
+        "website": "www.healthtech.io",
+        "lastVisit": "2025-06-15T12:43:23.687Z",
+        "totalVisits": 18,
+        "score": 88,
+        "status": "hot",
+        "tags": [
+          "Healthcare",
+          "Tech"
+        ],
+        "enrichmentSource": [],
+        "firstVisit": "2025-06-15T12:47:24.307Z",
+        "__v": 0
+      },
+      {
+        "_id": "68504c2602feb86066f96b56",
+        "domain": "example.com",
+        "firstVisit": "2025-06-16T16:53:58.414Z",
+        "lastVisit": "2025-06-16T16:54:05.993Z",
+        "totalVisits": 4,
+        "score": 53,
+        "status": "warm",
+        "tags": [],
+        "enrichmentSource": [],
+        "__v": 0
+      }
+    ],
+    "customers": [],
+    "trackingscripts": [
+      {
+        "_id": "68504c2602feb86066f96b50",
+        "customerId": "test_customer_123",
+        "domain": "example.com",
+        "scriptId": "script_1750092838275",
+        "isActive": true,
+        "settings": {
+          "gdprCompliant": true,
+          "anonymizeIp": true,
+          "trackScrollDepth": false,
+          "trackDownloads": true,
+          "trackFormSubmissions": false
+        },
+        "createdAt": "2025-06-16T16:53:58.281Z",
+        "__v": 0,
+        "lastActivity": "2025-06-16T16:56:08.701Z"
+      }
+    ],
+    "events": [
+      {
+        "_id": "685b016efd50145f26824d0f",
+        "timestamp": "2025-06-24T21:50:04.661Z",
+        "url": "https://test-website.com",
+        "event": "page_view",
+        "sessionId": "session_bd5gbe",
+        "storedAt": "2025-06-24T19:50:06.755Z"
+      },
+      {
+        "_id": "685b254b86bf3ab7bd916b4f",
+        "event": "test",
+        "data": {
+          "test": true
+        },
+        "timestamp": "2025-06-25T00:00:00.000Z",
+        "url": "https://test.com",
+        "customerId": "TEST",
+        "domain": "test.com",
+        "sessionId": "session_ak54vd",
+        "storedAt": "2025-06-24T22:23:07.118Z"
+      },
+      {
+        "_id": "685b25c286bf3ab7bd916b51",
+        "event": "page_view",
+        "data": {
+          "title": "Test Page",
+          "url": "https://test-website.com/page1"
+        },
+        "timestamp": "2025-06-25T00:25:06.016Z",
+        "url": "https://test-website.com/page1",
+        "referrer": "https://google.com",
+        "userAgent": "PowerShell Test",
+        "customerId": "TEST_CUSTOMER",
+        "domain": "test-website.com",
+        "sessionId": "session_pwo0r4",
+        "storedAt": "2025-06-24T22:25:06.842Z"
+      }
+    ],
+    "connection_test": [],
+    "tracking_events": [],
+    "visits": [
+      {
+        "_id": "68504c2602feb86066f96b53",
+        "sessionId": "session_1750092838368_::ffff:127_0_0_1",
+        "customerId": "test_customer_123",
+        "domain": "example.com",
+        "ipAddress": "::ffff:127.0.0.1",
+        "anonymizedIp": "::ffff:127.0.0.1",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
+        "startTime": "2025-06-16T16:53:58.368Z",
+        "referrer": "",
+        "isReturning": false,
+        "pages": [
+          {
+            "url": "file:///C:/Users/Darda/Downloads/Zector%20Digital%20Leads%20CRM/tracking-test.html?page=contact",
+            "title": "Zector Digital Lead Tracking Test Page",
+            "timestamp": "2025-06-16T16:53:58.236Z",
+            "timeOnPage": 0,
+            "scrollDepth": 0,
+            "interactions": 0,
+            "_id": "68504c2602feb86066f96b54"
+          }
+        ],
+        "events": [],
+        "gdprCompliant": true,
+        "companyId": "68504c2602feb86066f96b56",
+        "__v": 0
+      },
+      {
+        "_id": "68504c2902feb86066f96b5c",
+        "sessionId": "session_1750092841074_::ffff:127_0_0_1",
+        "customerId": "test_customer_123",
+        "domain": "example.com",
+        "ipAddress": "::ffff:127.0.0.1",
+        "anonymizedIp": "::ffff:127.0.0.1",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
+        "startTime": "2025-06-16T16:54:01.074Z",
+        "referrer": "",
+        "isReturning": false,
+        "pages": [
+          {
+            "url": "file:///C:/Users/Darda/Downloads/Zector%20Digital%20Leads%20CRM/tracking-test.html?page=about",
+            "title": "Zector Digital Lead Tracking Test Page",
+            "timestamp": "2025-06-16T16:54:00.959Z",
+            "timeOnPage": 0,
+            "scrollDepth": 0,
+            "interactions": 0,
+            "_id": "68504c2902feb86066f96b5d"
+          }
+        ],
+        "events": [],
+        "gdprCompliant": true,
+        "companyId": "68504c2602feb86066f96b56",
+        "__v": 0
+      },
+      {
+        "_id": "68504c2a02feb86066f96b64",
+        "sessionId": "session_1750092842218_::ffff:127_0_0_1",
+        "customerId": "test_customer_123",
+        "domain": "example.com",
+        "ipAddress": "::ffff:127.0.0.1",
+        "anonymizedIp": "::ffff:127.0.0.1",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
+        "startTime": "2025-06-16T16:54:02.218Z",
+        "referrer": "",
+        "isReturning": false,
+        "pages": [
+          {
+            "url": "file:///C:/Users/Darda/Downloads/Zector%20Digital%20Leads%20CRM/tracking-test.html?page=services",
+            "title": "Zector Digital Lead Tracking Test Page",
+            "timestamp": "2025-06-16T16:54:02.106Z",
+            "timeOnPage": 0,
+            "scrollDepth": 0,
+            "interactions": 0,
+            "_id": "68504c2a02feb86066f96b65"
+          }
+        ],
+        "events": [],
+        "gdprCompliant": true,
+        "companyId": "68504c2602feb86066f96b56",
+        "__v": 0
+      },
+      {
+        "_id": "68504c2d02feb86066f96b6c",
+        "sessionId": "session_1750092845957_::ffff:127_0_0_1",
+        "customerId": "test_customer_123",
+        "domain": "example.com",
+        "ipAddress": "::ffff:127.0.0.1",
+        "anonymizedIp": "::ffff:127.0.0.1",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
+        "startTime": "2025-06-16T16:54:05.957Z",
+        "referrer": "",
+        "isReturning": false,
+        "pages": [
+          {
+            "url": "file:///C:/Users/Darda/Downloads/Zector%20Digital%20Leads%20CRM/tracking-test.html?page=contact",
+            "title": "Zector Digital Lead Tracking Test Page",
+            "timestamp": "2025-06-16T16:54:05.845Z",
+            "timeOnPage": 0,
+            "scrollDepth": 0,
+            "interactions": 0,
+            "_id": "68504c2d02feb86066f96b6d"
+          }
+        ],
+        "events": [],
+        "gdprCompliant": true,
+        "companyId": "68504c2602feb86066f96b56",
+        "__v": 0
+      },
+      {
+        "_id": "68504c3202feb86066f96b76",
+        "sessionId": "session_1750092850573_::ffff:127_0_0_1",
+        "customerId": "test_customer_123",
+        "domain": "example.com",
+        "ipAddress": "::ffff:127.0.0.1",
+        "anonymizedIp": "::ffff:127.0.0.1",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
+        "startTime": "2025-06-16T16:54:10.573Z",
+        "referrer": "",
+        "isReturning": false,
+        "pages": [],
+        "events": [
+          {
+            "eventType": "scroll_depth",
+            "timestamp": "2025-06-16T16:54:10.461Z",
+            "data": {
+              "depth": 25
+            },
+            "_id": "68504c3202feb86066f96b77"
+          }
+        ],
+        "gdprCompliant": true,
+        "__v": 0
+      },
+      {
+        "_id": "68504c3202feb86066f96b7a",
+        "sessionId": "session_1750092850615_::ffff:127_0_0_1",
+        "customerId": "test_customer_123",
+        "domain": "example.com",
+        "ipAddress": "::ffff:127.0.0.1",
+        "anonymizedIp": "::ffff:127.0.0.1",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
+        "startTime": "2025-06-16T16:54:10.615Z",
+        "referrer": "",
+        "isReturning": false,
+        "pages": [],
+        "events": [
+          {
+            "eventType": "scroll_depth",
+            "timestamp": "2025-06-16T16:54:10.498Z",
+            "data": {
+              "depth": 50
+            },
+            "_id": "68504c3202feb86066f96b7b"
+          }
+        ],
+        "gdprCompliant": true,
+        "__v": 0
+      },
+      {
+        "_id": "68504ca802feb86066f96b80",
+        "sessionId": "session_1750092968554_::ffff:127_0_0_1",
+        "customerId": "test_customer_123",
+        "domain": "example.com",
+        "ipAddress": "::ffff:127.0.0.1",
+        "anonymizedIp": "::ffff:127.0.0.1",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
+        "startTime": "2025-06-16T16:56:08.554Z",
+        "referrer": "",
+        "isReturning": false,
+        "pages": [],
+        "events": [
+          {
+            "eventType": "scroll_depth",
+            "timestamp": "2025-06-16T16:56:08.439Z",
+            "data": {
+              "depth": 75
+            },
+            "_id": "68504ca802feb86066f96b81"
+          }
+        ],
+        "gdprCompliant": true,
+        "__v": 0
+      },
+      {
+        "_id": "68504ca802feb86066f96b86",
+        "sessionId": "session_1750092968776_::ffff:127_0_0_1",
+        "customerId": "test_customer_123",
+        "domain": "example.com",
+        "ipAddress": "::ffff:127.0.0.1",
+        "anonymizedIp": "::ffff:127.0.0.1",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
+        "startTime": "2025-06-16T16:56:08.776Z",
+        "referrer": "",
+        "isReturning": false,
+        "pages": [],
+        "events": [
+          {
+            "eventType": "scroll_depth",
+            "timestamp": "2025-06-16T16:56:08.666Z",
+            "data": {
+              "depth": 90
+            },
+            "_id": "68504ca802feb86066f96b87"
+          }
+        ],
+        "gdprCompliant": true,
+        "__v": 0
+      },
+      {
+        "_id": "685b016efd50145f26824d0e",
+        "sessionId": "session_bd5gbe",
+        "customerId": null,
+        "domain": null,
+        "userAgent": null,
+        "startTime": "2025-06-24T21:50:04.661Z",
+        "referrer": null,
+        "pages": [
+          {
+            "url": "https://test-website.com",
+            "title": "",
+            "timestamp": "2025-06-24T21:50:04.661Z"
+          }
+        ],
+        "events": [
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-24T21:50:04.661Z",
+            "data": {},
+            "url": "https://test-website.com"
+          }
+        ],
+        "gdprCompliant": true,
+        "createdAt": "2025-06-24T19:50:06.485Z",
+        "lastActivity": "2025-06-24T21:50:04.661Z"
+      },
+      {
+        "_id": "685b254a86bf3ab7bd916b4e",
+        "sessionId": "session_ak54vd",
+        "customerId": "TEST",
+        "domain": "test.com",
+        "userAgent": null,
+        "startTime": "2025-06-25T00:00:00.000Z",
+        "referrer": null,
+        "pages": [],
+        "events": [
+          {
+            "eventType": "test",
+            "timestamp": "2025-06-25T00:00:00.000Z",
+            "data": {
+              "test": true
+            },
+            "url": "https://test.com"
+          }
+        ],
+        "gdprCompliant": true,
+        "createdAt": "2025-06-24T22:23:06.940Z",
+        "lastActivity": "2025-06-25T00:00:00.000Z"
+      },
+      {
+        "_id": "685b25c286bf3ab7bd916b50",
+        "sessionId": "session_pwo0r4",
+        "customerId": "TEST_CUSTOMER",
+        "domain": "test-website.com",
+        "userAgent": "PowerShell Test",
+        "startTime": "2025-06-25T00:25:06.016Z",
+        "referrer": "https://google.com",
+        "pages": [
+          {
+            "url": "https://test-website.com/page1",
+            "title": "Test Page",
+            "timestamp": "2025-06-25T00:25:06.016Z"
+          }
+        ],
+        "events": [
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T00:25:06.016Z",
+            "data": {
+              "title": "Test Page",
+              "url": "https://test-website.com/page1"
+            },
+            "url": "https://test-website.com/page1"
+          }
+        ],
+        "gdprCompliant": true,
+        "createdAt": "2025-06-24T22:25:06.579Z",
+        "lastActivity": "2025-06-25T00:25:06.016Z"
+      },
+      {
+        "_id": "685c76a9fce8a13faddd4d65",
+        "sessionId": "session_wm0h3q",
+        "tenantId": "default-tenant",
+        "customerId": "ZECTOR_CUSTOMER",
+        "domain": "zectordigital.es",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
+        "startTime": "2025-06-25T22:22:31.145Z",
+        "referrer": "https://www.zectordigital.es/wp-admin/post.php?post=8&action=elementor",
+        "pages": [
+          {
+            "url": "https://www.zectordigital.es/?preview_id=8&preview_nonce=87ea9c102e&preview=true",
+            "title": "Agencia de Marketing Digital | Consulta nuestros paquetes online",
+            "timestamp": "2025-06-25T22:22:31.145Z"
+          },
+          {
+            "url": "https://www.zectordigital.es/",
+            "title": "Agencia de Marketing Digital | Consulta nuestros paquetes online",
+            "timestamp": "2025-06-25T22:22:34.308Z"
+          }
+        ],
+        "events": [
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:31.145Z",
+            "data": {
+              "title": "Agencia de Marketing Digital | Consulta nuestros paquetes online",
+              "path": "/"
+            },
+            "url": "https://www.zectordigital.es/?preview_id=8&preview_nonce=87ea9c102e&preview=true"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:34.308Z",
+            "data": {
+              "title": "Agencia de Marketing Digital | Consulta nuestros paquetes online",
+              "path": "/"
+            },
+            "url": "https://www.zectordigital.es/"
+          }
+        ],
+        "gdprCompliant": true,
+        "createdAt": "2025-06-25T22:22:33.147Z",
+        "lastActivity": "2025-06-25T22:22:34.308Z"
+      },
+      {
+        "_id": "685c76aeaa3117c24eb24b01",
+        "sessionId": "session_idjt5d",
+        "tenantId": "default-tenant",
+        "customerId": "ZECTOR_CUSTOMER",
+        "domain": "zectordigital.es",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+        "startTime": "2025-06-25T22:22:36.526Z",
+        "referrer": "",
+        "pages": [
+          {
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43",
+            "title": "gtm-msr",
+            "timestamp": "2025-06-25T22:22:36.526Z"
+          },
+          {
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43",
+            "title": "gtm-msr",
+            "timestamp": "2025-06-25T22:22:36.506Z"
+          },
+          {
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43",
+            "title": "gtm-msr",
+            "timestamp": "2025-06-25T22:22:36.506Z"
+          },
+          {
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43",
+            "title": "gtm-msr",
+            "timestamp": "2025-06-25T22:22:36.506Z"
+          },
+          {
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43",
+            "title": "gtm-msr",
+            "timestamp": "2025-06-25T22:22:36.506Z"
+          },
+          {
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43",
+            "title": "gtm-msr",
+            "timestamp": "2025-06-25T22:22:36.536Z"
+          },
+          {
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43",
+            "title": "gtm-msr",
+            "timestamp": "2025-06-25T22:22:36.567Z"
+          },
+          {
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43",
+            "title": "gtm-msr",
+            "timestamp": "2025-06-25T22:22:36.567Z"
+          },
+          {
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43",
+            "title": "gtm-msr",
+            "timestamp": "2025-06-25T22:22:36.567Z"
+          },
+          {
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43",
+            "title": "gtm-msr",
+            "timestamp": "2025-06-25T22:22:36.578Z"
+          },
+          {
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43",
+            "title": "gtm-msr",
+            "timestamp": "2025-06-25T22:22:36.578Z"
+          },
+          {
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43",
+            "title": "gtm-msr",
+            "timestamp": "2025-06-25T22:22:36.578Z"
+          }
+        ],
+        "events": [
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:36.526Z",
+            "data": {
+              "title": "gtm-msr",
+              "path": "/render"
+            },
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:36.506Z",
+            "data": {
+              "title": "gtm-msr",
+              "path": "/render"
+            },
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:36.506Z",
+            "data": {
+              "title": "gtm-msr",
+              "path": "/render"
+            },
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:36.506Z",
+            "data": {
+              "title": "gtm-msr",
+              "path": "/render"
+            },
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:36.506Z",
+            "data": {
+              "title": "gtm-msr",
+              "path": "/render"
+            },
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:36.536Z",
+            "data": {
+              "title": "gtm-msr",
+              "path": "/render"
+            },
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:36.567Z",
+            "data": {
+              "title": "gtm-msr",
+              "path": "/render"
+            },
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:36.567Z",
+            "data": {
+              "title": "gtm-msr",
+              "path": "/render"
+            },
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:36.567Z",
+            "data": {
+              "title": "gtm-msr",
+              "path": "/render"
+            },
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:36.578Z",
+            "data": {
+              "title": "gtm-msr",
+              "path": "/render"
+            },
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:36.578Z",
+            "data": {
+              "title": "gtm-msr",
+              "path": "/render"
+            },
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-25T22:22:36.578Z",
+            "data": {
+              "title": "gtm-msr",
+              "path": "/render"
+            },
+            "url": "https://gtm-msr.appspot.com/render?id=GTM-TM649K43"
+          }
+        ],
+        "gdprCompliant": true,
+        "createdAt": "2025-06-25T22:22:38.541Z",
+        "lastActivity": "2025-06-25T22:22:36.578Z"
+      },
+      {
+        "_id": "685cde7e91a945ae6e6c898f",
+        "sessionId": "session_t0dsot",
+        "tenantId": "default-tenant",
+        "customerId": "ZECTOR_CUSTOMER",
+        "domain": "zectordigital.es",
+        "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Brave/1 Mobile/15E148 Safari/604.1",
+        "startTime": "2025-06-26T05:45:32.195Z",
+        "referrer": "https://www.google.com/",
+        "pages": [
+          {
+            "url": "https://www.zectordigital.es/",
+            "title": "Agencia de Marketing Digital | Consulta nuestros paquetes online",
+            "timestamp": "2025-06-26T05:45:32.195Z"
+          }
+        ],
+        "events": [
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-26T05:45:32.195Z",
+            "data": {
+              "title": "Agencia de Marketing Digital | Consulta nuestros paquetes online",
+              "path": "/"
+            },
+            "url": "https://www.zectordigital.es/"
+          },
+          {
+            "eventType": "scroll_depth",
+            "timestamp": "2025-06-26T05:45:49.316Z",
+            "data": {
+              "depth": 25
+            },
+            "url": "https://www.zectordigital.es/"
+          }
+        ],
+        "gdprCompliant": true,
+        "createdAt": "2025-06-26T05:45:34.971Z",
+        "lastActivity": "2025-06-26T05:45:49.316Z"
+      },
+      {
+        "_id": "685cf466ebfcc8951f14f84c",
+        "sessionId": "session_lhurnb",
+        "tenantId": "default-tenant",
+        "customerId": "ZECTOR_CUSTOMER",
+        "domain": "zectordigital.es",
+        "userAgent": "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.7151.68 Mobile Safari/537.36 (compatible; Google-InspectionTool/1.0)",
+        "startTime": "2025-06-26T07:18:45.086Z",
+        "referrer": "",
+        "pages": [
+          {
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/pagina-web/",
+            "title": "Diseño de Página Web Profesional en España | Zector Digital",
+            "timestamp": "2025-06-26T07:18:45.086Z"
+          }
+        ],
+        "events": [
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-26T07:18:45.086Z",
+            "data": {
+              "title": "Diseño de Página Web Profesional en España | Zector Digital",
+              "path": "/servicios-marketing-digital/pagina-web/"
+            },
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/pagina-web/"
+          }
+        ],
+        "gdprCompliant": true,
+        "createdAt": "2025-06-26T07:19:02.620Z",
+        "lastActivity": "2025-06-26T07:18:45.086Z"
+      },
+      {
+        "_id": "685cf64f3dffe49df6d1ca1f",
+        "sessionId": "session_1vapn2",
+        "tenantId": "default-tenant",
+        "customerId": "ZECTOR_CUSTOMER",
+        "domain": "zectordigital.es",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0",
+        "startTime": "2025-06-26T07:27:10.281Z",
+        "referrer": "https://www.zectordigital.es/wp-admin/edit.php?post_type=page",
+        "pages": [
+          {
+            "url": "https://www.zectordigital.es/contacto/",
+            "title": "contacto - Zector Digital Group SL",
+            "timestamp": "2025-06-26T07:27:10.281Z"
+          },
+          {
+            "url": "https://www.zectordigital.es/soporte/",
+            "title": "Soporte | Zector Digital – SEO, Google Ads y Web",
+            "timestamp": "2025-06-26T07:27:13.649Z"
+          },
+          {
+            "url": "https://www.zectordigital.es/blog/",
+            "title": "Blog de Marketing Digital | Zector Digital – SEO, Google Ads y Más",
+            "timestamp": "2025-06-26T07:27:27.773Z"
+          },
+          {
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/",
+            "title": "Servicios de Marketing Digital en Málaga - Zector Digital: Servicios marketing digital",
+            "timestamp": "2025-06-26T07:27:42.357Z"
+          },
+          {
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/publicidad-digital/",
+            "title": "Agencia de Publicidad Digital | Google Ads, Meta & TikTok",
+            "timestamp": "2025-06-26T07:27:45.801Z"
+          },
+          {
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/agencia-google-ads/",
+            "title": "Agencia Google Ads en España | Zector Digital",
+            "timestamp": "2025-06-26T07:27:55.455Z"
+          },
+          {
+            "url": "https://www.zectordigital.es/ayudar/",
+            "title": "Sidan hittades inte - Zector Digital Group SL",
+            "timestamp": "2025-06-26T07:28:23.213Z"
+          },
+          {
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/agencia-google-ads/?elementor-preview=28649&ver=1750922914",
+            "title": "Agencia Google Ads en España | Zector Digital",
+            "timestamp": "2025-06-26T07:28:45.586Z"
+          },
+          {
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/agencia-google-ads/?elementor-preview=28649&ver=1750922935",
+            "title": "Agencia Google Ads en España | Zector Digital",
+            "timestamp": "2025-06-26T07:28:58.723Z"
+          }
+        ],
+        "events": [
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-26T07:27:10.281Z",
+            "data": {
+              "title": "contacto - Zector Digital Group SL",
+              "path": "/contacto/"
+            },
+            "url": "https://www.zectordigital.es/contacto/"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-26T07:27:13.649Z",
+            "data": {
+              "title": "Soporte | Zector Digital – SEO, Google Ads y Web",
+              "path": "/soporte/"
+            },
+            "url": "https://www.zectordigital.es/soporte/"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-26T07:27:27.773Z",
+            "data": {
+              "title": "Blog de Marketing Digital | Zector Digital – SEO, Google Ads y Más",
+              "path": "/blog/"
+            },
+            "url": "https://www.zectordigital.es/blog/"
+          },
+          {
+            "eventType": "scroll_depth",
+            "timestamp": "2025-06-26T07:27:38.710Z",
+            "data": {
+              "depth": 100
+            },
+            "url": "https://www.zectordigital.es/blog/"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-26T07:27:42.357Z",
+            "data": {
+              "title": "Servicios de Marketing Digital en Málaga - Zector Digital: Servicios marketing digital",
+              "path": "/servicios-marketing-digital/"
+            },
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-26T07:27:45.801Z",
+            "data": {
+              "title": "Agencia de Publicidad Digital | Google Ads, Meta & TikTok",
+              "path": "/servicios-marketing-digital/publicidad-digital/"
+            },
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/publicidad-digital/"
+          },
+          {
+            "eventType": "scroll_depth",
+            "timestamp": "2025-06-26T07:27:47.389Z",
+            "data": {
+              "depth": 25
+            },
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/publicidad-digital/"
+          },
+          {
+            "eventType": "scroll_depth",
+            "timestamp": "2025-06-26T07:27:49.545Z",
+            "data": {
+              "depth": 50
+            },
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/publicidad-digital/"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-26T07:27:55.455Z",
+            "data": {
+              "title": "Agencia Google Ads en España | Zector Digital",
+              "path": "/servicios-marketing-digital/agencia-google-ads/"
+            },
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/agencia-google-ads/"
+          },
+          {
+            "eventType": "scroll_depth",
+            "timestamp": "2025-06-26T07:28:03.123Z",
+            "data": {
+              "depth": 25
+            },
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/agencia-google-ads/"
+          },
+          {
+            "eventType": "scroll_depth",
+            "timestamp": "2025-06-26T07:28:11.725Z",
+            "data": {
+              "depth": 50
+            },
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/agencia-google-ads/"
+          },
+          {
+            "eventType": "scroll_depth",
+            "timestamp": "2025-06-26T07:28:16.289Z",
+            "data": {
+              "depth": 75
+            },
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/agencia-google-ads/"
+          },
+          {
+            "eventType": "scroll_depth",
+            "timestamp": "2025-06-26T07:28:21.378Z",
+            "data": {
+              "depth": 100
+            },
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/agencia-google-ads/"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-26T07:28:23.213Z",
+            "data": {
+              "title": "Sidan hittades inte - Zector Digital Group SL",
+              "path": "/ayudar/"
+            },
+            "url": "https://www.zectordigital.es/ayudar/"
+          },
+          {
+            "eventType": "session_end",
+            "timestamp": "2025-06-26T07:28:27.656Z",
+            "data": {
+              "duration": 4443
+            },
+            "url": "https://www.zectordigital.es/ayudar/"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-26T07:28:45.586Z",
+            "data": {
+              "title": "Agencia Google Ads en España | Zector Digital",
+              "path": "/servicios-marketing-digital/agencia-google-ads/"
+            },
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/agencia-google-ads/?elementor-preview=28649&ver=1750922914"
+          },
+          {
+            "eventType": "page_view",
+            "timestamp": "2025-06-26T07:28:58.723Z",
+            "data": {
+              "title": "Agencia Google Ads en España | Zector Digital",
+              "path": "/servicios-marketing-digital/agencia-google-ads/"
+            },
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/agencia-google-ads/?elementor-preview=28649&ver=1750922935"
+          },
+          {
+            "eventType": "scroll_depth",
+            "timestamp": "2025-06-26T07:29:21.403Z",
+            "data": {
+              "depth": 100
+            },
+            "url": "https://www.zectordigital.es/servicios-marketing-digital/agencia-google-ads/?elementor-preview=28649&ver=1750922935"
+          }
+        ],
+        "gdprCompliant": true,
+        "createdAt": "2025-06-26T07:27:11.712Z",
+        "lastActivity": "2025-06-26T07:29:21.403Z"
+      }
+    ]
+  }
+}

@@ -85,73 +85,17 @@ export default function CompanyProfile() {
         if (foundCompany) {
           setCompany(foundCompany);
           
-          // Mock visits data for demonstration - SAFE
-          const mockVisits: Visit[] = [
-            {
-              id: '1',
-              companyId: id,
-              timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-              ipAddress: '192.168.1.1',
-              userAgent: 'Mozilla/5.0...',
-              referrer: 'google.com',
-              pages: [
-                {
-                  id: '1',
-                  url: '/products',
-                  title: 'Products Page',
-                  timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-                  timeOnPage: 180,
-                  scrollDepth: 75,
-                  interactions: 3
-                }
-              ],
-              sessionDuration: 180,
-              isReturning: false
-            },
-            {
-              id: '2',
-              companyId: id,
-              timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-              ipAddress: '192.168.1.1',
-              userAgent: 'Mozilla/5.0...',
-              referrer: 'linkedin.com',
-              pages: [
-                {
-                  id: '2',
-                  url: '/pricing',
-                  title: 'Pricing Page',
-                  timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-                  timeOnPage: 420,
-                  scrollDepth: 90,
-                  interactions: 7
-                }
-              ],
-              sessionDuration: 420,
-              isReturning: true
-            },
-            {
-              id: '3',
-              companyId: id,
-              timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000),
-              ipAddress: '192.168.1.1',
-              userAgent: 'Mozilla/5.0...',
-              referrer: 'direct',
-              pages: [
-                {
-                  id: '3',
-                  url: '/',
-                  title: 'Home Page',
-                  timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000),
-                  timeOnPage: 90,
-                  scrollDepth: 50,
-                  interactions: 2
-                }
-              ],
-              sessionDuration: 90,
-              isReturning: false
-            }
-          ];
-          setVisits(mockVisits);
+          // Load real visits data from API
+          try {
+            const visitsData = await leadsApi.getVisits(id, { 
+              domain: foundCompany.domain,
+              limit: 50 
+            });
+            setVisits(visitsData || []);
+          } catch (error) {
+            console.error('Failed to load visits data:', error);
+            setVisits([]);
+          }
         } else {
           setError('Company not found');
         }
