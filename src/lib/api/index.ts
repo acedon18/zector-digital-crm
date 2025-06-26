@@ -221,12 +221,11 @@ export const leadsApi = {
       const response = await apiRequest(`/api/visits?${params.toString()}`, {
         headers: {
           'X-Tenant-ID': tenantId
-        }
-      }) as any;
-      
-      if response?.success) {
-        return response.visits || [];
-      } else {
+        }        }) as any;
+
+        if (response?.success) {
+          return response.visits || [];
+        } else {
         console.warn('Failed to fetch visits:', response?.error);
         return [];
       }
