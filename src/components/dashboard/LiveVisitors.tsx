@@ -570,23 +570,46 @@ export const LiveVisitors = () => {  console.log('🚀 LiveVisitors: EMERGENCY D
                   // Additional safety wrapper
                   try {
                     return (
-                      <div key={`visitor-${company.id || index}-${Date.now()}-${Math.random()}`} className="flex flex-col p-2 rounded-lg hover:bg-muted/50">
+                      <div key={`visitor-${company.id || index}-${Date.now()}-${Math.random()}`} className="flex flex-col p-3 rounded-lg hover:bg-muted/50 border border-muted/20">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="relative">
-                              <Avatar className="h-8 w-8">
-                                <AvatarFallback className="text-xs">
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback className="text-sm font-semibold">
                                   {getAvatarInitials(company)}
                                 </AvatarFallback>
                               </Avatar>
                               <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${getStatusColor(company?.status || 'cold')}`}></div>
                             </div>
                             <div className="min-w-0 flex-1">
-                              <div className="font-medium text-sm truncate">
+                              <div className="font-semibold text-sm truncate">
                                 {company?.name || company?.domain || 'Unknown Company'}
                               </div>
                               <div className="text-xs text-muted-foreground">
                                 {company?.industry || 'Unknown Industry'}
+                              </div>
+                              {/* Engagement Score and Status */}
+                              <div className="flex items-center gap-2 mt-1">
+                                {company?.score && (
+                                  <Badge 
+                                    variant={company.score > 60 ? "default" : company.score > 30 ? "secondary" : "outline"}
+                                    className="text-xs px-1"
+                                  >
+                                    {company.score}% engaged
+                                  </Badge>
+                                )}
+                                {company?.status && (
+                                  <Badge 
+                                    variant="outline"
+                                    className={`text-xs px-1 ${
+                                      company.status === 'hot' ? 'text-red-600 border-red-200' :
+                                      company.status === 'warm' ? 'text-yellow-600 border-yellow-200' :
+                                      'text-blue-600 border-blue-200'
+                                    }`}
+                                  >
+                                    {company.status}
+                                  </Badge>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -601,8 +624,45 @@ export const LiveVisitors = () => {  console.log('🚀 LiveVisitors: EMERGENCY D
                           </div>
                         </div>
                         
+                        {/* Enhanced Activity Information */}
+                        <div className="mt-3 space-y-2">
+                          {/* Recent Activity Summary */}
+                          {company?.recentActivity && (
+                            <div className="text-xs text-muted-foreground">
+                              📊 {company.recentActivity}
+                            </div>
+                          )}
+                          
+                          {/* Visitor Tags */}
+                          {company?.tags && company.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {company.tags.slice(0, 3).map((tag, tagIndex) => (
+                                <Badge 
+                                  key={tagIndex} 
+                                  variant="secondary" 
+                                  className="text-xs px-2 py-0"
+                                >
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                          
+                          {/* Session Information */}
+                          {(company?.uniqueSessions || company?.avgDuration) && (
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                              {company?.uniqueSessions && (
+                                <span>🔄 {company.uniqueSessions} sessions</span>
+                              )}
+                              {company?.avgDuration && company.avgDuration > 0 && (
+                                <span>⏱️ {Math.round(company.avgDuration / 60)}m avg</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        
                         {/* Contact Information */}
-                        <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-muted-foreground">
+                        <div className="mt-2 space-y-1 text-xs text-muted-foreground">
                           {company?.website && (
                             <div className="flex items-center gap-1 overflow-hidden">
                               <span className="font-medium">🌐</span>
