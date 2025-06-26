@@ -55,38 +55,125 @@ export default async function handler(req, res) {
     // Get limit from query parameters (default: 15)
     const limit = parseInt(req.query.limit) || 15;
     
-    // Get recent visitors from visits collection
+    // Get recent visitors by aggregating visits by domain
     const visitsCollection = db.collection('visits');
+    const companiesCollection = db.collection('companies');
     
-    // Get recent visits, sorted by startTime
-    const recentVisits = await visitsCollection
-      .find({})
-      .sort({ startTime: -1 })
-      .limit(limit)
-      .toArray();
-
-    // Transform visits data to match expected visitor format
-    const visitors = recentVisits.map(visit => ({
-      id: visit._id.toString(),
-      domain: visit.domain || 'Unknown',
-      sessionId: visit.sessionId,
-      startTime: visit.startTime,
-      lastVisit: visit.startTime, // Use startTime as lastVisit for compatibility
-      userAgent: visit.userAgent || '',
-      location: {
-        ip: visit.ip || 'Unknown',
-        country: visit.location?.country || 'Unknown',
-        city: visit.location?.city || 'Unknown'
+    // Aggregate visits by domain to get recent visitor companies
+    const recentVisitorDomains = await visitsCollection.aggregate([
+      // Match recent visits (last 30 days)
+      {
+        $match: {
+          startTime: { 
+            $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) 
+          }
+        }
       },
-      pages: visit.pages || [],
-      events: visit.events || [],
-      eventCount: visit.eventCount || 0,
-      duration: visit.duration || 0,
-      referrer: visit.referrer || '',
-      source: visit.source || 'direct'
-    }));
+      // Group by domain and get visitor stats
+      {
+        $group: {
+          _id: "$domain",
+          lastVisit: { $max: "$startTime" },
+          totalVisits: { $sum: 1 },
+          totalDuration: { $sum: "$duration" },
+          uniqueSessions: { $addToSet: "$sessionId" },
+          sources: { $addToSet: "$referrer" },
+          pages: { $push: "$pages" },
+          locations: { $addToSet: "$location" }
+        }
+      },
+      // Sort by most recent visit
+      { $sort: { lastVisit: -1 } },
+      // Limit results
+      { $limit: limit }
+    ]).toArray();
 
-    console.log(`[VISITORS API] Found ${visitors.length} recent visitors`);
+    console.log(`[VISITORS API] Found ${recentVisitorDomains.length} recent visitor domains`);
+
+    // For each domain, try to get company information
+    const visitors = await Promise.all(
+      recentVisitorDomains.map(async (visitor) => {
+        const domain = visitor._id;
+        
+        // Try to find company information for this domain
+        let companyInfo = await companiesCollection.findOne({ domain: domain });
+        
+        // If no company info, create basic info from domain
+        if (!companyInfo) {
+          // Extract company name from domain
+          const domainName = domain
+            ? domain.replace(/^www\./, '').replace(/\.(com|net|org|es|co\.uk|de|fr)$/i, '')
+            : 'Unknown';
+          
+          const capitalizedName = domainName.charAt(0).toUpperCase() + domainName.slice(1);
+          
+          companyInfo = {
+            name: capitalizedName,
+            domain: domain,
+            industry: 'Unknown Industry',
+            size: 'Unknown',
+            location: { 
+              city: visitor.locations?.[0]?.city || 'Unknown', 
+              country: visitor.locations?.[0]?.country || 'Unknown' 
+            }
+          };
+        }
+
+        // Calculate engagement score based on visits and duration
+        const avgDuration = visitor.totalDuration / visitor.totalVisits;
+        const uniqueSessionCount = visitor.uniqueSessions.length;
+        
+        let score = 0;
+        if (visitor.totalVisits > 5) score += 30;
+        else if (visitor.totalVisits > 2) score += 20;
+        else score += 10;
+        
+        if (avgDuration > 300) score += 25; // 5+ minutes
+        else if (avgDuration > 120) score += 15; // 2+ minutes
+        else if (avgDuration > 60) score += 10; // 1+ minute
+        
+        if (uniqueSessionCount > 3) score += 20;
+        else if (uniqueSessionCount > 1) score += 10;
+        
+        // Determine status based on score and recency
+        let status = 'cold';
+        const daysSinceLastVisit = (Date.now() - new Date(visitor.lastVisit).getTime()) / (1000 * 60 * 60 * 24);
+        
+        if (score > 60 && daysSinceLastVisit < 1) status = 'hot';
+        else if (score > 40 && daysSinceLastVisit < 3) status = 'warm';
+        else if (daysSinceLastVisit < 7) status = 'warm';
+
+        return {
+          id: companyInfo._id?.toString() || `visitor-${domain}`,
+          name: companyInfo.name || capitalizedName,
+          domain: domain,
+          industry: companyInfo.industry || 'Unknown Industry',
+          size: companyInfo.size || 'Unknown',
+          location: companyInfo.location || { 
+            city: visitor.locations?.[0]?.city || 'Unknown', 
+            country: visitor.locations?.[0]?.country || 'Unknown' 
+          },
+          lastVisit: visitor.lastVisit,
+          totalVisits: visitor.totalVisits,
+          uniqueSessions: uniqueSessionCount,
+          avgDuration: Math.round(avgDuration),
+          score: Math.min(score, 100),
+          status: status,
+          tags: [
+            visitor.totalVisits > 5 ? 'High Activity' : 'Active',
+            uniqueSessionCount > 1 ? 'Returning Visitor' : 'New Visitor'
+          ],
+          phone: companyInfo.phone || '',
+          email: companyInfo.email || '',
+          website: companyInfo.website || `https://${domain}`,
+          // Additional visitor insights
+          sources: visitor.sources.filter(s => s && s !== '').slice(0, 3),
+          recentActivity: `${visitor.totalVisits} visits, ${uniqueSessionCount} sessions`
+        };
+      })
+    );
+
+    console.log(`[VISITORS API] Processed ${visitors.length} visitor companies with engagement data`);
 
     return res.status(200).json({
       success: true,
@@ -94,7 +181,7 @@ export default async function handler(req, res) {
       visitors: visitors,
       total: visitors.length,
       timestamp: new Date().toISOString(),
-      note: 'Recent visitors from MongoDB visits collection'
+      note: `Recent visitor companies aggregated from ${recentVisitorDomains.reduce((sum, v) => sum + v.totalVisits, 0)} visits`
     });
 
   } catch (error) {

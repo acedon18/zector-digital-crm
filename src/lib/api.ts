@@ -30,38 +30,16 @@ export const createTenantAwareRequest = (tenantId: string) => {
 
 // Enhanced live updates with platform sync awareness and tenant filtering
 export const subscribeToLiveUpdates = (callback: (company: any) => void, tenantId?: string) => {
-  const fallbackCompanies = [
-    {
-      id: '1',
-      name: 'Example Company',
-      domain: 'example.com',
-      industry: 'Technology',
-      size: '11-50',
-      location: { city: 'Stockholm', country: 'Sweden' },
-      lastVisit: new Date(),
-      totalVisits: 15,
-      score: 85,
-      status: 'hot',
-      tags: ['Website Visitor', 'High Engagement'],
-      phone: '+46 8 123 456',
-      email: 'contact@example.com',
-      website: 'https://example.com',
-      tenantId: tenantId || 'default-tenant'
-    }
-  ];
-
+  // No mock data - only real visitor updates
   const interval = setInterval(async () => {
-    // Simulate new visitor update
-    const randomCompany = fallbackCompanies[Math.floor(Math.random() * fallbackCompanies.length)];
+    // Only notify if there are real new visitors
+    // This function now serves as a placeholder for real-time visitor updates
+    // In production, this would connect to WebSocket or Server-Sent Events
+    console.log(`Live updates check for tenant ${tenantId || 'default'} - waiting for real visitor data`);
     
-    // Update company with new visit data
-    const updatedCompany = {
-      ...randomCompany,
-      lastVisit: new Date(), // Always use a fresh Date object
-      totalVisits: (randomCompany.totalVisits || 0) + 1
-    };
-    callback(updatedCompany);
-  }, 10000); // New update every 10 seconds
+    // Note: callback would be used here when real visitor data is available
+    // callback(realVisitorData);
+  }, 30000); // Check every 30 seconds for real updates
 
   return () => clearInterval(interval);
 };
